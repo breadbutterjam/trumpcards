@@ -1,0 +1,36 @@
+<link rel="stylesheet" href="css/screens/table_lobby.css">
+
+<div class="status-bar" id="statusBar">Waiting for players to join…</div>
+<div class="room-code-row">
+  Room code <b id="roomCode">…</b>
+  <button class="copy-icon-btn" id="copyBtn" aria-label="Copy room code"><i class="fa-regular fa-copy"></i></button>
+</div>
+<div class="announce-bar" id="announceBar"></div>
+<button class="start-btn btn-candy btn-green" id="startBtn" disabled>START GAME</button>
+<div class="table-area">
+  <div class="table-surface" id="tableSurface">
+    <div class="table-center-dot" id="tableCenterDot"></div>
+    <div class="arrow-wrap" id="arrowWrap">
+      <svg width="16" height="100%" viewBox="0 0 16 100" preserveAspectRatio="none">
+        <line x1="8" y1="100" x2="8" y2="6" stroke="#f1efe8" stroke-width="3" stroke-linecap="round"/>
+        <polygon points="8,0 0,14 16,14" fill="#f1efe8"/>
+      </svg>
+    </div>
+  </div>
+
+  
+
+  <div class="start-game-section" id="startGameSection">
+    <button class="start-btn btn-candy btn-green" id="startGameBtn" style="position:static; transform:none;">START GAME</button>
+    <div class="auto-start-ring-wrap" id="autoStartRingWrap">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <circle class="auto-start-ring-track" cx="20" cy="20" r="17"/>
+        <circle class="auto-start-ring-fill" id="autoStartRingFill" cx="20" cy="20" r="17"
+                stroke-dasharray="106.8" stroke-dashoffset="106.8"/>
+      </svg>
+      <div class="auto-start-ring-number" id="autoStartRingNumber">20</div>
+    </div>
+  </div>
+</div>
+
+<div class="explore-link" id="exploreLink">Browse cards while you wait →</div>

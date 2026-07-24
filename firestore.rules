@@ -1,0 +1,55 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Room document itself (code, status, category, chooser, turn order).
+    // Anyone signed in (every client uses anonymous auth) can read a room to check
+    // it exists and is joinable — but all writes happen through Cloud Functions,
+    // never directly from the client, since creating/joining/starting a room
+    // involves logic (generating unique codes, validating max players, etc.)
+    // that shouldn't be trusted to the client.
+    match /rooms/{roomId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+
+      // Public player info — name, avatar, card count, ready/deciding/eliminated status.
+      // Safe for every player in the room to read. A player may update their OWN
+      // `status` field directly (e.g. flipping to "ready"), nothing else — every
+      // other change (joining, card counts, elimination) goes through a Cloud Function.
+      match /players/{playerId} {
+        allow read: if request.auth != null;
+        allow create, delete: if false;
+        allow update: if request.auth != null
+          && request.auth.uid == playerId
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status']);
+
+        // A player's actual deck order. This is the real secret — only the owning
+        // player can read their own future cards. Only Cloud Functions (Admin SDK,
+        // which bypasses these rules entirely) can write it.
+        match /private/{docId} {
+          allow read: if request.auth != null && request.auth.uid == playerId;
+          allow write: if false;
+        }
+      }
+
+      // Public round info — who's choosing, what category, current phase.
+      // Safe for everyone to read; the actual played-card identities are hidden
+      // separately below. All writes go through Cloud Functions.
+      match /rounds/{roundId} {
+        allow read: if request.auth != null;
+        allow write: if false;
+
+        // Which card each player actually played this round. This is gated —
+        // readable only once the parent round's status says the reveal has
+        // happened. Before that, a client could otherwise read a card ID and
+        // look up its stats from the public category data ahead of time.
+        match /reveal/{docId} {
+          allow read: if request.auth != null
+            && get(/databases/$(database)/documents/rooms/$(roomId)/rounds/$(roundId)).data.status in ['revealed', 'resolved'];
+          allow write: if false;
+        }
+      }
+    }
+  }
+}

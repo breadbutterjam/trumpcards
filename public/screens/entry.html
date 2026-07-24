@@ -1,0 +1,26 @@
+<link rel="stylesheet" href="css/screens/entry.css">
+
+<div class="status-bar" id="statusBar">Welcome!</div>
+
+<div class="entry-body">
+  <label class="field-label" for="nameInput">Your name</label>
+  <input class="text-input" id="nameInput" type="text" placeholder="e.g. Alice" maxlength="20" />
+
+  <label class="field-label">Pick your avatar</label>
+  <div class="avatar-grid" id="avatarGrid"></div>
+
+
+  <div class="divider avatar-divider"></div>
+  <div class="room-code-container">
+    <div class="room-code-label">
+      <label class="field-label" for="roomCodeInput">Enter Room code</label>
+      <input class="text-input" id="roomCodeInput" type="text" placeholder="e.g. HYP36U" maxlength="6" style="text-transform:uppercase;" />
+    </div>
+  <button class="btn-candy btn-green wide-btn" id="joinRoomBtn" disabled>JOIN ROOM</button>
+  </div>
+  
+  <div class="divider join-or-create"><span>or</span></div>
+  <button class="btn-candy btn-green wide-btn" id="createRoomBtn" disabled>CREATE NEW ROOM</button>
+
+  <div class="error-text" id="errorText"></div>
+</div>

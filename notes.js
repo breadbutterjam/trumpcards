@@ -1,0 +1,124 @@
+//BRMF9Y
+//intilise
+const { functions, whenSignedIn } = await import('./js/firebase-init.js');
+const { httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js');
+await whenSignedIn();
+console.log("Signed in, ready to test functions.");
+
+//call create room 
+const createRoom = httpsCallable(functions, 'createRoom');
+const result = await createRoom({ playerName: 'Alice', avatar: '🦔' });
+console.log(result.data);
+
+//call join room for BOB
+const joinRoom = httpsCallable(functions, 'joinRoom');
+const joinResult = await joinRoom({ roomCode: 'PASTE_YOUR_ROOM_ID_HERE', playerName: 'Bob', avatar: '🐘' });
+console.log(joinResult.data);
+
+//visual addition
+const { showScreen } = await import('./js/router.js');
+showScreen('table_lobby', { roomId: 'BRMF9Y' });
+
+//deal cards
+const dealInitialHands = httpsCallable(functions, 'dealInitialHands');
+const dealResult = await dealInitialHands({ roomId: 'BRMF9Y' });
+console.log(dealResult.data);
+
+
+/* JSON with gradients */
+const statesOfIndia = {
+  "categoryId": "states_of_india",
+  "categoryName": "States of India",
+  "cards": [
+    {
+      "id": "gujarat",
+      "region": "Gujarat",
+      "images": [
+        "linear-gradient(180deg, #f0c896 0%, #d99a66 55%, #b97a4d 100%)"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "3,07,713", "value": 307713 },
+        "population": { "label": "Population (2011)", "display": "11,23,74,333", "value": 112374333 },
+        "formedOn": { "label": "Formed on", "display": "1st May 1960", "value": "1960-05-01" },
+        "borderLength": { "label": "Border Length (kms)", "display": "2,500", "value": 2500 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "25,006", "value": 25006 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "16.50%", "value": 16.50 }
+      }
+    },
+    {
+      "id": "punjab",
+      "region": "Punjab",
+      "images": [
+        "linear-gradient(180deg, #f7e08a 0%, #f0c65a 45%, #6b8fae 100%)"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "50,362", "value": 50362 },
+        "population": { "label": "Population (2011)", "display": "2,77,43,338", "value": 27743338 },
+        "formedOn": { "label": "Formed on", "display": "1st Nov 1966", "value": "1966-11-01" },
+        "borderLength": { "label": "Border Length (kms)", "display": "553", "value": 553 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "1,847", "value": 1847 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "3.67%", "value": 3.67 }
+      }
+    },
+    {
+      "id": "himachal_pradesh",
+      "region": "Himachal Pradesh",
+      "images": [
+        "linear-gradient(180deg, #8fc7ea 0%, #d9e9f2 45%, #eef4f2 70%)"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "55,673", "value": 55673 },
+        "population": { "label": "Population (2011)", "display": "68,64,602", "value": 6864602 },
+        "formedOn": { "label": "Formed on", "display": "25th Jan 1971", "value": "1971-01-25" },
+        "borderLength": { "label": "Border Length (kms)", "display": "1,300", "value": 1300 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "15,434", "value": 15434 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "27.72%", "value": 27.72 }
+      }
+    },
+    {
+      "id": "rajasthan",
+      "region": "Rajasthan",
+      "images": [
+        "linear-gradient(180deg, #f2c879 0%, #e0975a 55%, #8a5230 100%)"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "3,42,239", "value": 342239 },
+        "population": { "label": "Population (2011)", "display": "6,85,48,437", "value": 68548437 },
+        "formedOn": { "label": "Formed on", "display": "1st Nov 1956", "value": "1956-11-01" },
+        "borderLength": { "label": "Border Length (kms)", "display": "5,920", "value": 5920 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "16,572", "value": 16572 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "4.84%", "value": 4.84 }
+      }
+    },
+    {
+      "id": "meghalaya",
+      "region": "Meghalaya",
+      "images": [
+        "linear-gradient(180deg, #cdeac0 0%, #8fd0a0 55%, #4a8f6a 100%)"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "22,429", "value": 22429 },
+        "population": { "label": "Population (2011)", "display": "29,66,889", "value": 2966889 },
+        "formedOn": { "label": "Formed on", "display": "21st Jan 1972", "value": "1972-01-21" },
+        "borderLength": { "label": "Border Length (kms)", "display": "885", "value": 885 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "17,275", "value": 17275 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "77.02%", "value": 77.02 }
+      }
+    },
+    {
+      "id": "ladakh",
+      "region": "Ladakh",
+      "images": [
+        "linear-gradient(180deg, #b8d6e8 0%, #8a9db0 55%, #5c6a78 100%)"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "59,146", "value": 59146 },
+        "population": { "label": "Population (2011)", "display": "2,74,289", "value": 274289 },
+        "formedOn": { "label": "Formed on", "display": "31st Oct 2019", "value": "2019-10-31" },
+        "borderLength": { "label": "Border Length (kms)", "display": "1,700", "value": 1700 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "265", "value": 265 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "0.45%", "value": 0.45 }
+      }
+    }
+  ]
+}

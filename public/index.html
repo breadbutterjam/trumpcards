@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trump Cards</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/shared.css">
+<style>
+  /* Shell-specific layout: body becomes a flex column hosting whichever
+     screen is currently active. Individual screens' own CSS lives in
+     css/screens/{screen-name}.css and is loaded on demand by the router. */
+  body { display: flex; flex-direction: column; position: relative; }
+  .screen { display: none; flex-direction: column; flex: 1; min-height: 0; }
+  .screen.active { display: flex; }
+</style>
+</head>
+<body>
+
+<!-- Screens are injected here by router.js. Each screen is a <section class="screen" id="screen-...">
+     Keeping them as separate HTML fragment files (loaded via fetch) rather than all inlined here,
+     so individual screens stay editable in isolation — matching how the prototypes were built. -->
+<div id="app-root"></div>
+
+<script type="module" src="js/router.js"></script>
+</body>
+</html>
