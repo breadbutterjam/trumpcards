@@ -6,7 +6,7 @@
       "id": "gujarat",
       "region": "Gujarat",
       "images": [
-        "cards/GJ.png"
+        "assets/cards/GJ.png"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "3,07,713", "value": 307713 },
@@ -66,7 +66,7 @@
       "id": "meghalaya",
       "region": "Meghalaya",
       "images": [
-        "url('assets/cards/ML.png')"
+        "assets/cards/ML.png"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "22,429", "value": 22429 },

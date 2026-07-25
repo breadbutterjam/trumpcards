@@ -4,8 +4,6 @@ import { db, functions, whenSignedIn } from "../js/firebase-init.js";
 import { renderAvatarRow } from "../js/avatar-row.js";
 import { showScreen } from "../js/router.js";
 
-// Static category data — needed client-side to show labels/values for the
-// cards you already own. Duplicated from functions/data (see README).
 let CATEGORY_DATA = null;
 async function loadCategoryData(categoryId) {
   if (!CATEGORY_DATA) {
@@ -17,10 +15,6 @@ function cardById(id) {
   return CATEGORY_DATA.cards.find((c) => c.id === id);
 }
 
-// Card images may currently be CSS gradient placeholders (e.g.
-// "linear-gradient(...)") or, once real assets exist, actual image URLs.
-// This lets both work without needing to touch this code again when real
-// photos are swapped in.
 function cardBackgroundCss(imageValue) {
   const isGradient = /^(linear|radial)-gradient\(/.test(imageValue.trim());
   return isGradient ? imageValue : `url('${imageValue}')`;
@@ -30,12 +24,12 @@ export function init({ roomId }) {
   const unsubscribers = [];
   let myUid = null;
   let isChooser = false;
-  let revealedForRound = null; // tracks WHICH round we've revealed for, not just yes/no
+  let revealedForRound = null;
   let selectedStatKey = null;
   let selectedDirection = null;
   let currentTopCardId = null;
   let currentRoundNumber = null;
-  let myDeckOrder = null; // cached per-round; must be invalidated when the round changes
+  let myDeckOrder = null;
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -56,9 +50,6 @@ export function init({ roomId }) {
       }
 
       if (roundChanged) {
-        // A new round started (either the very first one, or the previous
-        // round just resolved). Our old cached deck order and reveal state
-        // are stale — reset so this round's top card gets fetched fresh.
         myDeckOrder = null;
         selectedStatKey = null;
         selectedDirection = null;
@@ -84,7 +75,7 @@ export function init({ roomId }) {
     slot.classList.remove("active");
     slot.innerHTML = "";
 
-    document.getElementById("hint").style.opacity = "1";
+    document.getElementById("hint").style.display = "block";
     document.getElementById("shuffleBtn").style.display = "none";
   }
 
@@ -106,7 +97,7 @@ export function init({ roomId }) {
 
   async function maybeShowDeck(room) {
     const cardArea = document.getElementById("cardArea");
-    if (cardArea.dataset.rendered === String(currentRoundNumber)) return; // already showing this round
+    if (cardArea.dataset.rendered === String(currentRoundNumber)) return;
     cardArea.dataset.rendered = String(currentRoundNumber);
 
     cardArea.innerHTML = `
@@ -130,21 +121,11 @@ export function init({ roomId }) {
     });
   }
 
-  // Reads the gated private deck document. This is the one document in the
-  // whole system our security rules restrict to only the owning player —
-  // this call is the real, live test that those rules work as intended.
   async function fetchMyDeck() {
     const deckRef = doc(db, "rooms", roomId, "players", myUid, "private", "deck");
     const snap = await getDoc(deckRef);
     return snap.data().cardOrder;
   }
-
-  // Client-side-only shuffle for now — reorders the array we already fetched
-  // in memory, does not write back to Firestore. Known simplification: a
-  // fully honest implementation would shuffle server-side via a Cloud
-  // Function, so a player can't repeatedly shuffle+peek to see multiple
-  // upcoming cards before committing. Fine for MVP trust levels, worth
-  // revisiting before a public launch.
 
   document.getElementById("shuffleBtn").addEventListener("click", async () => {
     if (revealedForRound === currentRoundNumber) return;
@@ -166,7 +147,8 @@ export function init({ roomId }) {
   async function revealTopCard() {
     if (revealedForRound === currentRoundNumber) return;
     revealedForRound = currentRoundNumber;
-    document.getElementById("hint").style.opacity = "0";
+
+    document.getElementById("hint").style.display = "none";
     document.getElementById("shuffleBtn").style.display = "none";
     document.getElementById("cardArea").style.display = "none";
 
@@ -196,7 +178,7 @@ export function init({ roomId }) {
     const slot = document.getElementById("revealCardSlot");
     slot.classList.add("active");
     slot.innerHTML = `
-      <div class="reveal-card" style="background:linear-gradient(160deg, #2a2820, #17160f);">
+      <div class="reveal-card" style="background-image:linear-gradient(160deg, #2a2820, #17160f);">
         <div class="glass-popup" style="position:absolute; left:8%; right:8%; top:40%; text-align:center; padding:22px 18px;">
           <div style="font-size:16px; font-weight:800; color:var(--crown-gold); margin-bottom:8px;">
             You're out of cards!
@@ -224,7 +206,7 @@ export function init({ roomId }) {
     `).join("");
 
     slot.innerHTML = `
-      <div class="reveal-card" style="background:${cardBackgroundCss(card.images[0])};">
+      <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
         <div class="reveal-region">${card.region}</div>
         <div class="reveal-stats">${statsHtml}</div>
@@ -244,7 +226,7 @@ export function init({ roomId }) {
     `).join("");
 
     slot.innerHTML = `
-      <div class="reveal-card" style="background:${cardBackgroundCss(card.images[0])};">
+      <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
         <div class="reveal-region">${card.region}</div>
         <div class="direction-toggle" id="directionToggle">

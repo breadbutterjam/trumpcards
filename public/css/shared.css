@@ -9,7 +9,8 @@
   --text-muted: #888780;
   --neutral-bg: #2d2b23;
   --neutral-text: #d8d5cb;
-  --proceed-text: #6fce8f;
+  /* --proceed-text: #6fce8f; */
+  --proceed-text: #016500;
   --crown-gold: #f6d94c;
   --danger-text: #ff6b57;
   --success-bg: #143922; --success-text: #6fce8f; --success-border: #2c6a45;

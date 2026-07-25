@@ -109,7 +109,8 @@ div.reveal-card{
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px 16px;
-  background: linear-gradient(transparent, #000000, black);
+  /* background: linear-gradient(transparent, #000000, black); */
+  background: linear-gradient(transparent, #00000054, black);
 }
 .stat-cell { cursor: pointer; padding: 4px 6px; margin: -4px -6px; border-radius: 8px; transition: background 150ms ease; }
 .stat-cell.selected { background: rgba(246, 217, 76, 0.12); }

@@ -165,10 +165,11 @@ exports.dealInitialHands = onCall(async (request) => {
     const turnOrderQueue = players.map((p) => p.id);
 
     tx.update(roomRef, {
-      status: "in_progress",
+      status: "hands_dealt",
       chooserPlayerId: firstChooser,
       turnOrderQueue,
       currentRoundNumber: 1,
+      startAcks: [],
     });
 
     tx.set(roomRef.collection("rounds").doc("1"), {
@@ -303,5 +304,44 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     });
 
     return { status: "resolved", winnerId };
+  });
+});
+
+
+// Called when a player taps "Start Game" after the spin resolves. Once
+// every player has acknowledged, the room actually flips to "in_progress"
+// — this is the real gate your table diagram called for, replacing the
+// old behavior where the game started the instant hands were dealt.
+exports.acknowledgeGameStart = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Sign in first.");
+  }
+  const { roomId } = request.data;
+  const roomRef = db.collection("rooms").doc(roomId);
+
+  return db.runTransaction(async (tx) => {
+    const roomSnap = await tx.get(roomRef);
+    if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
+    const room = roomSnap.data();
+
+    if (room.status !== "hands_dealt") {
+      // Already started (or a duplicate/late tap) — harmless no-op.
+      return { status: room.status };
+    }
+
+    const playersSnap = await tx.get(roomRef.collection("players"));
+    const activeCount = playersSnap.size;
+
+    const acks = new Set(room.startAcks || []);
+    acks.add(request.auth.uid);
+    const ackArray = Array.from(acks);
+    const allReady = ackArray.length >= activeCount;
+
+    tx.update(roomRef, {
+      startAcks: ackArray,
+      status: allReady ? "in_progress" : "hands_dealt",
+    });
+
+    return { status: allReady ? "in_progress" : "hands_dealt" };
   });
 });
