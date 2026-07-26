@@ -49,7 +49,7 @@
 .reveal-card-slot.active { display: flex; }
 
 div.reveal-card{
-  background-size:contain;
+  background-size:cover;
   background-repeat:no-repeat;
   background-position:center;
 }

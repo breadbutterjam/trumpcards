@@ -5,19 +5,41 @@ import { avatarImgHtml } from "../js/avatars.js";
 import { showScreen } from "../js/router.js";
 
 const MIN_PLAYERS_TO_START = 2;
-const AUTO_START_DELAY_MS = 1000; //60000; // wait this long silently before showing the countdown ring
-const AUTO_START_COUNTDOWN_SECONDS = 5;
+const AUTO_START_DELAY_MS = 60000;
+const AUTO_START_COUNTDOWN_SECONDS = 20;
 
 export function init({ roomId }) {
   const unsubscribers = [];
   let latestPlayers = [];
   let seatAngles = [];
   let myUid = null;
-  let hasPlayedSpin = false; // guards against replaying the spin animation on every snapshot
+  let hasPlayedSpin = false;
+  let gameOverHandled = false;
   let autoStartTimer60 = null;
   let autoStartInterval20 = null;
 
   document.getElementById("roomCode").textContent = roomId;
+
+  document.getElementById("newGameBtn").addEventListener("click", async () => {
+    const btn = document.getElementById("newGameBtn");
+    btn.disabled = true;
+    btn.textContent = "STARTING…";
+
+    hasPlayedSpin = false;
+    gameOverHandled = false;
+
+    document.getElementById("announceBar").classList.remove("show");
+    document.getElementById("statusBar").textContent = "Starting a new game…";
+
+    try {
+      const dealInitialHands = httpsCallable(functions, "dealInitialHands");
+      await dealInitialHands({ roomId });
+    } catch (err) {
+      document.getElementById("statusBar").textContent = "Couldn't start: " + err.message;
+      btn.disabled = false;
+      btn.textContent = "NEW GAME";
+    }
+  });
 
   whenSignedIn().then((user) => {
     myUid = user.uid;
@@ -37,8 +59,18 @@ export function init({ roomId }) {
       const room = snap.data();
       if (!room) return;
 
+      if (room.status === "game_over") {
+        if (!gameOverHandled) {
+          gameOverHandled = true;
+          clearAutoStartTimers();
+          showGameEndedState(room.winnerIds || []);
+        }
+        return;
+      }
+
       if (room.status === "hands_dealt" && !hasPlayedSpin) {
         hasPlayedSpin = true;
+        document.getElementById("newGameBtn").style.display = "none";
         playSpinAndAnnounce(room);
       }
 
@@ -49,6 +81,29 @@ export function init({ roomId }) {
     });
     unsubscribers.push(unsubRoom);
   });
+
+  function showGameEndedState(winnerIds) {
+    document.getElementById("startBtn").style.display = "none";
+    document.getElementById("startGameSection").classList.remove("show");
+    document.getElementById("arrowWrap").classList.remove("visible");
+    document.getElementById("tableCenterDot").classList.remove("visible");
+
+    const iWon = winnerIds.includes(myUid);
+    const winner = latestPlayers.find((p) => p.id === winnerIds[0]);
+    const announceBar = document.getElementById("announceBar");
+    announceBar.textContent = iWon
+      ? "You won the game!"
+      : winner
+        ? `${winner.name} won the game!`
+        : "The game has ended.";
+    announceBar.classList.add("show");
+
+    document.getElementById("statusBar").textContent = "This game has ended.";
+    const newGameBtn = document.getElementById("newGameBtn");
+    newGameBtn.style.display = "block";
+    newGameBtn.disabled = false;
+    newGameBtn.textContent = "NEW GAME";
+  }
 
   function layoutSeats(players) {
     const tableSurface = document.getElementById("tableSurface");
@@ -71,14 +126,11 @@ export function init({ roomId }) {
       tableSurface.appendChild(seatEl);
     });
 
-    // Only relevant pre-deal — once hands_dealt/in_progress, this button is
-    // already hidden, so harmlessly setting .disabled here is a no-op.
-    document.getElementById("startBtn").disabled = players.length < MIN_PLAYERS_TO_START;
+    if (!gameOverHandled) {
+      document.getElementById("startBtn").disabled = players.length < MIN_PLAYERS_TO_START;
+    }
   }
 
-  // Fires identically for EVERY player's screen the moment the room's
-  // status becomes "hands_dealt" — this is what fixes the old bug where
-  // only the clicker ever saw the spin animation.
   function playSpinAndAnnounce(room) {
     document.getElementById("startBtn").style.display = "none";
     document.getElementById("statusBar").textContent = "Selecting first chooser…";
@@ -126,7 +178,7 @@ export function init({ roomId }) {
         ringNumber.textContent = Math.max(secondsLeft, 0);
         if (secondsLeft <= 0) {
           clearInterval(autoStartInterval20);
-          acknowledgeStart(); // auto-tap Start Game on this player's behalf
+          acknowledgeStart();
         }
       }, 1000);
     }, AUTO_START_DELAY_MS);
@@ -142,9 +194,14 @@ export function init({ roomId }) {
     btn.disabled = true;
     try {
       const acknowledgeGameStart = httpsCallable(functions, "acknowledgeGameStart");
-      await acknowledgeGameStart({ roomId });
-      // Navigation happens via the room listener reacting to status
-      // becoming "in_progress" once everyone's acknowledged — not here.
+      const result = await acknowledgeGameStart({ roomId });
+
+      if (result.data.status === "in_progress") {
+        clearAutoStartTimers();
+        showScreen("your_deck", { roomId });
+        return;
+      }
+
       document.getElementById("statusBar").textContent = "Waiting for other players to start…";
     } catch (err) {
       document.getElementById("statusBar").textContent = "Couldn't start: " + err.message;
@@ -160,12 +217,7 @@ export function init({ roomId }) {
     try {
       const dealInitialHands = httpsCallable(functions, "dealInitialHands");
       await dealInitialHands({ roomId });
-      // UI transition happens via the room listener (playSpinAndAnnounce),
-      // uniformly for every player — including this one.
     } catch (err) {
-      // If another player's tap won the race, this is expected and
-      // harmless — their success already moves everyone forward via the
-      // room listener, so just re-enable in case it was a real failure.
       if (!hasPlayedSpin) {
         document.getElementById("statusBar").textContent = "Couldn't start: " + err.message;
         btn.disabled = false;

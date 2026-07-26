@@ -30,6 +30,13 @@ export function init({ roomId }) {
   let currentTopCardId = null;
   let currentRoundNumber = null;
   let myDeckOrder = null;
+  let resultPopupShownForRound = null;
+  let gameOverPopupShown = false;
+
+  // Tracks the currently-showing result popup (if any), so a new one can
+  // never stack on top of an old, un-dismissed one — see
+  // showRoundResultPopup for how this is used.
+  let activeResultPopup = null;
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -41,7 +48,16 @@ export function init({ roomId }) {
       const room = snap.data();
       if (!room) return;
 
+      if (room.status === "game_over") {
+        if (!gameOverPopupShown) {
+          gameOverPopupShown = true;
+          showGameOverPopup(room.winnerIds || []);
+        }
+        return;
+      }
+
       const roundChanged = room.currentRoundNumber !== currentRoundNumber;
+      const previousRoundNumber = currentRoundNumber;
       currentRoundNumber = room.currentRoundNumber;
       isChooser = room.chooserPlayerId === myUid;
 
@@ -50,6 +66,11 @@ export function init({ roomId }) {
       }
 
       if (roundChanged) {
+        if (previousRoundNumber && resultPopupShownForRound !== previousRoundNumber) {
+          resultPopupShownForRound = previousRoundNumber;
+          await showRoundResultPopup(previousRoundNumber);
+        }
+
         myDeckOrder = null;
         selectedStatKey = null;
         selectedDirection = null;
@@ -64,6 +85,106 @@ export function init({ roomId }) {
     });
     unsubscribers.push(unsubRoom);
   });
+
+  function showGameOverPopup(winnerIds) {
+    const iWon = winnerIds.includes(myUid);
+
+    const overlay = document.createElement("div");
+    overlay.style.cssText =
+      "position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:60; padding:24px;";
+    overlay.innerHTML = `
+      <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
+        <div style="padding:22px 20px 18px;">
+          <div style="font-size:13px; font-weight:700; color:var(--crown-gold); margin-bottom:6px;">
+            ${iWon ? "🏆 GAME OVER" : "GAME OVER"}
+          </div>
+          <div style="font-size:17px; font-weight:800; color:#fff;" id="gameOverText">
+            ${iWon ? "You won the game!" : "Loading result…"}
+          </div>
+        </div>
+        <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
+        <button id="gameOverBackBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">BACK TO TABLE</button>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    if (!iWon && winnerIds[0]) {
+      getDoc(doc(db, "rooms", roomId, "players", winnerIds[0]))
+        .then((winnerSnap) => {
+          const winnerName = winnerSnap.data()?.name || "Someone";
+          const textEl = document.getElementById("gameOverText");
+          if (textEl) textEl.textContent = `${winnerName} won the game!`;
+        })
+        .catch(() => {
+          const textEl = document.getElementById("gameOverText");
+          if (textEl) textEl.textContent = "The game has ended.";
+        });
+    }
+
+    document.getElementById("gameOverBackBtn").addEventListener("click", () => {
+      overlay.remove();
+      showScreen("table_lobby", { roomId });
+    });
+  }
+
+  function showRoundResultPopup(finishedRoundNumber) {
+    return new Promise(async (resolve) => {
+      // FIX: if a previous result popup is still showing (the player
+      // missed it and another round already resolved), force it closed
+      // and unblock whatever was waiting on it, so we never end up with
+      // two overlays stacked at once.
+      if (activeResultPopup) {
+        activeResultPopup.overlay.remove();
+        activeResultPopup.resolve();
+        activeResultPopup = null;
+      }
+
+      let winnerId = null;
+      try {
+        const roundSnap = await getDoc(doc(db, "rooms", roomId, "rounds", String(finishedRoundNumber)));
+        winnerId = roundSnap.data()?.winnerId || null;
+      } catch (err) {
+        resolve();
+        return;
+      }
+      if (!winnerId) { resolve(); return; }
+
+      const iWon = winnerId === myUid;
+      let winnerName = "Someone";
+      if (!iWon) {
+        try {
+          const winnerSnap = await getDoc(doc(db, "rooms", roomId, "players", winnerId));
+          winnerName = winnerSnap.data()?.name || "Someone";
+        } catch (err) { /* fall back to "Someone" */ }
+      }
+
+      const overlay = document.createElement("div");
+      overlay.style.cssText =
+        "position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
+      overlay.innerHTML = `
+        <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
+          <div style="padding:20px 20px 16px;">
+            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text)"}; margin-bottom:6px;">
+              ${iWon ? "Yohoooo!" : "oh oh"}
+            </div>
+            <div style="font-size:16px; font-weight:800; color:#fff;">
+              ${iWon ? "You won" : `You lost, ${winnerName} won`}
+            </div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
+          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      activeResultPopup = { overlay, resolve };
+
+      document.getElementById("resultContinueBtn").addEventListener("click", () => {
+        overlay.remove();
+        activeResultPopup = null;
+        resolve();
+      });
+    });
+  }
 
   function resetDeckUI() {
     const cardArea = document.getElementById("cardArea");
@@ -81,10 +202,6 @@ export function init({ roomId }) {
 
   function updateStatusBar(room) {
     const bar = document.getElementById("statusBar");
-    if (room.status === "game_over") {
-      bar.textContent = "Game over!";
-      return;
-    }
     const alreadyRevealed = revealedForRound === currentRoundNumber;
     if (isChooser) {
       bar.textContent = alreadyRevealed
@@ -319,10 +436,14 @@ export function init({ roomId }) {
         statKey: selectedStatKey,
         direction: selectedDirection,
       });
-      document.getElementById("statusBar").textContent =
-        result.data.status === "tied"
-          ? "It's a tie! Breakout round needed (not yet built)."
-          : "Round resolved! Waiting for the next round to load…";
+      if (result.data.status === "game_over") {
+        document.getElementById("statusBar").textContent = "Game over!";
+      } else {
+        document.getElementById("statusBar").textContent =
+          result.data.status === "tied"
+            ? "It's a tie! Breakout round needed (not yet built)."
+            : "Round resolved! Waiting for the next round to load…";
+      }
     } catch (err) {
       document.getElementById("statusBar").textContent = "Error: " + err.message;
     }

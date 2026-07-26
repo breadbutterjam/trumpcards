@@ -139,7 +139,7 @@ exports.dealInitialHands = onCall(async (request) => {
     const roomSnap = await tx.get(roomRef);
     if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
     const room = roomSnap.data();
-    if (room.status !== "lobby") {
+    if (room.status !== "lobby" && room.status !== "game_over") {
       throw new HttpsError("failed-precondition", "This room has already started.");
     }
 
@@ -164,15 +164,18 @@ exports.dealInitialHands = onCall(async (request) => {
     const firstChooser = players[Math.floor(Math.random() * players.length)].id;
     const turnOrderQueue = players.map((p) => p.id);
 
+    const newRoundNumber = (room.currentRoundNumber || 0) + 1;
+
     tx.update(roomRef, {
       status: "hands_dealt",
       chooserPlayerId: firstChooser,
       turnOrderQueue,
-      currentRoundNumber: 1,
+      currentRoundNumber: newRoundNumber,
       startAcks: [],
+      winnerIds: [],
     });
 
-    tx.set(roomRef.collection("rounds").doc("1"), {
+    tx.set(roomRef.collection("rounds").doc(String(newRoundNumber)), {
       chooserId: firstChooser,
       category: null,
       direction: null,
@@ -273,6 +276,11 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
 
     const allPlayedCardIds = played.map((p) => p.cardId);
 
+    // Track each player's card count AFTER this round, so we can detect a
+    // game-ending win (only one player left holding any cards) instead of
+    // blindly starting another round every time.
+    const postRoundCounts = {};
+
     played.forEach((p) => {
       const playerRef = roomRef.collection("players").doc(p.playerId);
       const privateRef = playerRef.collection("private").doc("deck");
@@ -281,13 +289,29 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
         const newOrder = [...p.remainingOrder, ...allPlayedCardIds];
         tx.set(privateRef, { cardOrder: newOrder });
         tx.update(playerRef, { cardCount: newOrder.length, status: "deciding" });
+        postRoundCounts[p.playerId] = newOrder.length;
       } else {
         const newOrder = p.remainingOrder;
         const newStatus = newOrder.length === 0 ? "eliminated" : "deciding";
         tx.set(privateRef, { cardOrder: newOrder });
         tx.update(playerRef, { cardCount: newOrder.length, status: newStatus });
+        postRoundCounts[p.playerId] = newOrder.length;
       }
     });
+
+    const remainingActivePlayerIds = Object.keys(postRoundCounts).filter(
+      (id) => postRoundCounts[id] > 0
+    );
+
+    if (remainingActivePlayerIds.length <= 1) {
+      // Game over — at most one player still has any cards left.
+      tx.update(roomRef, {
+        status: "game_over",
+        chooserPlayerId: null,
+        winnerIds: remainingActivePlayerIds,
+      });
+      return { status: "game_over", winnerIds: remainingActivePlayerIds };
+    }
 
     const nextRoundNumber = room.currentRoundNumber + 1;
     tx.update(roomRef, {
