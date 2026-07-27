@@ -1,32 +1,4 @@
-//BRMF9Y
-//intilise
-const { functions, whenSignedIn } = await import('./js/firebase-init.js');
-const { httpsCallable } = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js');
-await whenSignedIn();
-console.log("Signed in, ready to test functions.");
-
-//call create room 
-const createRoom = httpsCallable(functions, 'createRoom');
-const result = await createRoom({ playerName: 'Alice', avatar: '🦔' });
-console.log(result.data);
-
-//call join room for BOB
-const joinRoom = httpsCallable(functions, 'joinRoom');
-const joinResult = await joinRoom({ roomCode: 'PASTE_YOUR_ROOM_ID_HERE', playerName: 'Bob', avatar: '🐘' });
-console.log(joinResult.data);
-
-//visual addition
-const { showScreen } = await import('./js/router.js');
-showScreen('table_lobby', { roomId: 'BRMF9Y' });
-
-//deal cards
-const dealInitialHands = httpsCallable(functions, 'dealInitialHands');
-const dealResult = await dealInitialHands({ roomId: 'BRMF9Y' });
-console.log(dealResult.data);
-
-
-/* JSON with gradients */
-const statesOfIndia = {
+{
   "categoryId": "states_of_india",
   "categoryName": "States of India",
   "cards": [
@@ -121,40 +93,4 @@ const statesOfIndia = {
       }
     }
   ]
-}
-
-
-
-//JSON
-const statesOfIndiaJSON = {
-  "id": "gujarat",
-  "region": "Gujarat",
-  "images": [
-    "assets/cards/GJ.png"
-  ],
-  "stats": {
-    "area": { "label": "Area (km²)", "display": "3,07,713", "value": 307713 },
-    "population": { "label": "Population (2011)", "display": "11,23,74,333", "value": 112374333 },
-    "formedOn": { "label": "Formed on", "display": "1st May 1960", "value": "1960-05-01" },
-    "borderLength": { "label": "Border Length (kms)", "display": "2,500", "value": 2500 },
-    "forestCover": { "label": "Forest Cover (km²)", "display": "25,006", "value": 25006 },
-    "forestCoverPercent": { "label": "% Forest Cover", "display": "16.50%", "value": 16.50 }
-  }
-}
-
-const statesOfIndiaJSON = {
-  "id": "sachintendulkar",
-  "region": "Sachin Tendulkar",
-  "images": [
-    "assets/cards/SachinTendulkar.png"
-  ],
-  "stats": {
-    "matches": { "label": "Matches", "display": "664", "value": 664 },
-    "wickets": { "label": "Wickets", "display": "201", "value": 201 },
-    "fiftys": { "label": "50s", "display": "164", "value": 164 },
-    "centuries": { "label": "100s", "display": "100", "value": 100 },
-    "debut": { "label": "Debut", "display": "1989", "value": 1989 },
-    "runs": { "label": "Runs", "display": "34,357", "value": 34357 },
-    "highest": { "label": "Highest Score", "display": "248", "value": 248 }
-  }
 }

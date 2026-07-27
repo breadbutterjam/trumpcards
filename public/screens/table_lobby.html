@@ -6,7 +6,19 @@
   <button class="copy-icon-btn" id="copyBtn" aria-label="Copy room code"><i class="fa-regular fa-copy"></i></button>
 </div>
 <div class="announce-bar" id="announceBar"></div>
-
+<button class="start-btn btn-candy btn-green" id="startBtn" disabled>SELECT WHO STARTS</button>
+<div class="start-game-section" id="startGameSection">
+    <button class="start-btn btn-candy btn-green" id="startGameBtn" style="position:static; transform:none;">READY TO PLAY</button>
+    <div class="auto-start-ring-wrap" id="autoStartRingWrap">
+      <svg width="40" height="40" viewBox="0 0 40 40">
+        <circle class="auto-start-ring-track" cx="20" cy="20" r="17"/>
+        <circle class="auto-start-ring-fill" id="autoStartRingFill" cx="20" cy="20" r="17"
+                stroke-dasharray="106.8" stroke-dashoffset="106.8"/>
+      </svg>
+      <div class="auto-start-ring-number" id="autoStartRingNumber">20</div>
+    </div>
+  </div>
+  <button class="start-btn btn-candy btn-green" id="newGameBtn" style="display:none;">RESTART GAME</button>
 <div class="table-area">
   <div class="table-surface" id="tableSurface">
     <div class="table-center-dot" id="tableCenterDot"></div>
@@ -18,20 +30,10 @@
     </div>
   </div>
 
-  <button class="start-btn btn-candy btn-green" id="startBtn" disabled>SELECT WHO STARTS</button>
-  <button class="start-btn btn-candy btn-green" id="newGameBtn" style="display:none;">NEW GAME</button>
+  
+  
 
-  <div class="start-game-section" id="startGameSection">
-    <button class="start-btn btn-candy btn-green" id="startGameBtn" style="position:static; transform:none;">START GAME</button>
-    <div class="auto-start-ring-wrap" id="autoStartRingWrap">
-      <svg width="40" height="40" viewBox="0 0 40 40">
-        <circle class="auto-start-ring-track" cx="20" cy="20" r="17"/>
-        <circle class="auto-start-ring-fill" id="autoStartRingFill" cx="20" cy="20" r="17"
-                stroke-dasharray="106.8" stroke-dashoffset="106.8"/>
-      </svg>
-      <div class="auto-start-ring-number" id="autoStartRingNumber">20</div>
-    </div>
-  </div>
+  
 </div>
 
 <div class="explore-link" id="exploreLink">Browse all cards while you wait →</div>

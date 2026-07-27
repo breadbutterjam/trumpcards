@@ -223,9 +223,12 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     const playersSnap = await tx.get(roomRef.collection("players"));
     const activePlayers = playersSnap.docs.filter((d) => d.data().status !== "eliminated");
 
-    const privateSnaps = await Promise.all(
-      activePlayers.map((p) => tx.get(p.ref.collection("private").doc("deck")))
-    );
+    // OPTIMIZATION: tx.getAll() batches multiple document reads into a
+    // single network round-trip, unlike Promise.all(map(tx.get)) which
+    // doesn't guarantee that batching — meaningfully faster once this is
+    // running against real (non-local) Firestore.
+    const privateRefs = activePlayers.map((p) => p.ref.collection("private").doc("deck"));
+    const privateSnaps = privateRefs.length > 0 ? await tx.getAll(...privateRefs) : [];
 
     const played = activePlayers.map((p, i) => {
       const cardOrder = privateSnaps[i].data().cardOrder;
@@ -260,12 +263,13 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
         tiedPlayerIds: winners.map((w) => w.playerId),
         resolvedAt: FieldValue.serverTimestamp(),
       });
-      // Breakout-round creation (tied players re-pick a new stat, same chooser)
-      // is intentionally not implemented yet in this scaffold — see README.
       return { status: "tied", tiedPlayerIds: winners.map((w) => w.playerId) };
     }
 
     const winnerId = sorted[0].playerId;
+    const winnerDoc = playersSnap.docs.find((d) => d.id === winnerId);
+    const winnerName = winnerDoc ? winnerDoc.data().name : "Someone";
+
     tx.update(roundRef, {
       category: statKey,
       direction,
@@ -275,10 +279,6 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     });
 
     const allPlayedCardIds = played.map((p) => p.cardId);
-
-    // Track each player's card count AFTER this round, so we can detect a
-    // game-ending win (only one player left holding any cards) instead of
-    // blindly starting another round every time.
     const postRoundCounts = {};
 
     played.forEach((p) => {
@@ -304,11 +304,15 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     );
 
     if (remainingActivePlayerIds.length <= 1) {
-      // Game over — at most one player still has any cards left.
+      const winnerNames = remainingActivePlayerIds.map((id) => {
+        const d = playersSnap.docs.find((doc) => doc.id === id);
+        return d ? d.data().name : "Someone";
+      });
       tx.update(roomRef, {
         status: "game_over",
         chooserPlayerId: null,
         winnerIds: remainingActivePlayerIds,
+        winnerNames,
       });
       return { status: "game_over", winnerIds: remainingActivePlayerIds };
     }
@@ -317,6 +321,12 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     tx.update(roomRef, {
       chooserPlayerId: winnerId,
       currentRoundNumber: nextRoundNumber,
+      // OPTIMIZATION: denormalized directly onto the room doc, which every
+      // player is already subscribed to — the result popup can now render
+      // from data that arrives with the SAME snapshot that signals the
+      // round changed, instead of needing 1-2 extra separate reads.
+      lastRoundWinnerId: winnerId,
+      lastRoundWinnerName: winnerName,
     });
     tx.set(roomRef.collection("rounds").doc(String(nextRoundNumber)), {
       chooserId: winnerId,

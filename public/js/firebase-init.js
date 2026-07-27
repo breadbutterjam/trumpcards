@@ -32,10 +32,22 @@ export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const functions = getFunctions(app);
 
-if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-  connectFirestoreEmulator(db, "127.0.0.1", 8080);
-  connectFunctionsEmulator(functions, "127.0.0.1", 5001);
-  connectAuthEmulator(auth, "http://127.0.0.1:9099");
+// if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+//   connectFirestoreEmulator(db, "127.0.0.1", 8080);
+//   connectFunctionsEmulator(functions, "127.0.0.1", 5001);
+//   connectAuthEmulator(auth, "http://127.0.0.1:9099");
+// }
+const isLocalTesting =
+  location.hostname === "localhost" ||
+  location.hostname === "127.0.0.1" ||
+  location.hostname.startsWith("192.168.") ||
+  location.hostname.startsWith("10.");
+
+if (isLocalTesting) {
+  const emulatorHost = location.hostname; // whichever address the browser actually used
+  connectFirestoreEmulator(db, emulatorHost, 8080);
+  connectFunctionsEmulator(functions, emulatorHost, 5001);
+  connectAuthEmulator(auth, `http://${emulatorHost}:9099`);
 }
 
 let signInPromise = null;

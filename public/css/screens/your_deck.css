@@ -44,7 +44,7 @@
   flex: 1 1 auto;
   min-height: 0;
   height: 100%;
-  padding: 12px 0 0 0;
+  padding: 12px 0 12px 0;
 }
 .reveal-card-slot.active { display: flex; }
 
@@ -62,7 +62,8 @@ div.reveal-card{
   /* background-size: cover;
   background-position: top; */
   overflow: hidden;
-  border-radius: 16px 16px 0 0;
+  /* border-radius: 16px 16px 0 0; */
+  border-radius: 16px;
 }
 .reveal-gradient {
   position: absolute; left: 0; right: 0; bottom: 0;
@@ -83,11 +84,14 @@ div.reveal-card{
 .direction-toggle {
   position: absolute;
   display: none;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.93);
   border-radius: 999px;
   overflow: hidden;
   border: 0.5px solid rgba(255,255,255,0.25);
   z-index: 6;
+}
+#dirHigh{
+  border-right: 0.5px solid rgba(255, 255, 255, 0.25);
 }
 .direction-toggle.show { display: flex; }
 .direction-btn {
@@ -129,16 +133,28 @@ div.reveal-card{
 }
 .confirm-popup.show { display: block; }
 .confirm-popup-text { padding: 18px 20px 16px; text-align: center; }
-.confirm-popup-label { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
-.confirm-popup-value { font-size: 16px; font-weight: 700; color: #fff; }
+.confirm-popup-label { font-size: 13px; color: rgba(0,0,0,0.85); margin-bottom: 4px; }
+.confirm-popup-value { font-size: 16px; font-weight: 700; color: #000; }
 .confirm-popup-divider { height: 1px; background: rgba(255,255,255,0.25); }
 .confirm-popup-actions { display: flex; }
 .confirm-popup-actions button {
   flex: 1; padding: 14px; font-size: 15px; font-weight: 700;
   background: transparent; border: none; cursor: pointer;
 }
-.btn-cancel-popup { color: var(--danger-text); border-right: 1px solid rgba(255,255,255,0.25); }
-.btn-yes-popup { color: var(--proceed-text); }
+
+#btnCancel{
+    border-right: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.btn-cancel-popup { 
+  /* color: var(--danger-text);  */
+  color: #B50C0F;
+  border-right: 1px solid rgba(255,255,255,0.25); 
+}
+.btn-yes-popup { 
+  /* color: var(--proceed-text);  */
+  color: var(--proceed-text2);
+}
 
 .waiting-banner {
   position: absolute;

@@ -2,253 +2,239 @@ WARNING: A terminally deprecated method in sun.misc.Unsafe has been called
 WARNING: sun.misc.Unsafe::allocateMemory has been called by io.netty.util.internal.PlatformDependent0$2 (file:/C:/Users/test/.cache/firebase/emulators/cloud-firestore-emulator-v1.21.0.jar)
 WARNING: Please consider reporting this to the maintainers of class io.netty.util.internal.PlatformDependent0$2
 WARNING: sun.misc.Unsafe::allocateMemory will be removed in a future release
-Jul 26, 2026 10:58:26 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start
-INFO: Started WebSocket server on ws://127.0.0.1:9150
+Jul 27, 2026 8:53:16 PM com.google.cloud.datastore.emulator.firestore.websocket.WebSocketServer start
+INFO: Started WebSocket server on ws://0.0.0.0:9150
 
-API endpoint: http://127.0.0.1:8080
+API endpoint: http://0.0.0.0:8080
 Database Edition: STANDARD
 Database Mode: CLOUD_FIRESTORE
 
 If you are using a library that supports the FIRESTORE_EMULATOR_HOST environment variable, run:
 
-   export FIRESTORE_EMULATOR_HOST=127.0.0.1:8080
+   export FIRESTORE_EMULATOR_HOST=0.0.0.0:8080
 
 If you are running a Firestore in Datastore Mode project, run:
 
-   export DATASTORE_EMULATOR_HOST=127.0.0.1:8080
+   export DATASTORE_EMULATOR_HOST=0.0.0.0:8080
 
 Note: Support for Datastore Mode is in preview. If you encounter any bugs please file at https://github.com/firebase/firebase-tools/issues.
 Dev App Server is now running.
 
-Jul 26, 2026 10:58:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:28 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:28 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:29 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:58:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:22 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:53:44 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected HTTP/2 connection.
-Jul 26, 2026 10:59:22 PM io.grpc.netty.TcpMetrics loadEpollInfo
+Jul 27, 2026 8:53:44 PM io.grpc.netty.TcpMetrics loadEpollInfo
 INFO: Epoll available during static init of TcpMetrics:false
-Jul 26, 2026 10:59:23 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:53:45 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:23 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:53:46 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:29 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:31 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:53:56 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected HTTP/2 connection.
-Jul 26, 2026 10:59:31 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:53:56 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:31 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:53:56 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:37 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:37 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:43 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:00 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected HTTP/2 connection.
-Jul 26, 2026 10:59:51 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:11 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 10:59:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:09 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:09 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
-INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:16 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected HTTP/2 connection.
-Jul 26, 2026 11:00:16 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:16 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:36 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:36 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:39 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:54:39 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:55:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:55:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:55:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:55:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:56:06 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:17 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:56:36 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:25 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:05 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:25 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:06 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:06 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:06 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:06 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:07 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:30 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:07 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:33 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:07 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:33 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:07 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:33 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:36 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:08 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:36 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:15 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:39 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:15 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:39 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:24 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:39 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:57:24 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:58:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:58:26 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:58:49 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:58:54 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:58:54 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:58:57 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:01 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:01 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:52 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:53 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:55 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:55 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:57 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:57 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:58 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:14 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:00:58 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:22 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:22 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:44 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:48 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:48 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:51 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 8:59:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:01:49 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:02:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:02:34 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:02:49 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:03:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:04:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:05:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:00:59 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:06:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:05 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:07:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:05 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:08:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:35 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:09:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:41 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:10:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:41 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:11:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:47 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:12:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:47 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.
-Jul 26, 2026 11:13:04 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+Jul 27, 2026 9:01:47 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:03 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:03 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:09 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:09 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:21 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:21 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:31 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:37 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:37 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:37 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:42 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:42 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:02:50 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:03:19 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
+INFO: Detected non-HTTP/2 connection.
+Jul 27, 2026 9:03:41 PM io.gapi.emulators.netty.HttpVersionRoutingHandler channelRead
 INFO: Detected non-HTTP/2 connection.

@@ -32,10 +32,6 @@ export function init({ roomId }) {
   let myDeckOrder = null;
   let resultPopupShownForRound = null;
   let gameOverPopupShown = false;
-
-  // Tracks the currently-showing result popup (if any), so a new one can
-  // never stack on top of an old, un-dismissed one — see
-  // showRoundResultPopup for how this is used.
   let activeResultPopup = null;
 
   whenSignedIn().then(async (user) => {
@@ -51,7 +47,7 @@ export function init({ roomId }) {
       if (room.status === "game_over") {
         if (!gameOverPopupShown) {
           gameOverPopupShown = true;
-          showGameOverPopup(room.winnerIds || []);
+          showGameOverPopup(room.winnerIds || [], room.winnerNames || []);
         }
         return;
       }
@@ -68,7 +64,9 @@ export function init({ roomId }) {
       if (roundChanged) {
         if (previousRoundNumber && resultPopupShownForRound !== previousRoundNumber) {
           resultPopupShownForRound = previousRoundNumber;
-          await showRoundResultPopup(previousRoundNumber);
+          if (room.lastRoundWinnerId) {
+            await showRoundResultPopup(room.lastRoundWinnerId, room.lastRoundWinnerName);
+          }
         }
 
         myDeckOrder = null;
@@ -86,20 +84,21 @@ export function init({ roomId }) {
     unsubscribers.push(unsubRoom);
   });
 
-  function showGameOverPopup(winnerIds) {
+  function showGameOverPopup(winnerIds, winnerNames) {
     const iWon = winnerIds.includes(myUid);
+    const winnerName = winnerNames && winnerNames[0] ? winnerNames[0] : "Someone";
 
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      "position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:60; padding:24px;";
+      "position:fixed; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; z-index:60; padding:24px;";
     overlay.innerHTML = `
       <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
         <div style="padding:22px 20px 18px;">
           <div style="font-size:13px; font-weight:700; color:var(--crown-gold); margin-bottom:6px;">
             ${iWon ? "🏆 GAME OVER" : "GAME OVER"}
           </div>
-          <div style="font-size:17px; font-weight:800; color:#fff;" id="gameOverText">
-            ${iWon ? "You won the game!" : "Loading result…"}
+          <div style="font-size:17px; font-weight:800; color:#000;">
+            ${iWon ? "You won the game!" : `${winnerName} won the game!`}
           </div>
         </div>
         <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
@@ -108,71 +107,37 @@ export function init({ roomId }) {
     `;
     document.body.appendChild(overlay);
 
-    if (!iWon && winnerIds[0]) {
-      getDoc(doc(db, "rooms", roomId, "players", winnerIds[0]))
-        .then((winnerSnap) => {
-          const winnerName = winnerSnap.data()?.name || "Someone";
-          const textEl = document.getElementById("gameOverText");
-          if (textEl) textEl.textContent = `${winnerName} won the game!`;
-        })
-        .catch(() => {
-          const textEl = document.getElementById("gameOverText");
-          if (textEl) textEl.textContent = "The game has ended.";
-        });
-    }
-
     document.getElementById("gameOverBackBtn").addEventListener("click", () => {
       overlay.remove();
       showScreen("table_lobby", { roomId });
     });
   }
 
-  function showRoundResultPopup(finishedRoundNumber) {
-    return new Promise(async (resolve) => {
-      // FIX: if a previous result popup is still showing (the player
-      // missed it and another round already resolved), force it closed
-      // and unblock whatever was waiting on it, so we never end up with
-      // two overlays stacked at once.
+  function showRoundResultPopup(winnerId, winnerName) {
+    return new Promise((resolve) => {
       if (activeResultPopup) {
         activeResultPopup.overlay.remove();
         activeResultPopup.resolve();
         activeResultPopup = null;
       }
 
-      let winnerId = null;
-      try {
-        const roundSnap = await getDoc(doc(db, "rooms", roomId, "rounds", String(finishedRoundNumber)));
-        winnerId = roundSnap.data()?.winnerId || null;
-      } catch (err) {
-        resolve();
-        return;
-      }
-      if (!winnerId) { resolve(); return; }
-
       const iWon = winnerId === myUid;
-      let winnerName = "Someone";
-      if (!iWon) {
-        try {
-          const winnerSnap = await getDoc(doc(db, "rooms", roomId, "players", winnerId));
-          winnerName = winnerSnap.data()?.name || "Someone";
-        } catch (err) { /* fall back to "Someone" */ }
-      }
-
+      //background:rgba(0,0,0,0.55);
       const overlay = document.createElement("div");
       overlay.style.cssText =
-        "position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
+        "position:fixed; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
           <div style="padding:20px 20px 16px;">
-            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text)"}; margin-bottom:6px;">
+            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text2)"}; margin-bottom:6px;">
               ${iWon ? "Yohoooo!" : "oh oh"}
             </div>
-            <div style="font-size:16px; font-weight:800; color:#fff;">
+            <div style="font-size:16px; font-weight:800; color:#000;">
               ${iWon ? "You won" : `You lost, ${winnerName} won`}
             </div>
           </div>
           <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
-          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
+          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text2); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
         </div>
       `;
       document.body.appendChild(overlay);

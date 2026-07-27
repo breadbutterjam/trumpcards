@@ -11,8 +11,10 @@
   --neutral-text: #d8d5cb;
   /* --proceed-text: #6fce8f; */
   --proceed-text: #016500;
+  --proceed-text2: #033300;
   --crown-gold: #f6d94c;
   --danger-text: #ff6b57;
+  --danger-text2: #B50C0F;
   --success-bg: #143922; --success-text: #6fce8f; --success-border: #2c6a45;
   --pro-bg: #2a2560; --pro-text: #cec9fa; --pro-border: #4a45a0;
   --warning-bg: #4a3208; --warning-text: #f5c568; --warning-border: #855a10;
@@ -101,7 +103,8 @@ body {
   font-weight: 800;
   letter-spacing: 0.03em;
   cursor: pointer;
-  color: #ffffff;
+  /* color: #ffffff; */
+  color: #002508;
   background: linear-gradient(180deg, var(--btn-light) 0%, var(--btn-base) 55%, var(--btn-base) 100%);
   box-shadow: 0 4px 0 var(--btn-dark), 0 5px 8px rgba(0,0,0,0.3);
   transition: transform 90ms ease, box-shadow 90ms ease;
