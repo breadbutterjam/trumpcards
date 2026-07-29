@@ -5,11 +5,25 @@ const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 initializeApp();
 const db = getFirestore();
 
-// Static card data — see README for why this file is duplicated under public/data too.
-const CATEGORY = require("./data/states_of_india.json");
-const CARD_BY_ID = {};
-CATEGORY.cards.forEach((c) => { CARD_BY_ID[c.id] = c; });
-const ALL_CARD_IDS = CATEGORY.cards.map((c) => c.id);
+// Category registry — add a new entry here (and drop the matching JSON file
+// into BOTH functions/data/ and public/data/, same filename) to make a new
+// category selectable when creating a room.
+const CATEGORY_REGISTRY = {
+  states_of_india: require("./data/states_of_india.json"),
+  mountains: require("./data/mountains.json"),
+  cricketers: require("./data/cricketers.json"),
+};
+const DEFAULT_CATEGORY_ID = "states_of_india";
+
+function getCategoryData(categoryId) {
+  return CATEGORY_REGISTRY[categoryId] || CATEGORY_REGISTRY[DEFAULT_CATEGORY_ID];
+}
+function getCardById(categoryId, cardId) {
+  return getCategoryData(categoryId).cards.find((c) => c.id === cardId);
+}
+function getAllCardIds(categoryId) {
+  return getCategoryData(categoryId).cards.map((c) => c.id);
+}
 
 function generateRoomCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I — avoids visual confusion
@@ -31,14 +45,18 @@ function shuffle(array) {
 
 // Creates a room and adds the creator as its first player. Room ID = the
 // human-readable code itself, so joining is a direct document lookup.
+// Now accepts an optional categoryId; falls back to the default category if
+// omitted or unrecognized, so older/partial clients don't break.
 exports.createRoom = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in before creating a room.");
   }
-  const { playerName, avatar, maxPlayers } = request.data;
+  const { playerName, avatar, maxPlayers, categoryId } = request.data;
   if (!playerName || typeof playerName !== "string") {
     throw new HttpsError("invalid-argument", "playerName is required.");
   }
+
+  const resolvedCategoryId = CATEGORY_REGISTRY[categoryId] ? categoryId : DEFAULT_CATEGORY_ID;
 
   const playerId = request.auth.uid;
   let roomId;
@@ -56,7 +74,7 @@ exports.createRoom = onCall(async (request) => {
 
   const roomRef = db.collection("rooms").doc(roomId);
   await roomRef.set({
-    category: CATEGORY.categoryId,
+    category: resolvedCategoryId,
     status: "lobby",
     maxPlayers: maxPlayers || 6,
     currentRoundNumber: 0,
@@ -125,9 +143,10 @@ exports.joinRoom = onCall(async (request) => {
 });
 
 // Shuffles the deck, deals it evenly across current players, and randomly
-// picks who chooses first — done here (not on the client) specifically so no
-// player can rig their own "spin the bottle" result. The client's spin
-// animation is purely cosmetic; it just lands on whatever this returns.
+// picks who chooses first. Also doubles as the "rematch" trigger — allowed
+// to run from "lobby" (first game) OR "game_over" (starting a new game in
+// the same room), continuing the round-number counter across games rather
+// than resetting it, so previous games' round history is never overwritten.
 exports.dealInitialHands = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");
@@ -149,7 +168,8 @@ exports.dealInitialHands = onCall(async (request) => {
       throw new HttpsError("failed-precondition", "Need at least 2 players to start.");
     }
 
-    const shuffledIds = shuffle(ALL_CARD_IDS);
+    const allCardIds = getAllCardIds(room.category);
+    const shuffledIds = shuffle(allCardIds);
     const hands = players.map(() => []);
     shuffledIds.forEach((cardId, i) => {
       hands[i % players.length].push(cardId);
@@ -163,7 +183,6 @@ exports.dealInitialHands = onCall(async (request) => {
 
     const firstChooser = players[Math.floor(Math.random() * players.length)].id;
     const turnOrderQueue = players.map((p) => p.id);
-
     const newRoundNumber = (room.currentRoundNumber || 0) + 1;
 
     tx.update(roomRef, {
@@ -188,11 +207,45 @@ exports.dealInitialHands = onCall(async (request) => {
   });
 });
 
-// The core round lifecycle in one atomic step: the chooser's pick is
-// validated, every active player's top card is compared (server-side only —
-// this is exactly the data the security rules hide from clients), a winner
-// (or tie) is determined, cards move to the winner's deck, and the next
-// round is opened with the winner as the new chooser.
+// Called when a player taps "Start Game" after the spin resolves. Once
+// every player has acknowledged, the room flips to "in_progress".
+exports.acknowledgeGameStart = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Sign in first.");
+  }
+  const { roomId } = request.data;
+  const roomRef = db.collection("rooms").doc(roomId);
+
+  return db.runTransaction(async (tx) => {
+    const roomSnap = await tx.get(roomRef);
+    if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
+    const room = roomSnap.data();
+
+    if (room.status !== "hands_dealt") {
+      return { status: room.status }; // already started (or duplicate tap) — harmless no-op
+    }
+
+    const playersSnap = await tx.get(roomRef.collection("players"));
+    const activeCount = playersSnap.size;
+
+    const acks = new Set(room.startAcks || []);
+    acks.add(request.auth.uid);
+    const ackArray = Array.from(acks);
+    const allReady = ackArray.length >= activeCount;
+
+    tx.update(roomRef, {
+      startAcks: ackArray,
+      status: allReady ? "in_progress" : "hands_dealt",
+    });
+
+    return { status: allReady ? "in_progress" : "hands_dealt" };
+  });
+});
+
+// The core round lifecycle: validates the chooser's pick, compares every
+// active player's top card (server-side only — this is exactly the data
+// the security rules hide from clients), determines a winner or tie, moves
+// cards, and either opens the next round or ends the game.
 exports.confirmSelectionAndResolveRound = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");
@@ -223,17 +276,13 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     const playersSnap = await tx.get(roomRef.collection("players"));
     const activePlayers = playersSnap.docs.filter((d) => d.data().status !== "eliminated");
 
-    // OPTIMIZATION: tx.getAll() batches multiple document reads into a
-    // single network round-trip, unlike Promise.all(map(tx.get)) which
-    // doesn't guarantee that batching — meaningfully faster once this is
-    // running against real (non-local) Firestore.
     const privateRefs = activePlayers.map((p) => p.ref.collection("private").doc("deck"));
     const privateSnaps = privateRefs.length > 0 ? await tx.getAll(...privateRefs) : [];
 
     const played = activePlayers.map((p, i) => {
       const cardOrder = privateSnaps[i].data().cardOrder;
       const cardId = cardOrder[0];
-      const card = CARD_BY_ID[cardId];
+      const card = getCardById(room.category, cardId);
       return {
         playerId: p.id,
         cardId,
@@ -321,10 +370,6 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     tx.update(roomRef, {
       chooserPlayerId: winnerId,
       currentRoundNumber: nextRoundNumber,
-      // OPTIMIZATION: denormalized directly onto the room doc, which every
-      // player is already subscribed to — the result popup can now render
-      // from data that arrives with the SAME snapshot that signals the
-      // round changed, instead of needing 1-2 extra separate reads.
       lastRoundWinnerId: winnerId,
       lastRoundWinnerName: winnerName,
     });
@@ -338,44 +383,5 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     });
 
     return { status: "resolved", winnerId };
-  });
-});
-
-
-// Called when a player taps "Start Game" after the spin resolves. Once
-// every player has acknowledged, the room actually flips to "in_progress"
-// — this is the real gate your table diagram called for, replacing the
-// old behavior where the game started the instant hands were dealt.
-exports.acknowledgeGameStart = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "Sign in first.");
-  }
-  const { roomId } = request.data;
-  const roomRef = db.collection("rooms").doc(roomId);
-
-  return db.runTransaction(async (tx) => {
-    const roomSnap = await tx.get(roomRef);
-    if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
-    const room = roomSnap.data();
-
-    if (room.status !== "hands_dealt") {
-      // Already started (or a duplicate/late tap) — harmless no-op.
-      return { status: room.status };
-    }
-
-    const playersSnap = await tx.get(roomRef.collection("players"));
-    const activeCount = playersSnap.size;
-
-    const acks = new Set(room.startAcks || []);
-    acks.add(request.auth.uid);
-    const ackArray = Array.from(acks);
-    const allReady = ackArray.length >= activeCount;
-
-    tx.update(roomRef, {
-      startAcks: ackArray,
-      status: allReady ? "in_progress" : "hands_dealt",
-    });
-
-    return { status: allReady ? "in_progress" : "hands_dealt" };
   });
 });

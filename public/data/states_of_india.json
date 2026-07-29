@@ -2,395 +2,95 @@
   "categoryId": "states_of_india",
   "categoryName": "States of India",
   "cards": [
-  {
-    "id": "msdhoni",
-    "region": "MS Dhoni",
-    "images": [
-      "assets/cards/MSDhoni.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "538",
-        "value": 538
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "1",
-        "value": 1
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "16",
-        "value": 16
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2004",
-        "value": 2004
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "17,266",
-        "value": 17266
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "224",
-        "value": 224
+    {
+      "id": "gujarat",
+      "region": "Gujarat",
+      "images": [
+        "assets/cards/GJ.png"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "3,07,713", "value": 307713 },
+        "population": { "label": "Population (2011)", "display": "11,23,74,333", "value": 112374333 },
+        "formedOn": { "label": "Formed on", "display": "1st May 1960", "value": "1960-05-01" },
+        "borderLength": { "label": "Border Length (kms)", "display": "2,500", "value": 2500 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "25,006", "value": 25006 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "16.50%", "value": 16.50 }
+      }
+    },
+    {
+      "id": "punjab",
+      "region": "Punjab",
+      "images": [
+        "assets/cards/PB.png"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "50,362", "value": 50362 },
+        "population": { "label": "Population (2011)", "display": "2,77,43,338", "value": 27743338 },
+        "formedOn": { "label": "Formed on", "display": "1st Nov 1966", "value": "1966-11-01" },
+        "borderLength": { "label": "Border Length (kms)", "display": "553", "value": 553 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "1,847", "value": 1847 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "3.67%", "value": 3.67 }
+      }
+    },
+    {
+      "id": "himachal_pradesh",
+      "region": "Himachal Pradesh",
+      "images": [
+        "assets/cards/HP.png"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "55,673", "value": 55673 },
+        "population": { "label": "Population (2011)", "display": "68,64,602", "value": 6864602 },
+        "formedOn": { "label": "Formed on", "display": "25th Jan 1971", "value": "1971-01-25" },
+        "borderLength": { "label": "Border Length (kms)", "display": "1,300", "value": 1300 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "15,434", "value": 15434 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "27.72%", "value": 27.72 }
+      }
+    },
+    {
+      "id": "rajasthan",
+      "region": "Rajasthan",
+      "images": [
+        "assets/cards/RJ.png"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "3,42,239", "value": 342239 },
+        "population": { "label": "Population (2011)", "display": "6,85,48,437", "value": 68548437 },
+        "formedOn": { "label": "Formed on", "display": "1st Nov 1956", "value": "1956-11-01" },
+        "borderLength": { "label": "Border Length (kms)", "display": "5,920", "value": 5920 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "16,572", "value": 16572 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "4.84%", "value": 4.84 }
+      }
+    },
+    {
+      "id": "meghalaya",
+      "region": "Meghalaya",
+      "images": [
+        "assets/cards/ML.png"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "22,429", "value": 22429 },
+        "population": { "label": "Population (2011)", "display": "29,66,889", "value": 2966889 },
+        "formedOn": { "label": "Formed on", "display": "21st Jan 1972", "value": "1972-01-21" },
+        "borderLength": { "label": "Border Length (kms)", "display": "885", "value": 885 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "17,275", "value": 17275 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "77.02%", "value": 77.02 }
+      }
+    },
+    {
+      "id": "ladakh",
+      "region": "Ladakh",
+      "images": [
+        "assets/cards/LA.png"
+      ],
+      "stats": {
+        "area": { "label": "Area (km²)", "display": "59,146", "value": 59146 },
+        "population": { "label": "Population (2011)", "display": "2,74,289", "value": 274289 },
+        "formedOn": { "label": "Formed on", "display": "31st Oct 2019", "value": "2019-10-31" },
+        "borderLength": { "label": "Border Length (kms)", "display": "1,700", "value": 1700 },
+        "forestCover": { "label": "Forest Cover (km²)", "display": "265", "value": 265 },
+        "forestCoverPercent": { "label": "% Forest Cover", "display": "0.45%", "value": 0.45 }
       }
     }
-  },
-  {
-    "id": "rohitsharma",
-    "region": "Rohit Sharma",
-    "images": [
-      "assets/cards/RohitSharma.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "513",
-        "value": 513
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "12",
-        "value": 12
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "50",
-        "value": 50
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2007",
-        "value": 2007
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "20,290",
-        "value": 20290
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "264",
-        "value": 264
-      }
-    }
-  },
-  {
-    "id": "viratkohli",
-    "region": "Virat Kohli",
-    "images": [
-      "assets/cards/ViratKohli.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "560",
-        "value": 560
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "9",
-        "value": 9
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "80",
-        "value": 80
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2008",
-        "value": 2008
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "28,285",
-        "value": 28285
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "254*",
-        "value": 254
-      }
-    }
-  },
-  {
-    "id": "shubmangill",
-    "region": "Shubman Gill",
-    "images": [
-      "assets/cards/ShubmanGill.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "100",
-        "value": 100
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "0",
-        "value": 0
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "10",
-        "value": 10
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2019",
-        "value": 2019
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "5,000",
-        "value": 5000
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "208",
-        "value": 208
-      }
-    }
-  },
-  {
-    "id": "jaspritbumrah",
-    "region": "Jasprit Bumrah",
-    "images": [
-      "assets/cards/JaspritBumrah.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "200",
-        "value": 200
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "350",
-        "value": 350
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "0",
-        "value": 0
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2016",
-        "value": 2016
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "300",
-        "value": 300
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "34*",
-        "value": 34
-      }
-    }
-  },
-  {
-    "id": "sachintendulkar",
-    "region": "Sachin Tendulkar",
-    "images": [
-      "assets/cards/SachinTendulkar.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "664",
-        "value": 664
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "201",
-        "value": 201
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "100",
-        "value": 100
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "1989",
-        "value": 1989
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "34,357",
-        "value": 34357
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "248*",
-        "value": 248
-      }
-    }
-  },
-  {
-    "id": "souravganguly",
-    "region": "Sourav Ganguly",
-    "images": [
-      "assets/cards/SouravGanguly.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "421",
-        "value": 421
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "132",
-        "value": 132
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "38",
-        "value": 38
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "1992",
-        "value": 1992
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "18,575",
-        "value": 18575
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "239",
-        "value": 239
-      }
-    }
-  },
-  {
-    "id": "rahuldravid",
-    "region": "Rahul Dravid",
-    "images": [
-      "assets/cards/RahulDravid.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "509",
-        "value": 509
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "4",
-        "value": 4
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "48",
-        "value": 48
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "1996",
-        "value": 1996
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "24,208",
-        "value": 24208
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "270",
-        "value": 270
-      }
-    }
-  },
-  {
-    "id": "sanjusamson",
-    "region": "Sanju Samson",
-    "images": [
-      "assets/cards/SanjuSamson.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "80",
-        "value": 80
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "0",
-        "value": 0
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "4",
-        "value": 4
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2015",
-        "value": 2015
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "1,914",
-        "value": 1914
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "111",
-        "value": 111
-      }
-    }
-  },
-  {
-    "id": "rishabhpant",
-    "region": "Rishabh Pant",
-    "images": [
-      "assets/cards/RishabhPant.webp"
-    ],
-    "stats": {
-      "matches": {
-        "label": "Matches",
-        "display": "154",
-        "value": 154
-      },
-      "wickets": {
-        "label": "Wickets",
-        "display": "0",
-        "value": 0
-      },
-      "centuries": {
-        "label": "100s",
-        "display": "9",
-        "value": 9
-      },
-      "debut": {
-        "label": "Debut",
-        "display": "2017",
-        "value": 2017
-      },
-      "runs": {
-        "label": "Runs",
-        "display": "5,637",
-        "value": 5637
-      },
-      "highest": {
-        "label": "Highest Score",
-        "display": "159",
-        "value": 159
-      }
-    }
-  }
-]
+  ]
 }

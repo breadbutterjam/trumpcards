@@ -1,0 +1,96 @@
+{
+  "categoryId": "mountains",
+  "categoryName": "Famous Mountains",
+  "cards": [
+    {
+      "id": "everest",
+      "region": "Mount Everest",
+      "images": [
+        "linear-gradient(180deg, #cfe8fa 0%, #a8c8de 45%, #f2f2f2 100%)"
+      ],
+      "stats": {
+        "height": { "label": "Height (m)", "display": "8,849", "value": 8849 },
+        "firstAscent": { "label": "First Ascent", "display": "1953", "value": 1953 },
+        "range": { "label": "Range", "display": "Himalayas", "value": "Himalayas" },
+        "country": { "label": "Country", "display": "Nepal / China", "value": "Nepal / China" },
+        "prominence": { "label": "Prominence (m)", "display": "8,849", "value": 8849 },
+        "climbers": { "label": "Est. Summits", "display": "6,000+", "value": 6000 }
+      }
+    },
+    {
+      "id": "k2",
+      "region": "K2",
+      "images": [
+        "linear-gradient(180deg, #d8e6ee 0%, #9fb4c4 45%, #e8e8e8 100%)"
+      ],
+      "stats": {
+        "height": { "label": "Height (m)", "display": "8,611", "value": 8611 },
+        "firstAscent": { "label": "First Ascent", "display": "1954", "value": 1954 },
+        "range": { "label": "Range", "display": "Karakoram", "value": "Karakoram" },
+        "country": { "label": "Country", "display": "Pakistan / China", "value": "Pakistan / China" },
+        "prominence": { "label": "Prominence (m)", "display": "4,020", "value": 4020 },
+        "climbers": { "label": "Est. Summits", "display": "\u003c 400", "value": 400 }
+      }
+    },
+    {
+      "id": "kangchenjunga",
+      "region": "Kangchenjunga",
+      "images": [
+        "linear-gradient(180deg, #e6d9c8 0%, #b79f86 45%, #f0f0f0 100%)"
+      ],
+      "stats": {
+        "height": { "label": "Height (m)", "display": "8,586", "value": 8586 },
+        "firstAscent": { "label": "First Ascent", "display": "1955", "value": 1955 },
+        "range": { "label": "Range", "display": "Himalayas", "value": "Himalayas" },
+        "country": { "label": "Country", "display": "Nepal / India", "value": "Nepal / India" },
+        "prominence": { "label": "Prominence (m)", "display": "3,922", "value": 3922 },
+        "climbers": { "label": "Est. Summits", "display": "\u003c 700", "value": 700 }
+      }
+    },
+    {
+      "id": "denali",
+      "region": "Denali",
+      "images": [
+        "linear-gradient(180deg, #cfe0ea 0%, #8fa8b8 45%, #eef2f0 100%)"
+      ],
+      "stats": {
+        "height": { "label": "Height (m)", "display": "6,190", "value": 6190 },
+        "firstAscent": { "label": "First Ascent", "display": "1913", "value": 1913 },
+        "range": { "label": "Range", "display": "Alaska Range", "value": "Alaska Range" },
+        "country": { "label": "Country", "display": "United States", "value": "United States" },
+        "prominence": { "label": "Prominence (m)", "display": "6,144", "value": 6144 },
+        "climbers": { "label": "Est. Summits", "display": "1,200/yr", "value": 1200 }
+      }
+    },
+    {
+      "id": "kilimanjaro",
+      "region": "Mount Kilimanjaro",
+      "images": [
+        "linear-gradient(180deg, #eadfc4 0%, #c9a96a 45%, #f2ede0 100%)"
+      ],
+      "stats": {
+        "height": { "label": "Height (m)", "display": "5,895", "value": 5895 },
+        "firstAscent": { "label": "First Ascent", "display": "1889", "value": 1889 },
+        "range": { "label": "Range", "display": "Eastern Rift", "value": "Eastern Rift" },
+        "country": { "label": "Country", "display": "Tanzania", "value": "Tanzania" },
+        "prominence": { "label": "Prominence (m)", "display": "5,885", "value": 5885 },
+        "climbers": { "label": "Est. Summits", "display": "35,000/yr", "value": 35000 }
+      }
+    },
+    {
+      "id": "aconcagua",
+      "region": "Aconcagua",
+      "images": [
+        "linear-gradient(180deg, #f0dccb 0%, #c99a6e 45%, #f5f0e8 100%)"
+      ],
+      "stats": {
+        "height": { "label": "Height (m)", "display": "6,961", "value": 6961 },
+        "firstAscent": { "label": "First Ascent", "display": "1897", "value": 1897 },
+        "range": { "label": "Range", "display": "Andes", "value": "Andes" },
+        "country": { "label": "Country", "display": "Argentina", "value": "Argentina" },
+        "prominence": { "label": "Prominence (m)", "display": "6,961", "value": 6961 },
+        "climbers": { "label": "Est. Summits", "display": "3,000/yr", "value": 3000 }
+      }
+    }
+  ]
+}

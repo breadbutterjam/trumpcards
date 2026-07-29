@@ -91,7 +91,7 @@
 .start-btn {
   position: absolute;
   /* bottom: 22px;  */
-  bottom: 17%;
+  bottom: 33%;
   left: 50%;
   transform: translateX(-50%);
 }
@@ -100,7 +100,7 @@
 .start-game-section {
   position: absolute;
   /* bottom: 22px;  */
-  bottom: 15%; 
+  bottom: 33%; 
   left: 50%;
   transform: translateX(-50%);
   display: none;
