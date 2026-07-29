@@ -290,8 +290,10 @@ export function init({ roomId }) {
     slot.innerHTML = `
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
+        
+        <div class="reveal-stats">
         <div class="reveal-region">${card.region}</div>
-        <div class="reveal-stats">${statsHtml}</div>
+        ${statsHtml}</div>
         <div class="waiting-banner">Waiting for the chooser to pick a category…</div>
       </div>
     `;
@@ -310,12 +312,12 @@ export function init({ roomId }) {
     slot.innerHTML = `
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
-        <div class="reveal-region">${card.region}</div>
+        
         <div class="direction-toggle" id="directionToggle">
           <button class="direction-btn" id="dirHigh">High</button>
           <button class="direction-btn" id="dirLow">Low</button>
         </div>
-        <div class="reveal-stats" id="revealStats">${statsHtml}</div>
+        <div class="reveal-stats" id="revealStats"><div class="reveal-region">${card.region}</div>${statsHtml}</div>
         <div class="confirm-popup glass-popup" id="confirmPopup">
           <div class="confirm-popup-text">
             <div class="confirm-popup-label">Continue with</div>

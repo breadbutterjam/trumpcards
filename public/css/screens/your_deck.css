@@ -72,9 +72,10 @@ div.reveal-card{
   pointer-events: none;
 }
 .reveal-region {
-  position: absolute;
-  bottom: 29%; left: 0; right: 0;
-  padding: 0 16px 0.5rem;
+  /* position: absolute; */
+  /* bottom: 29%; left: 0; right: 0; */
+  /* padding: 0 16px 0.5rem; */
+  grid-column: 1 / -1;
   color: #fff;
   font-weight: 700;
   font-size: 20px;
