@@ -6,7 +6,7 @@
       "id": "gujarat",
       "region": "Gujarat",
       "images": [
-        "assets/cards/GJ.png"
+        "assets/cards/GJ.webp"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "3,07,713", "value": 307713 },
@@ -21,7 +21,7 @@
       "id": "punjab",
       "region": "Punjab",
       "images": [
-        "assets/cards/PB.png"
+        "assets/cards/PB.webp"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "50,362", "value": 50362 },
@@ -36,7 +36,7 @@
       "id": "himachal_pradesh",
       "region": "Himachal Pradesh",
       "images": [
-        "assets/cards/HP.png"
+        "assets/cards/HP.webp"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "55,673", "value": 55673 },
@@ -51,7 +51,7 @@
       "id": "rajasthan",
       "region": "Rajasthan",
       "images": [
-        "assets/cards/RJ.png"
+        "assets/cards/RJ.webp"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "3,42,239", "value": 342239 },
@@ -66,7 +66,7 @@
       "id": "meghalaya",
       "region": "Meghalaya",
       "images": [
-        "assets/cards/ML.png"
+        "assets/cards/ML.webp"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "22,429", "value": 22429 },
@@ -81,7 +81,7 @@
       "id": "ladakh",
       "region": "Ladakh",
       "images": [
-        "assets/cards/LA.png"
+        "assets/cards/LA.webp"
       ],
       "stats": {
         "area": { "label": "Area (km²)", "display": "59,146", "value": 59146 },
