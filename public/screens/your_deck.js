@@ -1,4 +1,4 @@
-import { doc, collection, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 import { db, functions, whenSignedIn } from "../js/firebase-init.js";
 import { renderAvatarRow } from "../js/avatar-row.js";
@@ -35,14 +35,10 @@ export function init({ roomId }) {
   let resultPopupShownForRound = null;
   let gameOverPopupShown = false;
   let activeResultPopup = null;
-  let latestActivePlayers = [];
-  let judgePlayersListenerAdded = false;
+  let avatarRowInitialized = false;
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
-
-    const unsubAvatars = renderAvatarRow(roomId, document.getElementById("avatarRow"), {});
-    unsubscribers.push(unsubAvatars);
 
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), async (snap) => {
       const room = snap.data();
@@ -51,17 +47,23 @@ export function init({ roomId }) {
       roomMode = room.mode === "offline" ? "offline" : "online";
       isJudge = room.judgePlayerId === myUid;
 
+      // Set up the avatar row exactly once, now that we know roomMode/isJudge
+      // — in offline mode, the judge's avatar row becomes tappable to
+      // declare a winner; every other case behaves exactly as before.
+      if (!avatarRowInitialized) {
+        avatarRowInitialized = true;
+        const avatarRowOptions = {};
+        if (roomMode === "offline" && isJudge) {
+          avatarRowOptions.onAvatarClick = (player) => {
+            showOfflineConfirmPopup(player.id, player.name);
+          };
+        }
+        const unsubAvatars = renderAvatarRow(roomId, document.getElementById("avatarRow"), avatarRowOptions);
+        unsubscribers.push(unsubAvatars);
+      }
+
       if (roomMode === "offline") {
         document.getElementById("statusBar").style.display = "none";
-        if (isJudge && !judgePlayersListenerAdded) {
-          judgePlayersListenerAdded = true;
-          const unsubJudgePlayers = onSnapshot(collection(db, "rooms", roomId, "players"), (playersSnap) => {
-            latestActivePlayers = playersSnap.docs
-              .map((d) => ({ id: d.id, ...d.data() }))
-              .filter((p) => p.status !== "eliminated");
-          });
-          unsubscribers.push(unsubJudgePlayers);
-        }
       }
 
       if (room.status === "game_over") {
@@ -84,7 +86,11 @@ export function init({ roomId }) {
       if (roundChanged) {
         if (previousRoundNumber && resultPopupShownForRound !== previousRoundNumber) {
           resultPopupShownForRound = previousRoundNumber;
-          if (room.lastRoundWinnerId) {
+          // The judge just picked the winner themselves — showing them the same
+          // "you won/lost" popup right after is redundant. Everyone else still
+          // sees it, same as before.
+          const skipPopupForJudge = roomMode === "offline" && isJudge;
+          if (!skipPopupForJudge && room.lastRoundWinnerId) {
             await showRoundResultPopup(room.lastRoundWinnerId, room.lastRoundWinnerName);
           }
         }
@@ -119,7 +125,7 @@ export function init({ roomId }) {
           <div style="font-size:13px; font-weight:700; color:var(--crown-gold); margin-bottom:6px;">
             ${iWon ? "🏆 GAME OVER" : "GAME OVER"}
           </div>
-          <div style="font-size:17px; font-weight:800; color:#000;">
+          <div style="font-size:17px; font-weight:800; color:#222;">
             ${iWon ? "You won the game!" : `${winnerName} won the game!`}
           </div>
         </div>
@@ -151,7 +157,7 @@ export function init({ roomId }) {
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
           <div style="padding:20px 20px 16px;">
-            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text)"}; margin-bottom:6px;">
+            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text2)"}; margin-bottom:6px;">
               ${iWon ? "Yohoooo!" : "oh oh"}
             </div>
             <div style="font-size:16px; font-weight:800; color:#000;">
@@ -270,11 +276,15 @@ export function init({ roomId }) {
     slot.classList.add("active");
 
     if (roomMode === "offline") {
-      renderOfflineCard(card);
+      // Judge sees an instruction reusing the same waiting-banner slot;
+      // everyone else just sees their card with no banner at all. The
+      // actual "select winner" interaction happens on the avatar row
+      // itself (wired up above via onAvatarClick), not on this card.
+      renderReadOnlyCard(card, isJudge ? "Tap the avatar to select the winner" : null);
     } else if (isChooser) {
       renderChooserCard(card);
     } else {
-      renderReadOnlyCard(card, true);
+      renderReadOnlyCard(card, "Waiting for the chooser to pick a category…");
       updateStatusBar();
     }
   }
@@ -303,7 +313,10 @@ export function init({ roomId }) {
     }
   }
 
-  function renderOfflineCard(card) {
+  // Reused by online non-choosers ("Waiting for the chooser…") and offline
+  // mode (judge gets "Tap the avatar…", everyone else gets no banner at
+  // all) — same card/stats markup either way, only the banner text differs.
+  function renderReadOnlyCard(card, bannerText) {
     const slot = document.getElementById("revealCardSlot");
     const statsHtml = Object.values(card.stats).map((s) => `
       <div class="stat-cell readonly">
@@ -315,60 +328,27 @@ export function init({ roomId }) {
     slot.innerHTML = `
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
-
         <div class="reveal-stats"><div class="reveal-region">${card.region}</div>${statsHtml}</div>
+        ${bannerText ? `<div class="waiting-banner">${bannerText}</div>` : ""}
       </div>
     `;
-
-    if (isJudge) {
-      renderJudgePanel();
-    }
   }
 
-  // FIX: tapping a chip now opens a confirmation popup directly — no more
-  // separate "select then confirm" two-step. The header text also doubles
-  // as the judge's role/instruction message, since offline mode has no
-  // status bar to put it in.
-  function renderJudgePanel() {
-    const revealCard = document.querySelector(".reveal-card");
-    const panel = document.createElement("div");
-    panel.className = "glass-popup judge-panel";
-    panel.style.cssText = "position:absolute; left:6%; right:6%; top:8%; padding:14px; z-index:7;";
-    panel.innerHTML = `
-      <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:8px; text-align:center;">
-        You're the judge — tap on the winner to proceed to next round.
-      </div>
-      <div id="judgePlayerChips" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;"></div>
-    `;
-    revealCard.appendChild(panel);
-
-    const chipsEl = document.getElementById("judgePlayerChips");
-    chipsEl.innerHTML = latestActivePlayers.map((p) => `
-      <button class="judge-chip" data-player-id="${p.id}" data-player-name="${p.name}" type="button" style="padding:8px 12px; border-radius:999px; border:2px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; font-size:12px; font-weight:700; cursor:pointer;">
-        ${p.name}
-      </button>
-    `).join("");
-
-    chipsEl.querySelectorAll(".judge-chip").forEach((chip) => {
-      chip.addEventListener("click", () => {
-        showOfflineConfirmPopup(chip.dataset.playerId, chip.dataset.playerName);
-      });
-    });
-  }
-
+  // Fires when the judge taps an avatar in the avatar row (offline mode
+  // only — wired up via onAvatarClick when the avatar row is first set up).
   function showOfflineConfirmPopup(winnerId, winnerName) {
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      "position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:55; padding:24px;";
+      "position:fixed; inset:0; ; display:flex; align-items:center; justify-content:center; z-index:55; padding:24px;";
     overlay.innerHTML = `
       <div class="glass-popup" style="width:100%; max-width:320px;">
         <div style="padding:18px 20px 14px; text-align:center;">
-          <div style="font-size:13px; color:rgba(255,255,255,0.85); margin-bottom:4px;">Confirm winner</div>
-          <div style="font-size:16px; font-weight:800; color:#fff;">${winnerName} won this round?</div>
+          <div style="font-size:13px; color:rgba(0,0,0,0.85); margin-bottom:4px;">Confirm winner</div>
+          <div style="font-size:16px; font-weight:800; color:#000;">${winnerName} is the winner</div>
         </div>
-        <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
+        <div style="height:1px; background:rgba(0,0,0,0.25);"></div>
         <div style="display:flex;">
-          <button id="offlineCancelBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(255,255,255,0.25); color:var(--danger-text); font-size:15px; font-weight:700; cursor:pointer;">CANCEL</button>
+          <button id="offlineCancelBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(0,0,0,0.25); color:var(--danger-text2); font-size:15px; font-weight:700; cursor:pointer;">CANCEL</button>
           <button id="offlineYesBtn" style="flex:1; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">YES</button>
         </div>
       </div>
@@ -394,25 +374,6 @@ export function init({ roomId }) {
         alert("Couldn't confirm: " + err.message);
       }
     });
-  }
-
-  function renderReadOnlyCard(card, showWaitingBanner) {
-    const slot = document.getElementById("revealCardSlot");
-    const statsHtml = Object.values(card.stats).map((s) => `
-      <div class="stat-cell readonly">
-        <div class="stat-label">${s.label}</div>
-        <div class="stat-value">${s.display}</div>
-      </div>
-    `).join("");
-
-    slot.innerHTML = `
-      <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
-        <div class="reveal-gradient"></div>
-        
-        <div class="reveal-stats"><div class="reveal-region">${card.region}</div>${statsHtml}</div>
-        ${showWaitingBanner ? '<div class="waiting-banner">Waiting for the chooser to pick a category…</div>' : ""}
-      </div>
-    `;
   }
 
   function renderChooserCard(card) {

@@ -37,17 +37,6 @@ export function renderAvatarRow(roomId, containerEl, options = {}) {
     const leaderIds = options.leaderIds || [];
 
     containerEl.innerHTML = players.map((p, i) => {
-      const clickable = typeof options.onAvatarClick === "function";
-      if (clickable) {
-        containerEl.querySelectorAll(".avatar-col").forEach((el) => {
-          el.style.cursor = "pointer";
-          el.addEventListener("click", () => {
-            const player = players.find((p) => p.id === el.dataset.playerId);
-            if (player) options.onAvatarClick(player);
-          });
-        });
-      }
-
       const color = SEAT_COLORS[i % SEAT_COLORS.length];
       const isLeader = leaderIds.includes(p.id);
       return `
@@ -61,5 +50,21 @@ export function renderAvatarRow(roomId, containerEl, options = {}) {
         </div>
       `;
     }).join("");
+
+    // Wiring up click handlers must happen AFTER innerHTML is assigned —
+    // this is the actual fix. Previously this block was nested inside the
+    // .map() callback above, which only builds HTML strings; nothing is
+    // written to the DOM until .join("") is assigned to innerHTML on the
+    // line just above, so containerEl.querySelectorAll found nothing yet.
+    const clickable = typeof options.onAvatarClick === "function";
+    if (clickable) {
+      containerEl.querySelectorAll(".avatar-col").forEach((el) => {
+        el.style.cursor = "pointer";
+        el.addEventListener("click", () => {
+          const player = players.find((p) => p.id === el.dataset.playerId);
+          if (player) options.onAvatarClick(player);
+        });
+      });
+    }
   });
 }
