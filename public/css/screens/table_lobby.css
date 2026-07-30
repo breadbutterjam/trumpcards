@@ -107,6 +107,18 @@
   align-items: center;
   gap: 12px;
 }
+
+@media (max-width: 750px) {
+  /* Mobile styles here */
+  .start-btn{
+    bottom: 14%;
+  }
+
+  .start-game-section {
+    bottom: 14%;
+  }
+}
+
 .start-game-section.show { display: flex; }
 .auto-start-ring-wrap { position: relative; width: 40px; height: 40px; display: none; }
 .auto-start-ring-wrap.show { display: block; }
