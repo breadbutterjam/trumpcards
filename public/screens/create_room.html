@@ -3,6 +3,18 @@
 <div class="status-bar" id="statusBar">Set up your room</div>
 
 <div class="create-room-body">
+  <div class="field-label">Mode</div>
+  <div class="mode-toggle" id="modeToggle">
+    <button class="mode-btn selected" data-mode="online" type="button">
+      <div class="mode-btn-title">Online</div>
+      <div class="mode-btn-sub">App picks category, compares cards</div>
+    </button>
+    <button class="mode-btn" data-mode="offline" type="button">
+      <div class="mode-btn-title">Offline</div>
+      <div class="mode-btn-sub">Players compare cards themselves; one judge declares the winner</div>
+    </button>
+  </div>
+
   <div class="field-label">Category</div>
   <div class="category-list" id="categoryList"></div>
 

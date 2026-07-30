@@ -1,4 +1,4 @@
-import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, collection, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 import { db, functions, whenSignedIn } from "../js/firebase-init.js";
 import { renderAvatarRow } from "../js/avatar-row.js";
@@ -24,6 +24,8 @@ export function init({ roomId }) {
   const unsubscribers = [];
   let myUid = null;
   let isChooser = false;
+  let roomMode = "online";
+  let isJudge = false;
   let revealedForRound = null;
   let selectedStatKey = null;
   let selectedDirection = null;
@@ -33,6 +35,7 @@ export function init({ roomId }) {
   let resultPopupShownForRound = null;
   let gameOverPopupShown = false;
   let activeResultPopup = null;
+  let latestActivePlayers = []; // only tracked in offline mode, for the judge's winner-picker
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -43,6 +46,24 @@ export function init({ roomId }) {
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), async (snap) => {
       const room = snap.data();
       if (!room) return;
+
+      roomMode = room.mode === "offline" ? "offline" : "online";
+      isJudge = room.judgePlayerId === myUid;
+
+      if (roomMode === "offline") {
+        // No status bar in offline mode — the app isn't coordinating turns,
+        // players are.
+        document.getElementById("statusBar").style.display = "none";
+        if (isJudge && !unsubscribers.judgePlayersListenerAdded) {
+          unsubscribers.judgePlayersListenerAdded = true;
+          const unsubJudgePlayers = onSnapshot(collection(db, "rooms", roomId, "players"), (playersSnap) => {
+            latestActivePlayers = playersSnap.docs
+              .map((d) => ({ id: d.id, ...d.data() }))
+              .filter((p) => p.status !== "eliminated");
+          });
+          unsubscribers.push(unsubJudgePlayers);
+        }
+      }
 
       if (room.status === "game_over") {
         if (!gameOverPopupShown) {
@@ -75,10 +96,12 @@ export function init({ roomId }) {
         resetDeckUI();
       }
 
-      updateStatusBar(room);
+      if (roomMode === "online") {
+        updateStatusBar();
+      }
 
       if (revealedForRound !== currentRoundNumber) {
-        await maybeShowDeck(room);
+        await maybeShowDeck();
       }
     });
     unsubscribers.push(unsubRoom);
@@ -90,7 +113,7 @@ export function init({ roomId }) {
 
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      "position:fixed; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; z-index:60; padding:24px;";
+      "position:fixed; inset:0; background:rgba(0,0,0,0.6); display:flex; align-items:center; justify-content:center; z-index:60; padding:24px;";
     overlay.innerHTML = `
       <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
         <div style="padding:22px 20px 18px;">
@@ -122,14 +145,14 @@ export function init({ roomId }) {
       }
 
       const iWon = winnerId === myUid;
-      //background:rgba(0,0,0,0.55);
+
       const overlay = document.createElement("div");
       overlay.style.cssText =
         "position:fixed; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
           <div style="padding:20px 20px 16px;">
-            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text2)"}; margin-bottom:6px;">
+            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text)"}; margin-bottom:6px;">
               ${iWon ? "Yohoooo!" : "oh oh"}
             </div>
             <div style="font-size:16px; font-weight:800; color:#000;">
@@ -137,7 +160,7 @@ export function init({ roomId }) {
             </div>
           </div>
           <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
-          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text2); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
+          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
         </div>
       `;
       document.body.appendChild(overlay);
@@ -165,7 +188,7 @@ export function init({ roomId }) {
     document.getElementById("shuffleBtn").style.display = "none";
   }
 
-  function updateStatusBar(room) {
+  function updateStatusBar() {
     const bar = document.getElementById("statusBar");
     const alreadyRevealed = revealedForRound === currentRoundNumber;
     if (isChooser) {
@@ -177,7 +200,7 @@ export function init({ roomId }) {
     }
   }
 
-  async function maybeShowDeck(room) {
+  async function maybeShowDeck() {
     const cardArea = document.getElementById("cardArea");
     if (cardArea.dataset.rendered === String(currentRoundNumber)) return;
     cardArea.dataset.rendered = String(currentRoundNumber);
@@ -193,9 +216,12 @@ export function init({ roomId }) {
     `;
     document.getElementById("hint").textContent = "Shuffle if you like, then tap your deck to reveal your card.";
 
-    if (isChooser) {
+    // Online mode: only the chooser gets a shuffle button. Update: everyone can shuffle their own deck in online mode too, but it doesn't affect the other players' decks.
+    // Offline mode:
+    // every player shuffles their own card the same way.
+    // if (roomMode === "offline" || isChooser) {
       document.getElementById("shuffleBtn").style.display = "flex";
-    }
+    // }
 
     document.getElementById("topCard").addEventListener("click", revealTopCard);
     document.getElementById("topCard").addEventListener("keydown", (e) => {
@@ -247,13 +273,14 @@ export function init({ roomId }) {
     const slot = document.getElementById("revealCardSlot");
     slot.classList.add("active");
 
-    if (isChooser) {
+    if (roomMode === "offline") {
+      renderOfflineCard(card);
+    } else if (isChooser) {
       renderChooserCard(card);
     } else {
-      renderReadOnlyCard(card);
+      renderReadOnlyCard(card, true);
+      updateStatusBar();
     }
-
-    updateStatusBar({ status: "in_progress" });
   }
 
   function showEliminatedState() {
@@ -275,10 +302,15 @@ export function init({ roomId }) {
     document.getElementById("backToTableBtn").addEventListener("click", () => {
       showScreen("table_lobby", { roomId });
     });
-    document.getElementById("statusBar").textContent = "You're out of cards — spectating.";
+    if (roomMode === "online") {
+      document.getElementById("statusBar").textContent = "You're out of cards — spectating.";
+    }
   }
 
-  function renderReadOnlyCard(card) {
+  // Offline mode: every player (including the judge) sees their own card
+  // with all stats plainly visible — no picker, no waiting banner. The
+  // judge additionally gets a "who won?" panel appended below.
+  function renderOfflineCard(card) {
     const slot = document.getElementById("revealCardSlot");
     const statsHtml = Object.values(card.stats).map((s) => `
       <div class="stat-cell readonly">
@@ -291,10 +323,82 @@ export function init({ roomId }) {
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
         
-        <div class="reveal-stats">
-        <div class="reveal-region">${card.region}</div>
-        ${statsHtml}</div>
-        <div class="waiting-banner">Waiting for the chooser to pick a category…</div>
+        <div class="reveal-stats"><div class="reveal-region">${card.region}</div>${statsHtml}</div>
+      </div>
+    `;
+
+    if (isJudge) {
+      renderJudgePanel();
+    }
+  }
+
+  function renderJudgePanel() {
+    const revealCard = document.querySelector(".reveal-card");
+    const panel = document.createElement("div");
+    panel.className = "glass-popup judge-panel";
+    panel.style.cssText = "position:absolute; left:6%; right:6%; top:8%; padding:14px; z-index:7;";
+    panel.innerHTML = `
+      <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:8px; text-align:center;">Who won this round?</div>
+      <div id="judgePlayerChips" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:10px;"></div>
+      <button id="judgeConfirmBtn" class="btn-candy btn-green" style="width:100%;" disabled>CONFIRM WINNER</button>
+    `;
+    revealCard.appendChild(panel);
+
+    let chosenWinnerId = null;
+    const chipsEl = document.getElementById("judgePlayerChips");
+    chipsEl.innerHTML = latestActivePlayers.map((p) => `
+      <button class="judge-chip" data-player-id="${p.id}" type="button" style="padding:8px 12px; border-radius:999px; border:2px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; font-size:12px; font-weight:700; cursor:pointer;">
+        ${p.name}
+      </button>
+    `).join("");
+
+    chipsEl.querySelectorAll(".judge-chip").forEach((chip) => {
+      chip.addEventListener("click", () => {
+        chosenWinnerId = chip.dataset.playerId;
+        chipsEl.querySelectorAll(".judge-chip").forEach((c) => {
+          c.style.background = "rgba(255,255,255,0.1)";
+          c.style.borderColor = "rgba(255,255,255,0.3)";
+        });
+        chip.style.background = "var(--proceed-text)";
+        chip.style.borderColor = "var(--proceed-text)";
+        chip.style.color = "#0d1f14";
+        document.getElementById("judgeConfirmBtn").disabled = false;
+      });
+    });
+
+    document.getElementById("judgeConfirmBtn").addEventListener("click", async () => {
+      if (!chosenWinnerId) return;
+      const btn = document.getElementById("judgeConfirmBtn");
+      btn.disabled = true;
+      btn.textContent = "…";
+      try {
+        const resolveOfflineModeRound = httpsCallable(functions, "resolveOfflineModeRound");
+        await resolveOfflineModeRound({ roomId, winnerId: chosenWinnerId });
+        // Round transition (result popup, next deck) arrives via the room
+        // listener, same as online mode.
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = "CONFIRM WINNER";
+        alert("Couldn't confirm: " + err.message);
+      }
+    });
+  }
+
+  function renderReadOnlyCard(card, showWaitingBanner) {
+    const slot = document.getElementById("revealCardSlot");
+    const statsHtml = Object.values(card.stats).map((s) => `
+      <div class="stat-cell readonly">
+        <div class="stat-label">${s.label}</div>
+        <div class="stat-value">${s.display}</div>
+      </div>
+    `).join("");
+
+    slot.innerHTML = `
+      <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
+        <div class="reveal-gradient"></div>
+        
+        <div class="reveal-stats"><div class="reveal-region">${card.region}</div>${statsHtml}</div>
+        ${showWaitingBanner ? '<div class="waiting-banner">Waiting for the chooser to pick a category…</div>' : ""}
       </div>
     `;
   }
@@ -312,7 +416,6 @@ export function init({ roomId }) {
     slot.innerHTML = `
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
-        
         <div class="direction-toggle" id="directionToggle">
           <button class="direction-btn" id="dirHigh">High</button>
           <button class="direction-btn" id="dirLow">Low</button>
@@ -339,7 +442,7 @@ export function init({ roomId }) {
     document.getElementById("dirHigh").addEventListener("click", () => selectDirection("High"));
     document.getElementById("dirLow").addEventListener("click", () => selectDirection("Low"));
     document.getElementById("btnCancel").addEventListener("click", resetSelection);
-    document.getElementById("btnConfirm").addEventListener("click", () => confirmSelection(card));
+    document.getElementById("btnConfirm").addEventListener("click", () => confirmSelection());
     document.querySelector(".reveal-card").addEventListener("click", handleCardBackgroundClick);
   }
 
@@ -391,7 +494,7 @@ export function init({ roomId }) {
     resetSelection();
   }
 
-  async function confirmSelection(card) {
+  async function confirmSelection() {
     document.getElementById("confirmPopup").classList.remove("show");
     document.getElementById("revealStats").classList.add("locked");
     document.getElementById("directionToggle").style.pointerEvents = "none";

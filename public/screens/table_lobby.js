@@ -58,7 +58,10 @@ export function init({ roomId }) {
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), (snap) => {
       const room = snap.data();
       if (!room) return;
-
+      if (room.mode === "offline" && document.getElementById("startBtn").textContent === "SELECT WHO STARTS") {
+        document.getElementById("startBtn").textContent = "DEAL CARDS";
+      }
+      
       if (room.status === "game_over") {
         if (!gameOverHandled) {
           gameOverHandled = true;

@@ -17,6 +17,26 @@
   flex-shrink: 0;
 }
 
+.mode-toggle {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+.mode-btn {
+  flex: 1;
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  text-align: left;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.mode-btn.selected { border-color: var(--proceed-text); }
+.mode-btn-title { font-size: 14px; font-weight: 800; margin-bottom: 3px; }
+.mode-btn-sub { font-size: 11px; color: var(--text-muted); line-height: 1.35; }
+
 .category-list {
   flex: 1;
   min-height: 0;

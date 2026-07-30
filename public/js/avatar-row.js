@@ -43,11 +43,10 @@ export function renderAvatarRow(roomId, containerEl, options = {}) {
         <div class="avatar-col" data-player-id="${p.id}">
           <div class="avatar-wrap-outer" style="border-radius:50%; border:2px solid ${color.border}; background:${color.bg};">
             ${avatarImgHtml(p.avatar)}
-            ${statusBadgeHtml(p.status)}
             ${isLeader ? '<div class="crown-icon" aria-hidden="true"><i class="fa-solid fa-crown"></i></div>' : ""}
           </div>
           <div class="avatar-name">${p.name}</div>
-          <div class="avatar-count">${p.cardCount} cards</div>
+          <div class="avatar-count">${p.cardCount}</div>
         </div>
       `;
     }).join("");
