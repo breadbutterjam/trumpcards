@@ -37,6 +37,17 @@ export function renderAvatarRow(roomId, containerEl, options = {}) {
     const leaderIds = options.leaderIds || [];
 
     containerEl.innerHTML = players.map((p, i) => {
+      const clickable = typeof options.onAvatarClick === "function";
+      if (clickable) {
+        containerEl.querySelectorAll(".avatar-col").forEach((el) => {
+          el.style.cursor = "pointer";
+          el.addEventListener("click", () => {
+            const player = players.find((p) => p.id === el.dataset.playerId);
+            if (player) options.onAvatarClick(player);
+          });
+        });
+      }
+
       const color = SEAT_COLORS[i % SEAT_COLORS.length];
       const isLeader = leaderIds.includes(p.id);
       return `

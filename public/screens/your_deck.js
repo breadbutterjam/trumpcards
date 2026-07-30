@@ -35,7 +35,8 @@ export function init({ roomId }) {
   let resultPopupShownForRound = null;
   let gameOverPopupShown = false;
   let activeResultPopup = null;
-  let latestActivePlayers = []; // only tracked in offline mode, for the judge's winner-picker
+  let latestActivePlayers = [];
+  let judgePlayersListenerAdded = false;
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -51,11 +52,9 @@ export function init({ roomId }) {
       isJudge = room.judgePlayerId === myUid;
 
       if (roomMode === "offline") {
-        // No status bar in offline mode — the app isn't coordinating turns,
-        // players are.
         document.getElementById("statusBar").style.display = "none";
-        if (isJudge && !unsubscribers.judgePlayersListenerAdded) {
-          unsubscribers.judgePlayersListenerAdded = true;
+        if (isJudge && !judgePlayersListenerAdded) {
+          judgePlayersListenerAdded = true;
           const unsubJudgePlayers = onSnapshot(collection(db, "rooms", roomId, "players"), (playersSnap) => {
             latestActivePlayers = playersSnap.docs
               .map((d) => ({ id: d.id, ...d.data() }))
@@ -148,7 +147,7 @@ export function init({ roomId }) {
 
       const overlay = document.createElement("div");
       overlay.style.cssText =
-        "position:fixed; inset:0; background:rgba(0,0,0,0); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
+        "position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
           <div style="padding:20px 20px 16px;">
@@ -216,9 +215,6 @@ export function init({ roomId }) {
     `;
     document.getElementById("hint").textContent = "Shuffle if you like, then tap your deck to reveal your card.";
 
-    // Online mode: only the chooser gets a shuffle button. Update: everyone can shuffle their own deck in online mode too, but it doesn't affect the other players' decks.
-    // Offline mode:
-    // every player shuffles their own card the same way.
     // if (roomMode === "offline" || isChooser) {
       document.getElementById("shuffleBtn").style.display = "flex";
     // }
@@ -307,9 +303,6 @@ export function init({ roomId }) {
     }
   }
 
-  // Offline mode: every player (including the judge) sees their own card
-  // with all stats plainly visible — no picker, no waiting banner. The
-  // judge additionally gets a "who won?" panel appended below.
   function renderOfflineCard(card) {
     const slot = document.getElementById("revealCardSlot");
     const statsHtml = Object.values(card.stats).map((s) => `
@@ -322,7 +315,7 @@ export function init({ roomId }) {
     slot.innerHTML = `
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
         <div class="reveal-gradient"></div>
-        
+
         <div class="reveal-stats"><div class="reveal-region">${card.region}</div>${statsHtml}</div>
       </div>
     `;
@@ -332,53 +325,72 @@ export function init({ roomId }) {
     }
   }
 
+  // FIX: tapping a chip now opens a confirmation popup directly — no more
+  // separate "select then confirm" two-step. The header text also doubles
+  // as the judge's role/instruction message, since offline mode has no
+  // status bar to put it in.
   function renderJudgePanel() {
     const revealCard = document.querySelector(".reveal-card");
     const panel = document.createElement("div");
     panel.className = "glass-popup judge-panel";
     panel.style.cssText = "position:absolute; left:6%; right:6%; top:8%; padding:14px; z-index:7;";
     panel.innerHTML = `
-      <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:8px; text-align:center;">Who won this round?</div>
-      <div id="judgePlayerChips" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:10px;"></div>
-      <button id="judgeConfirmBtn" class="btn-candy btn-green" style="width:100%;" disabled>CONFIRM WINNER</button>
+      <div style="font-size:12px; font-weight:700; color:#fff; margin-bottom:8px; text-align:center;">
+        You're the judge — tap on the winner to proceed to next round.
+      </div>
+      <div id="judgePlayerChips" style="display:flex; gap:8px; flex-wrap:wrap; justify-content:center;"></div>
     `;
     revealCard.appendChild(panel);
 
-    let chosenWinnerId = null;
     const chipsEl = document.getElementById("judgePlayerChips");
     chipsEl.innerHTML = latestActivePlayers.map((p) => `
-      <button class="judge-chip" data-player-id="${p.id}" type="button" style="padding:8px 12px; border-radius:999px; border:2px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; font-size:12px; font-weight:700; cursor:pointer;">
+      <button class="judge-chip" data-player-id="${p.id}" data-player-name="${p.name}" type="button" style="padding:8px 12px; border-radius:999px; border:2px solid rgba(255,255,255,0.3); background:rgba(255,255,255,0.1); color:#fff; font-size:12px; font-weight:700; cursor:pointer;">
         ${p.name}
       </button>
     `).join("");
 
     chipsEl.querySelectorAll(".judge-chip").forEach((chip) => {
       chip.addEventListener("click", () => {
-        chosenWinnerId = chip.dataset.playerId;
-        chipsEl.querySelectorAll(".judge-chip").forEach((c) => {
-          c.style.background = "rgba(255,255,255,0.1)";
-          c.style.borderColor = "rgba(255,255,255,0.3)";
-        });
-        chip.style.background = "var(--proceed-text)";
-        chip.style.borderColor = "var(--proceed-text)";
-        chip.style.color = "#0d1f14";
-        document.getElementById("judgeConfirmBtn").disabled = false;
+        showOfflineConfirmPopup(chip.dataset.playerId, chip.dataset.playerName);
       });
     });
+  }
 
-    document.getElementById("judgeConfirmBtn").addEventListener("click", async () => {
-      if (!chosenWinnerId) return;
-      const btn = document.getElementById("judgeConfirmBtn");
-      btn.disabled = true;
-      btn.textContent = "…";
+  function showOfflineConfirmPopup(winnerId, winnerName) {
+    const overlay = document.createElement("div");
+    overlay.style.cssText =
+      "position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:55; padding:24px;";
+    overlay.innerHTML = `
+      <div class="glass-popup" style="width:100%; max-width:320px;">
+        <div style="padding:18px 20px 14px; text-align:center;">
+          <div style="font-size:13px; color:rgba(255,255,255,0.85); margin-bottom:4px;">Confirm winner</div>
+          <div style="font-size:16px; font-weight:800; color:#fff;">${winnerName} won this round?</div>
+        </div>
+        <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
+        <div style="display:flex;">
+          <button id="offlineCancelBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(255,255,255,0.25); color:var(--danger-text); font-size:15px; font-weight:700; cursor:pointer;">CANCEL</button>
+          <button id="offlineYesBtn" style="flex:1; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">YES</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById("offlineCancelBtn").addEventListener("click", () => {
+      overlay.remove();
+    });
+
+    document.getElementById("offlineYesBtn").addEventListener("click", async () => {
+      const yesBtn = document.getElementById("offlineYesBtn");
+      yesBtn.disabled = true;
+      yesBtn.textContent = "…";
       try {
         const resolveOfflineModeRound = httpsCallable(functions, "resolveOfflineModeRound");
-        await resolveOfflineModeRound({ roomId, winnerId: chosenWinnerId });
+        await resolveOfflineModeRound({ roomId, winnerId });
+        overlay.remove();
         // Round transition (result popup, next deck) arrives via the room
         // listener, same as online mode.
       } catch (err) {
-        btn.disabled = false;
-        btn.textContent = "CONFIRM WINNER";
+        overlay.remove();
         alert("Couldn't confirm: " + err.message);
       }
     });
@@ -415,7 +427,7 @@ export function init({ roomId }) {
 
     slot.innerHTML = `
       <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])};">
-        <div class="reveal-gradient"></div>
+        <div class="reveal-gradient"></div>        
         <div class="direction-toggle" id="directionToggle">
           <button class="direction-btn" id="dirHigh">High</button>
           <button class="direction-btn" id="dirLow">Low</button>
