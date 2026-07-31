@@ -162,8 +162,8 @@ div.reveal-card{
 }
 .confirm-popup.show { display: block; }
 .confirm-popup-text { padding: 18px 20px 16px; text-align: center; }
-.confirm-popup-label { font-size: 13px; color: rgba(0,0,0,0.85); margin-bottom: 4px; }
-.confirm-popup-value { font-size: 16px; font-weight: 700; color: #000; }
+.confirm-popup-label { font-size: 13px; color: rgba(255,255,255,0.85); margin-bottom: 4px; }
+.confirm-popup-value { font-size: 16px; font-weight: 700; color: #fff; }
 .confirm-popup-divider { height: 1px; background: rgba(255,255,255,0.25); }
 .confirm-popup-actions { display: flex; }
 .confirm-popup-actions button {
@@ -177,12 +177,17 @@ div.reveal-card{
 
 .btn-cancel-popup { 
   /* color: var(--danger-text);  */
-  color: #B50C0F;
+  /* color: #B50C0F; */
+  /* color: var(--danger-text2); */
+  color: var(--danger-text-bright);
   border-right: 1px solid rgba(255,255,255,0.25); 
+  /* text-shadow: 0px 0px 7px #ffffff; */
 }
 .btn-yes-popup { 
   /* color: var(--proceed-text);  */
-  color: var(--proceed-text2);
+  /* color: var(--proceed-text2); */
+  color: var(--proceed-text-bright);
+  /* text-shadow: 0px 0px 7px #ffffff; */
 }
 
 .waiting-banner {

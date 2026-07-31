@@ -12,9 +12,11 @@
   /* --proceed-text: #6fce8f; */
   --proceed-text: #016500;
   --proceed-text2: #033300;
+  --proceed-text-bright: #0fff00;
   --crown-gold: #f6d94c;
   --danger-text: #ff6b57;
   --danger-text2: #B50C0F;
+  --danger-text-bright: #ff0000;
   --success-bg: #143922; --success-text: #6fce8f; --success-border: #2c6a45;
   --pro-bg: #2a2560; --pro-text: #cec9fa; --pro-border: #4a45a0;
   --warning-bg: #4a3208; --warning-text: #f5c568; --warning-border: #855a10;
@@ -148,9 +150,11 @@ body {
 
 /* ---------- Shared liquid-glass popup ---------- */
 .glass-popup {
-  background: rgba(255,255,255,0.14);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  /* background: rgba(255,255,255,0.14); */
+  background: rgba(45, 55, 110, 0.35);
+  backdrop-filter: blur(42px) saturate(172%);
+  /* -webkit-backdrop-filter: blur(20px) saturate(160%); */
+  -webkit-backdrop-filter: blur(42px) saturate(172%);
   border: 1px solid rgba(255,255,255,0.32);
   border-radius: 18px;
   overflow: hidden;

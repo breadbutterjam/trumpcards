@@ -167,15 +167,15 @@ export function init({ roomId }) {
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
           <div style="padding:20px 20px 16px;">
-            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text2)"}; margin-bottom:6px;">
+            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text-bright)"}; margin-bottom:6px;">
               ${iWon ? "Yohoooo!" : "oh oh"}
             </div>
-            <div style="font-size:16px; font-weight:800; color:#000;">
+            <div style="font-size:16px; font-weight:800; color:#fff;">
               ${iWon ? "You won" : `You lost, ${winnerName} won`}
             </div>
           </div>
           <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
-          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
+          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
         </div>
       `;
       document.body.appendChild(overlay);
