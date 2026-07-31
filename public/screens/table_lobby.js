@@ -12,6 +12,7 @@ export function init({ roomId }) {
   const unsubscribers = [];
   let latestPlayers = [];
   let seatAngles = [];
+  let latestStartAcks = [];
   let myUid = null;
   let hasPlayedSpin = false;
   let gameOverHandled = false;
@@ -27,6 +28,7 @@ export function init({ roomId }) {
 
     hasPlayedSpin = false;
     gameOverHandled = false;
+    latestStartAcks = [];
 
     document.getElementById("announceBar").classList.remove("show");
     document.getElementById("statusBar").textContent = "Starting a new game…";
@@ -58,10 +60,7 @@ export function init({ roomId }) {
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), (snap) => {
       const room = snap.data();
       if (!room) return;
-      if (room.mode === "offline" && document.getElementById("startBtn").textContent === "SELECT WHO STARTS") {
-        document.getElementById("startBtn").textContent = "DEAL CARDS";
-      }
-      
+
       if (room.status === "game_over") {
         if (!gameOverHandled) {
           gameOverHandled = true;
@@ -71,10 +70,16 @@ export function init({ roomId }) {
         return;
       }
 
-      if (room.status === "hands_dealt" && !hasPlayedSpin) {
-        hasPlayedSpin = true;
-        document.getElementById("newGameBtn").style.display = "none";
-        playSpinAndAnnounce(room);
+      if (room.status === "hands_dealt") {
+        if (!hasPlayedSpin) {
+          hasPlayedSpin = true;
+          document.getElementById("newGameBtn").style.display = "none";
+          playSpinAndAnnounce(room);
+        }
+
+        latestStartAcks = room.startAcks || [];
+        updateAllReadyTicks();
+        updateWaitingStatusText();
       }
 
       if (room.status === "in_progress") {
@@ -123,15 +128,43 @@ export function init({ roomId }) {
 
       const seatEl = document.createElement("div");
       seatEl.className = "seat";
+      seatEl.dataset.playerId = player.id;
       seatEl.style.left = x + "%";
       seatEl.style.top = y + "%";
-      seatEl.innerHTML = `${avatarImgHtml(player.avatar, "seat-avatar-img")}<div class="seat-name">${player.name}</div>`;
+      seatEl.innerHTML = `
+        <div class="seat-avatar-wrap">
+          ${avatarImgHtml(player.avatar, "seat-avatar-img")}
+          <div class="ready-tick" style="display:none;"><i class="fa-solid fa-check"></i></div>
+        </div>
+        <div class="seat-name">${player.name}</div>
+      `;
       tableSurface.appendChild(seatEl);
     });
+
+    updateAllReadyTicks();
 
     if (!gameOverHandled) {
       document.getElementById("startBtn").disabled = players.length < MIN_PLAYERS_TO_START;
     }
+  }
+
+  function updateAllReadyTicks() {
+    document.querySelectorAll(".seat").forEach((seatEl) => {
+      const tick = seatEl.querySelector(".ready-tick");
+      if (!tick) return;
+      const isReady = latestStartAcks.includes(seatEl.dataset.playerId);
+      tick.style.display = isReady ? "flex" : "none";
+    });
+  }
+
+  function updateWaitingStatusText() {
+    if (!document.getElementById("startGameSection").classList.contains("show")) return;
+
+    const remaining = latestPlayers.length - latestStartAcks.length;
+    const bar = document.getElementById("statusBar");
+    bar.textContent = remaining > 0
+      ? `Waiting for ${remaining} more player${remaining > 1 ? "s" : ""} to be ready…`
+      : "Everyone's ready — starting…";
   }
 
   function playSpinAndAnnounce(room) {
@@ -154,8 +187,8 @@ export function init({ roomId }) {
       const announceBar = document.getElementById("announceBar");
       announceBar.textContent = `${winnerName} will choose first!`;
       announceBar.classList.add("show");
-      document.getElementById("statusBar").textContent = "Waiting to start game…";
       document.getElementById("startGameSection").classList.add("show");
+      updateWaitingStatusText();
 
       scheduleAutoStart();
     }, 3300);
@@ -204,8 +237,6 @@ export function init({ roomId }) {
         showScreen("your_deck", { roomId });
         return;
       }
-
-      document.getElementById("statusBar").textContent = "Waiting for other players to start…";
     } catch (err) {
       document.getElementById("statusBar").textContent = "Couldn't start: " + err.message;
       btn.disabled = false;

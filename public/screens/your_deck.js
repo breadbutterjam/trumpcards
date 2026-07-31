@@ -153,7 +153,7 @@ export function init({ roomId }) {
 
       const overlay = document.createElement("div");
       overlay.style.cssText =
-        "position:fixed; inset:0; background:rgba(0,0,0,0.55); display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
+        "position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
           <div style="padding:20px 20px 16px;">
@@ -339,7 +339,7 @@ export function init({ roomId }) {
   function showOfflineConfirmPopup(winnerId, winnerName) {
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      "position:fixed; inset:0; ; display:flex; align-items:center; justify-content:center; z-index:55; padding:24px;";
+      "position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:55; padding:24px;";
     overlay.innerHTML = `
       <div class="glass-popup" style="width:100%; max-width:320px;">
         <div style="padding:18px 20px 14px; text-align:center;">
