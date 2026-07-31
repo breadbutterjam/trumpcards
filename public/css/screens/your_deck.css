@@ -15,7 +15,13 @@
   justify-content: center;
   padding: 12px 0 0 0;
 }
-.deck-stack { position: relative; width: 82%; max-width: 300px; aspect-ratio: 0.72; }
+.deck-stack { 
+  position: relative;
+  width: 82%;
+  max-width: 300px;
+  aspect-ratio: 0.72;
+  max-height: 90%;
+}
 .deck-card { position: absolute; inset: 0; border-radius: 16px; border: 0.5px solid var(--border); }
 .card-back-design {
   background: linear-gradient(135deg, #2a2560 0%, #1c1840 100%);
@@ -38,7 +44,20 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
+  /* height: 80vh; */
+
 }
+
+@media (max-width: 430px)
+       and (min-height: 780px)
+       and (orientation: portrait) {
+  /* Tall phones in portrait */
+  #app-root {
+    height: 80vh;
+  }
+
+}
+
 .reveal-card-slot {
   display: none;
   flex: 1 1 auto;

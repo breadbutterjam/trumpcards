@@ -9,16 +9,22 @@ const CATEGORIES = [
     sub: "Area, population, formed-on dates, and more",
     gradient: "linear-gradient(160deg, #f0c896, #b97a4d)",
   },
-  {
-    id: "mountains",
-    name: "Famous Mountains",
-    sub: "Height, first ascent, range, and more",
-    gradient: "linear-gradient(160deg, #cfe8fa, #7b93a3)",
-  },
+  // {
+  //   id: "mountains",
+  //   name: "Famous Mountains",
+  //   sub: "Height, first ascent, range, and more",
+  //   gradient: "linear-gradient(160deg, #cfe8fa, #7b93a3)",
+  // },
   {
     id: "cricketers",
     name: "Cricketers",
     sub: "Batting, bowling, and fielding stats",
+    gradient: "linear-gradient(160deg, #f0e8fa, #4227f3)",
+  },
+  {
+    id: "iplcricketers",
+    name: "IPL Cricketers",
+    sub: "IPL Legends - Batting, bowling, and fielding stats",
     gradient: "linear-gradient(160deg, #f0e8fa, #7b4da3)",
   },
 ];

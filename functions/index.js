@@ -10,8 +10,9 @@ const db = getFirestore();
 // category selectable when creating a room.
 const CATEGORY_REGISTRY = {
   states_of_india: require("./data/states_of_india.json"),
-  mountains: require("./data/mountains.json"),
+  // mountains: require("./data/mountains.json"),
   cricketers: require("./data/cricketers.json"),
+  iplcricketers: require("./data/iplcricketers.json"),
 };
 const DEFAULT_CATEGORY_ID = "states_of_india";
 

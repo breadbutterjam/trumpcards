@@ -1,0 +1,1126 @@
+{
+  "categoryId": "iplcricketers",
+  "categoryName": "IPL Cricketers",
+  "cards": [
+    {
+      "id": "sanjusamson",
+      "region": "Sanju Samson",
+      "nickname": "chetta thala",
+      "images": [
+        "assets/cards/SanjuSamson.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2013",
+          "value": 2013
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "188",
+          "value": 188
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "5,181",
+          "value": 5181
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "90",
+          "value": 90
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "119",
+          "value": 119
+        }
+      }
+    },
+    {
+      "id": "msdhoni",
+      "region": "MS Dhoni",
+      "nickname": "thala",
+      "images": [
+        "assets/cards/MsDhoni.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2008",
+          "value": 2008
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "278",
+          "value": 278
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "5,439",
+          "value": 5439
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "158",
+          "value": 158
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "84*",
+          "value": 84
+        }
+      }
+    },
+    {
+      "id": "klrahul",
+      "region": "KL Rahul",
+      "nickname": "",
+      "images": [
+        "assets/cards/KlRahul.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2013",
+          "value": 2013
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "157",
+          "value": 157
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "5,835",
+          "value": 5835
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "86",
+          "value": 86
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "152*",
+          "value": 152
+        }
+      }
+    },
+    {
+      "id": "kuldeepyadav",
+      "region": "Kuldeep Yadav",
+      "nickname": "",
+      "images": [
+        "assets/cards/KuldeepYadav.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2016",
+          "value": 2016
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "109",
+          "value": 109
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "210",
+          "value": 210
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "112",
+          "value": 112
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "22",
+          "value": 22
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "35*",
+          "value": 35
+        }
+      }
+    },
+    {
+      "id": "mitchellstarc",
+      "region": "Mitchell Starc",
+      "nickname": "Majje hi majje",
+      "images": [
+        "assets/cards/MitchellStarc.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2014",
+          "value": 2014
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "56",
+          "value": 56
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "111",
+          "value": 111
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "76",
+          "value": 76
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "33",
+          "value": 33
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "29",
+          "value": 29
+        }
+      }
+    },
+    {
+      "id": "axarpatel",
+      "region": "Axar Patel",
+      "nickname": "Baapu",
+      "images": [
+        "assets/cards/AxarPatel.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2014",
+          "value": 2014
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "174",
+          "value": 174
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "2,089",
+          "value": 2089
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "139",
+          "value": 139
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "83",
+          "value": 83
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "66",
+          "value": 66
+        }
+      }
+    },
+    {
+      "id": "mohammedsiraj",
+      "region": "Mohammed Siraj",
+      "nickname": "",
+      "images": [
+        "assets/cards/MohammedSiraj.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2017",
+          "value": 2017
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "119",
+          "value": 119
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "117",
+          "value": 117
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "128",
+          "value": 128
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "38",
+          "value": 38
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "14",
+          "value": 14
+        }
+      }
+    },
+    {
+      "id": "prasidhkrishna",
+      "region": "Prasidh Krishna",
+      "nickname": "",
+      "images": [
+        "assets/cards/PrasidhKrishna.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2018",
+          "value": 2018
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "73",
+          "value": 73
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "15",
+          "value": 15
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "90",
+          "value": 90
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "19",
+          "value": 19
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "6*",
+          "value": 6
+        }
+      }
+    },
+    {
+      "id": "shubmangill",
+      "region": "Shubman Gill",
+      "nickname": "Prince",
+      "images": [
+        "assets/cards/ShubmanGill.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2018",
+          "value": 2018
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "128",
+          "value": 128
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "4,598",
+          "value": 4598
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "57",
+          "value": 57
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "129",
+          "value": 129
+        }
+      }
+    },
+    {
+      "id": "rashidkhan",
+      "region": "Rashid Khan",
+      "nickname": "",
+      "images": [
+        "assets/cards/RashidKhan.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2017",
+          "value": 2017
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "147",
+          "value": 147
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "635",
+          "value": 635
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "179",
+          "value": 179
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "52",
+          "value": 52
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "79*",
+          "value": 79
+        }
+      }
+    },
+    {
+      "id": "jaspritbumrah",
+      "region": "Jasprit Bumrah",
+      "nickname": "Boom Boom Bumrah",
+      "images": [
+        "assets/cards/JaspritBumrah.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2013",
+          "value": 2013
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "156",
+          "value": 156
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "76",
+          "value": 76
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "187",
+          "value": 187
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "19",
+          "value": 19
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "16*",
+          "value": 16
+        }
+      }
+    },
+    {
+      "id": "trentboult",
+      "region": "Trent Boult",
+      "nickname": "Boulty",
+      "images": [
+        "assets/cards/TrentBoult.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2015",
+          "value": 2015
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "125",
+          "value": 125
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "93",
+          "value": 93
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "145",
+          "value": 145
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "36",
+          "value": 36
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "17*",
+          "value": 17
+        }
+      }
+    },
+    {
+      "id": "hardikpandya",
+      "region": "Hardik Pandya",
+      "nickname": "GOAT",
+      "images": [
+        "assets/cards/HardikPandya.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2015",
+          "value": 2015
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "160",
+          "value": 160
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "2,955",
+          "value": 2955
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "82",
+          "value": 82
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "74",
+          "value": 74
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "91",
+          "value": 91
+        }
+      }
+    },
+    {
+      "id": "rohitsharma",
+      "region": "Rohit Sharma",
+      "nickname": "Hitman",
+      "images": [
+        "assets/cards/RohitSharma.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2008",
+          "value": 2008
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "278",
+          "value": 278
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "7,329",
+          "value": 7329
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "15",
+          "value": 15
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "102",
+          "value": 102
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "109*",
+          "value": 109
+        }
+      }
+    },
+    {
+      "id": "suryakumaryadav",
+      "region": "Surya Kumar Yadav",
+      "nickname": "SKY",
+      "images": [
+        "assets/cards/SuryaKumarYadav.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2012",
+          "value": 2012
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "177",
+          "value": 177
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "4,581",
+          "value": 4581
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "77",
+          "value": 77
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "103*",
+          "value": 103
+        }
+      }
+    },
+    {
+      "id": "arshdeepsingh",
+      "region": "Arshdeep Singh",
+      "nickname": "",
+      "images": [
+        "assets/cards/ArshdeepSingh.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2019",
+          "value": 2019
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "93",
+          "value": 93
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "32",
+          "value": 32
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "111",
+          "value": 111
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "20",
+          "value": 20
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "10*",
+          "value": 10
+        }
+      }
+    },
+    {
+      "id": "shreyasiyer",
+      "region": "Shreyas Iyer",
+      "nickname": "",
+      "images": [
+        "assets/cards/ShreyasIyer.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2015",
+          "value": 2015
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "144",
+          "value": 144
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "4,229",
+          "value": 4229
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "64",
+          "value": 64
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "101*",
+          "value": 101
+        }
+      }
+    },
+    {
+      "id": "yuzvendrachahal",
+      "region": "Yuzvendra Chahal",
+      "nickname": "Yuzi bhai",
+      "images": [
+        "assets/cards/YuzvendraChahal.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2013",
+          "value": 2013
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "185",
+          "value": 185
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "37",
+          "value": 37
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "233",
+          "value": 233
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "35",
+          "value": 35
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "8*",
+          "value": 8
+        }
+      }
+    },
+    {
+      "id": "viratkohli",
+      "region": "Virat Kohli",
+      "nickname": "King",
+      "images": [
+        "assets/cards/ViratKohli.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2008",
+          "value": 2008
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "278",
+          "value": 278
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "9,336",
+          "value": 9336
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "4",
+          "value": 4
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "127",
+          "value": 127
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "113",
+          "value": 113
+        }
+      }
+    },
+    {
+      "id": "joshhazlewood",
+      "region": "Josh Hazlewood",
+      "nickname": "",
+      "images": [
+        "assets/cards/JoshHazlewood.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2020",
+          "value": 2020
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "47",
+          "value": 47
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "19",
+          "value": 19
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "72",
+          "value": 72
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "11",
+          "value": 11
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "7*",
+          "value": 7
+        }
+      }
+    },
+    {
+      "id": "rajatpatidar",
+      "region": "Rajat Patidar",
+      "nickname": "",
+      "images": [
+        "assets/cards/RajatPatidar.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2021",
+          "value": 2021
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "53",
+          "value": 53
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "1,612",
+          "value": 1612
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "20",
+          "value": 20
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "112*",
+          "value": 112
+        }
+      }
+    },
+    {
+      "id": "bhuvneshwarkumar",
+      "region": "Bhuvneshwar Kumar",
+      "nickname": "Bhuvi",
+      "images": [
+        "assets/cards/BhuvneshwarKumar.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2011",
+          "value": 2011
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "201",
+          "value": 201
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "354",
+          "value": 354
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "226",
+          "value": 226
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "39",
+          "value": 39
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "27",
+          "value": 27
+        }
+      }
+    },
+    {
+      "id": "ravindrajadeja",
+      "region": "Ravindra Jadeja",
+      "nickname": "Jaddu",
+      "images": [
+        "assets/cards/RavindraJadeja.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2008",
+          "value": 2008
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "265",
+          "value": 265
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "3,526",
+          "value": 3526
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "180",
+          "value": 180
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "110",
+          "value": 110
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "77*",
+          "value": 77
+        }
+      }
+    },
+    {
+      "id": "vaibhavsooryavanshi",
+      "region": "Vaibhav Sooryavanshi",
+      "nickname": "Surrryaaavanshi",
+      "images": [
+        "assets/cards/VaibhavSooryavanshi.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2025",
+          "value": 2025
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "18",
+          "value": 18
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "1,028",
+          "value": 1028
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "2",
+          "value": 2
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "103",
+          "value": 103
+        }
+      }
+    },
+    {
+      "id": "ishankishan",
+      "region": "Ishan Kishan",
+      "nickname": "",
+      "images": [
+        "assets/cards/IshanKishan.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2016",
+          "value": 2016
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "130",
+          "value": 130
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "3,600",
+          "value": 3600
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "0",
+          "value": 0
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "68",
+          "value": 68
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "106*",
+          "value": 106
+        }
+      }
+    },
+    {
+      "id": "patcummins",
+      "region": "Pat Cummins",
+      "nickname": "jeera aaloo",
+      "images": [
+        "assets/cards/PatCummins.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2014",
+          "value": 2014
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "76",
+          "value": 76
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "642",
+          "value": 642
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "87",
+          "value": 87
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "22",
+          "value": 22
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "66*",
+          "value": 66
+        }
+      }
+    },
+    {
+      "id": "abhisheksharma",
+      "region": "Abhishek Sharma",
+      "nickname": "",
+      "images": [
+        "assets/cards/AbhishekSharma.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2018",
+          "value": 2018
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "88",
+          "value": 88
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "2,379",
+          "value": 2379
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "11",
+          "value": 11
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "36",
+          "value": 36
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "141",
+          "value": 141
+        }
+      }
+    },
+    {
+      "id": "travishead",
+      "region": "Travis Head",
+      "nickname": "",
+      "images": [
+        "assets/cards/TravisHead.webp"
+      ],
+      "stats": {
+        "debut": {
+          "label": "Debut",
+          "display": "2016",
+          "value": 2016
+        },
+        "matches": {
+          "label": "Matches",
+          "display": "49",
+          "value": 49
+        },
+        "runs": {
+          "label": "Runs",
+          "display": "1,556",
+          "value": 1556
+        },
+        "wickets": {
+          "label": "Wickets",
+          "display": "3",
+          "value": 3
+        },
+        "catches": {
+          "label": "Catches",
+          "display": "5",
+          "value": 5
+        },
+        "highest": {
+          "label": "Highest Score",
+          "display": "102",
+          "value": 102
+        }
+      }
+    }
+  ]
+}

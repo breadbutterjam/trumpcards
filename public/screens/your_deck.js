@@ -219,6 +219,11 @@ export function init({ roomId }) {
 }
 
   async function maybeShowDeck() {
+    //temporary workaround for firebase emulator warning
+    const emulatorWarningElem = document.getElementsByClassName("firebase-emulator-warning")[0];
+    emulatorWarningElem.style.display = "none";
+
+
     const cardArea = document.getElementById("cardArea");
     if (cardArea.dataset.rendered === String(currentRoundNumber)) return;
     cardArea.dataset.rendered = String(currentRoundNumber);

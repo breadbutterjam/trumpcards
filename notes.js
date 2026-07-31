@@ -1,3 +1,8 @@
+//
+// maybeShowDeck function in your_deck.js is updated to hide the firebase emulator warning when the deck is shown.
+//
+
+
 //BRMF9Y
 //intilise
 const { functions, whenSignedIn } = await import('./js/firebase-init.js');
