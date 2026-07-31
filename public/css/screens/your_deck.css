@@ -82,6 +82,15 @@ div.reveal-card{
   /* border-bottom: 1px solid #ffffff36; */
   z-index: 1;
 }
+
+.reveal-nickname {
+  font-style: italic;
+  font-weight: 600;
+  font-size: 13px;
+  color: rgba(255,255,255,0.85);
+  margin-top: 2px;
+}
+
 .direction-toggle {
   position: absolute;
   display: none;

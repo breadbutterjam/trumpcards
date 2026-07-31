@@ -5,6 +5,7 @@
     {
       "id": "msdhoni",
       "region": "MS Dhoni",
+      "nickname": "Thala",
       "images": [
         "assets/cards/MSDhoni.webp"
       ],
@@ -44,6 +45,7 @@
     {
       "id": "rohitsharma",
       "region": "Rohit Sharma",
+      "nickname": "Hitman",
       "images": [
         "assets/cards/RohitSharma.webp"
       ],
@@ -83,6 +85,7 @@
     {
       "id": "viratkohli",
       "region": "Virat Kohli",
+      "nickname": "King Kohli",
       "images": [
         "assets/cards/ViratKohli.webp"
       ],
@@ -122,6 +125,7 @@
     {
       "id": "shubmangill",
       "region": "Shubman Gill",
+      "nickname": "The Prince",
       "images": [
         "assets/cards/ShubmanGill.webp"
       ],
@@ -161,6 +165,7 @@
     {
       "id": "jaspritbumrah",
       "region": "Jasprit Bumrah",
+      "nickname": "Boom boom bumrah",
       "images": [
         "assets/cards/JaspritBumrah.webp"
       ],
@@ -200,6 +205,7 @@
     {
       "id": "sachintendulkar",
       "region": "Sachin Tendulkar",
+      "nickname": "God",
       "images": [
         "assets/cards/SachinTendulkar.webp"
       ],
@@ -239,6 +245,7 @@
     {
       "id": "souravganguly",
       "region": "Sourav Ganguly",
+      "nickname": "Dada",
       "images": [
         "assets/cards/SouravGanguly.webp"
       ],
@@ -278,6 +285,7 @@
     {
       "id": "rahuldravid",
       "region": "Rahul Dravid",
+      "nickname": "The Wall",
       "images": [
         "assets/cards/RahulDravid.webp"
       ],
@@ -317,6 +325,7 @@
     {
       "id": "sanjusamson",
       "region": "Sanju Samson",
+      "nickname": "Chetta Thala",
       "images": [
         "assets/cards/SanjuSamson.webp"
       ],
@@ -356,45 +365,7 @@
     {
       "id": "rishabhpant",
       "region": "Rishabh Pant",
-      "images": [
-        "assets/cards/RishabhPant.webp"
-      ],
-      "stats": {
-        "debut": {
-          "label": "Debut",
-          "display": "2017",
-          "value": 2017
-        },
-        "matches": {
-          "label": "Matches",
-          "display": "154",
-          "value": 154
-        },
-        "runs": {
-          "label": "Runs",
-          "display": "5,637",
-          "value": 5637
-        },
-        "wickets": {
-          "label": "Wickets",
-          "display": "0",
-          "value": 0
-        },
-        "catches": {
-          "label": "Catches",
-          "display": "229",
-          "value": 229
-        },
-        "highest": {
-          "label": "Highest Score",
-          "display": "159",
-          "value": 159
-        }
-      }
-    },
-    {
-      "id": "rishabhpant",
-      "region": "Rishabh Pant",
+      "nickname": "The Pantster",
       "images": [
         "assets/cards/RishabhPant.webp"
       ],
