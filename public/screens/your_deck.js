@@ -1,4 +1,4 @@
-import { doc, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { doc, collection, getDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-functions.js";
 import { db, functions, whenSignedIn } from "../js/firebase-init.js";
 import { renderAvatarRow } from "../js/avatar-row.js";
@@ -36,9 +36,18 @@ export function init({ roomId }) {
   let gameOverPopupShown = false;
   let activeResultPopup = null;
   let avatarRowInitialized = false;
+  let playersById = {};
+  let chooserPlayerId = null;
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
+
+    const unsubPlayerNames = onSnapshot(collection(db, "rooms", roomId, "players"), (snap) => {
+      playersById = {};
+      snap.docs.forEach((d) => { playersById[d.id] = d.data(); });
+      if (roomMode === "online") updateStatusBar();
+    });
+    unsubscribers.push(unsubPlayerNames);
 
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), async (snap) => {
       const room = snap.data();
@@ -78,6 +87,7 @@ export function init({ roomId }) {
       const previousRoundNumber = currentRoundNumber;
       currentRoundNumber = room.currentRoundNumber;
       isChooser = room.chooserPlayerId === myUid;
+      chooserPlayerId = room.chooserPlayerId;
 
       if (!CATEGORY_DATA) {
         await loadCategoryData(room.category);
@@ -194,16 +204,19 @@ export function init({ roomId }) {
   }
 
   function updateStatusBar() {
-    const bar = document.getElementById("statusBar");
-    const alreadyRevealed = revealedForRound === currentRoundNumber;
-    if (isChooser) {
-      bar.textContent = alreadyRevealed
-        ? "Pick a category and High / Low"
-        : "Your turn: tap your deck to reveal your card";
-    } else {
-      bar.textContent = "Waiting for the chooser to pick a category…";
-    }
+  const bar = document.getElementById("statusBar");
+  const alreadyRevealed = revealedForRound === currentRoundNumber;
+  if (isChooser) {
+    bar.textContent = alreadyRevealed
+      ? "Pick a category and High / Low"
+      : "Your turn: tap your deck to reveal your card";
+  } else {
+    const chooserName = playersById[chooserPlayerId]?.name;
+    bar.textContent = chooserName
+      ? `${chooserName}'s turn to choose`
+      : "Waiting for the chooser to pick a category…";
   }
+}
 
   async function maybeShowDeck() {
     const cardArea = document.getElementById("cardArea");
