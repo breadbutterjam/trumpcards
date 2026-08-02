@@ -36,6 +36,7 @@ export function init({ roomId }) {
   let gameOverPopupShown = false;
   let activeResultPopup = null;
   let avatarRowInitialized = false;
+  let avatarRowRef = null; // { unsubscribe, refresh } — needed so we can force a re-render on chooser change
   let playersById = {};
   let chooserPlayerId = null;
 
@@ -62,13 +63,16 @@ export function init({ roomId }) {
       if (!avatarRowInitialized) {
         avatarRowInitialized = true;
         const avatarRowOptions = {};
-        if (roomMode === "offline" && isJudge) {
-          avatarRowOptions.onAvatarClick = (player) => {
-            showOfflineConfirmPopup(player.id, player.name);
-          };
+        if (roomMode === "offline") {
+          avatarRowOptions.getChooserId = () => chooserPlayerId; // closure — always reads the current value
+          if (isJudge) {
+            avatarRowOptions.onAvatarClick = (player) => {
+              showOfflineConfirmPopup(player.id, player.name);
+            };
+          }
         }
-        const unsubAvatars = renderAvatarRow(roomId, document.getElementById("avatarRow"), avatarRowOptions);
-        unsubscribers.push(unsubAvatars);
+        avatarRowRef = renderAvatarRow(roomId, document.getElementById("avatarRow"), avatarRowOptions);
+        unsubscribers.push(avatarRowRef.unsubscribe);
       }
 
       if (roomMode === "offline") {
@@ -88,6 +92,16 @@ export function init({ roomId }) {
       currentRoundNumber = room.currentRoundNumber;
       isChooser = room.chooserPlayerId === myUid;
       chooserPlayerId = room.chooserPlayerId;
+
+      // FIX: the avatar row's own render only runs when ITS OWN
+      // players-collection listener fires — chooserPlayerId lives on this
+      // (separate) room document listener instead, so without an explicit
+      // refresh() here, the chooser-dot would only catch up whenever the
+      // players collection next happened to change (i.e. a full round
+      // late), which is exactly the bug you were seeing.
+      if (roomMode === "offline" && avatarRowRef) {
+        avatarRowRef.refresh();
+      }
 
       if (!CATEGORY_DATA) {
         await loadCategoryData(room.category);
@@ -204,25 +218,31 @@ export function init({ roomId }) {
   }
 
   function updateStatusBar() {
-  const bar = document.getElementById("statusBar");
-  const alreadyRevealed = revealedForRound === currentRoundNumber;
-  if (isChooser) {
-    bar.textContent = alreadyRevealed
-      ? "Pick a category and High / Low"
-      : "Your turn: tap your deck to reveal your card";
-  } else {
-    const chooserName = playersById[chooserPlayerId]?.name;
-    bar.textContent = chooserName
-      ? `${chooserName}'s turn to choose`
-      : "Waiting for the chooser to pick a category…";
+    const bar = document.getElementById("statusBar");
+    const alreadyRevealed = revealedForRound === currentRoundNumber;
+    if (isChooser) {
+      bar.textContent = alreadyRevealed
+        ? "Pick a category and High / Low"
+        : "Your turn: tap your deck to reveal your card";
+    } else {
+      const chooserName = playersById[chooserPlayerId]?.name;
+      bar.textContent = chooserName
+        ? `${chooserName}'s turn to choose`
+        : "Waiting for the chooser to pick a category…";
+    }
   }
-}
 
   async function maybeShowDeck() {
-    //temporary workaround for firebase emulator warning
+    // Temporary workaround for the Firebase emulator warning banner —
+    // guarded with a null-check since this element only exists when
+    // running against the LOCAL emulator. Without the guard, this would
+    // throw once deployed to production (where the banner never renders
+    // at all), silently breaking the rest of this function for every
+    // real player.
     const emulatorWarningElem = document.getElementsByClassName("firebase-emulator-warning")[0];
-    emulatorWarningElem.style.display = "none";
-
+    if (emulatorWarningElem) {
+      emulatorWarningElem.style.display = "none";
+    }
 
     const cardArea = document.getElementById("cardArea");
     if (cardArea.dataset.rendered === String(currentRoundNumber)) return;
@@ -239,9 +259,7 @@ export function init({ roomId }) {
     `;
     document.getElementById("hint").textContent = "Shuffle if you like, then tap your deck to reveal your card.";
 
-    // if (roomMode === "offline" || isChooser) {
-      document.getElementById("shuffleBtn").style.display = "flex";
-    // }
+    document.getElementById("shuffleBtn").style.display = "flex";
 
     document.getElementById("topCard").addEventListener("click", revealTopCard);
     document.getElementById("topCard").addEventListener("keydown", (e) => {
@@ -364,13 +382,13 @@ export function init({ roomId }) {
     overlay.innerHTML = `
       <div class="glass-popup" style="width:100%; max-width:320px;">
         <div style="padding:18px 20px 14px; text-align:center;">
-          <div style="font-size:13px; color:rgba(0,0,0,0.85); margin-bottom:4px;">Confirm winner</div>
-          <div style="font-size:16px; font-weight:800; color:#000;">${winnerName} is the winner</div>
+          <div style="font-size:13px; color:rgba(255,255,255,0.85); margin-bottom:4px;">Confirm winner</div>
+          <div style="font-size:16px; font-weight:800; color:#fff;">${winnerName} is the winner</div>
         </div>
-        <div style="height:1px; background:rgba(0,0,0,0.25);"></div>
+        <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
         <div style="display:flex;">
-          <button id="offlineCancelBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(0,0,0,0.25); color:var(--danger-text2); font-size:15px; font-weight:700; cursor:pointer;">CANCEL</button>
-          <button id="offlineYesBtn" style="flex:1; padding:14px; background:transparent; border:none; color:var(--proceed-text); font-size:15px; font-weight:700; cursor:pointer;">YES</button>
+          <button id="offlineCancelBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(255,255,255,0.25); color:var(--danger-text-bright); font-size:15px; font-weight:700; cursor:pointer;">CANCEL</button>
+          <button id="offlineYesBtn" style="flex:1; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:15px; font-weight:700; cursor:pointer;">YES</button>
         </div>
       </div>
     `;

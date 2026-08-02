@@ -262,6 +262,7 @@ export function init({ roomId }) {
   document.getElementById("startGameBtn").addEventListener("click", acknowledgeStart);
 
   document.getElementById("copyBtn").addEventListener("click", () => {
+    console.log("Copying room code to clipboard:", roomId);
     navigator.clipboard.writeText(roomId).then(() => {
       const btn = document.getElementById("copyBtn");
       btn.innerHTML = '<i class="fa-solid fa-check"></i>';

@@ -8,42 +8,44 @@ const SEAT_COLORS = [
   { bg: "var(--warning-bg)", text: "var(--warning-text)", border: "var(--warning-border)" },
 ];
 
-function statusBadgeHtml(status) {
-  if (status === "ready") {
-    return '<div class="status-badge ready"><i class="fa-solid fa-check"></i></div>';
-  }
-  if (status === "deciding") {
-    return '<div class="status-badge deciding"><i class="fa-solid fa-hourglass-half"></i></div>';
-  }
-  return ""; // eliminated/spectator players get no ready/deciding badge
-}
-
 /**
  * Subscribes to `rooms/{roomId}/players` and keeps `containerEl` in sync live.
- * Returns an unsubscribe function — call it when navigating away from a screen.
+ *
+ * Returns { unsubscribe, refresh } — call unsubscribe() when navigating away
+ * from a screen, and call refresh() whenever something OUTSIDE this
+ * module's own players-collection listener changes and needs an immediate
+ * re-render (e.g. room.chooserPlayerId, which lives on a totally separate
+ * document/listener — without an explicit refresh(), the chooser-dot would
+ * only update whenever the players collection *itself* happens to change
+ * next, which is a full round later than the actual chooser change).
  *
  * @param {string} roomId
  * @param {HTMLElement} containerEl
- * @param {{ leaderIds?: string[] }} [options] - which player IDs get a crown
+ * @param {{ leaderIds?: string[], getChooserId?: () => (string|null), onAvatarClick?: (player: object) => void }} [options]
  */
 export function renderAvatarRow(roomId, containerEl, options = {}) {
   const playersRef = collection(db, "rooms", roomId, "players");
+  let latestPlayers = [];
 
-  return onSnapshot(playersRef, (snapshot) => {
-    const players = snapshot.docs
-      .map((d) => ({ id: d.id, ...d.data() }))
-      .sort((a, b) => a.seatIndex - b.seatIndex);
-
+  function render() {
     const leaderIds = options.leaderIds || [];
+    const chooserId = typeof options.getChooserId === "function" ? options.getChooserId() : null;
 
-    containerEl.innerHTML = players.map((p, i) => {
+    containerEl.innerHTML = latestPlayers.map((p, i) => {
       const color = SEAT_COLORS[i % SEAT_COLORS.length];
       const isLeader = leaderIds.includes(p.id);
+      // FIX: was `chooserId.includes(p.id)` — getChooserId() returns a
+      // single player id STRING, not an array, so .includes() was doing a
+      // substring check rather than an equality check. Worked by
+      // coincidence (a string always contains itself), but was wrong.
+      const isChooser = chooserId === p.id;
+
       return `
         <div class="avatar-col" data-player-id="${p.id}">
           <div class="avatar-wrap-outer" style="border-radius:50%; border:2px solid ${color.border}; background:${color.bg};">
             ${avatarImgHtml(p.avatar)}
             ${isLeader ? '<div class="crown-icon" aria-hidden="true"><i class="fa-solid fa-crown"></i></div>' : ""}
+            ${isChooser ? '<div class="judge-dot" aria-hidden="true" title="Choosing this round"></div>' : ""}
           </div>
           <div class="avatar-name">${p.name}</div>
           <div class="avatar-count">${p.cardCount}</div>
@@ -51,20 +53,24 @@ export function renderAvatarRow(roomId, containerEl, options = {}) {
       `;
     }).join("");
 
-    // Wiring up click handlers must happen AFTER innerHTML is assigned —
-    // this is the actual fix. Previously this block was nested inside the
-    // .map() callback above, which only builds HTML strings; nothing is
-    // written to the DOM until .join("") is assigned to innerHTML on the
-    // line just above, so containerEl.querySelectorAll found nothing yet.
     const clickable = typeof options.onAvatarClick === "function";
     if (clickable) {
       containerEl.querySelectorAll(".avatar-col").forEach((el) => {
         el.style.cursor = "pointer";
         el.addEventListener("click", () => {
-          const player = players.find((p) => p.id === el.dataset.playerId);
+          const player = latestPlayers.find((p) => p.id === el.dataset.playerId);
           if (player) options.onAvatarClick(player);
         });
       });
     }
+  }
+
+  const unsubscribe = onSnapshot(playersRef, (snapshot) => {
+    latestPlayers = snapshot.docs
+      .map((d) => ({ id: d.id, ...d.data() }))
+      .sort((a, b) => a.seatIndex - b.seatIndex);
+    render();
   });
+
+  return { unsubscribe, refresh: render };
 }

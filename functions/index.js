@@ -102,13 +102,15 @@ function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, win
   const isOffline = room.mode === "offline";
 
   tx.update(roomRef, {
-    chooserPlayerId: isOffline ? null : winnerId,
+    // chooserPlayerId: isOffline ? null : winnerId,
+    chooserPlayerId: winnerId,
     currentRoundNumber: nextRoundNumber,
     lastRoundWinnerId: winnerId,
     lastRoundWinnerName: winnerName,
   });
   tx.set(roomRef.collection("rounds").doc(String(nextRoundNumber)), {
-    chooserId: isOffline ? null : winnerId,
+    // chooserId: isOffline ? null : winnerId,
+    chooserId: winnerId,
     category: null,
     direction: null,
     status: isOffline ? "awaiting_judge" : "selecting",
@@ -268,25 +270,25 @@ exports.dealInitialHands = onCall(async (request) => {
     const newRoundNumber = (room.currentRoundNumber || 0) + 1;
     const isOffline = room.mode === "offline";
 
-    if (isOffline) {
-      tx.update(roomRef, {
-        status: "in_progress",
-        chooserPlayerId: null,
-        turnOrderQueue: [],
-        currentRoundNumber: newRoundNumber,
-        startAcks: [],
-        winnerIds: [],
-      });
-      tx.set(roomRef.collection("rounds").doc(String(newRoundNumber)), {
-        chooserId: null,
-        category: null,
-        direction: null,
-        status: "awaiting_judge",
-        winnerId: null,
-        createdAt: FieldValue.serverTimestamp(),
-      });
-      return { firstChooser: null };
-    }
+    // if (isOffline) {
+    //   tx.update(roomRef, {
+    //     status: "in_progress",
+    //     chooserPlayerId: null,
+    //     turnOrderQueue: [],
+    //     currentRoundNumber: newRoundNumber,
+    //     startAcks: [],
+    //     winnerIds: [],
+    //   });
+    //   tx.set(roomRef.collection("rounds").doc(String(newRoundNumber)), {
+    //     chooserId: null,
+    //     category: null,
+    //     direction: null,
+    //     status: "awaiting_judge",
+    //     winnerId: null,
+    //     createdAt: FieldValue.serverTimestamp(),
+    //   });
+    //   return { firstChooser: null };
+    // }
 
     const firstChooser = players[Math.floor(Math.random() * players.length)].id;
     const turnOrderQueue = players.map((p) => p.id);
@@ -304,7 +306,7 @@ exports.dealInitialHands = onCall(async (request) => {
       chooserId: firstChooser,
       category: null,
       direction: null,
-      status: "selecting",
+      status: room.mode === "offline" ? "awaiting_judge" : "selecting",
       winnerId: null,
       createdAt: FieldValue.serverTimestamp(),
     });
