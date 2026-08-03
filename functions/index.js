@@ -5,14 +5,9 @@ const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 initializeApp();
 const db = getFirestore();
 
-// Category registry — add a new entry here (and drop the matching JSON file
-// into BOTH functions/data/ and public/data/, same filename) to make a new
-// category selectable when creating a room.
 const CATEGORY_REGISTRY = {
   states_of_india: require("./data/states_of_india.json"),
-  // mountains: require("./data/mountains.json"),
-  cricketers: require("./data/cricketers.json"),
-  iplcricketers: require("./data/iplcricketers.json"),
+  mountains: require("./data/mountains.json"),
 };
 const DEFAULT_CATEGORY_ID = "states_of_india";
 
@@ -27,7 +22,7 @@ function getAllCardIds(categoryId) {
 }
 
 function generateRoomCode() {
-  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I — avoids visual confusion
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let code = "";
   for (let i = 0; i < 6; i++) {
     code += chars[Math.floor(Math.random() * chars.length)];
@@ -44,13 +39,13 @@ function shuffle(array) {
   return arr;
 }
 
-// Shared by BOTH round-resolution paths — online mode derives winnerId by
-// comparing stat values, offline mode gets winnerId directly from the
-// judge's tap. Everything past that point (moving cards, updating card
-// counts/elimination, opening the next round or ending the game) is
-// identical regardless of how the winner was determined, so it lives here
-// once instead of being duplicated in both Cloud Functions.
-function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, winnerId, playersSnap }) {
+// Shared by both round-resolution paths. `extraRoomFields` lets the caller
+// pass along mode-specific denormalized data — currently used by online
+// mode to store the winning card's region/stat/direction, so the loser's
+// result popup can show "won with X — statLabel: statValue, High" without
+// any extra reads. Offline mode doesn't pass this (no stat comparison
+// exists there), so those fields simply stay unset for offline rounds.
+function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, winnerId, playersSnap, extraRoomFields = {} }) {
   const played = activePlayers.map((p, i) => ({
     playerId: p.id,
     cardId: privateSnaps[i].data().cardOrder[0],
@@ -102,14 +97,13 @@ function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, win
   const isOffline = room.mode === "offline";
 
   tx.update(roomRef, {
-    // chooserPlayerId: isOffline ? null : winnerId,
     chooserPlayerId: winnerId,
     currentRoundNumber: nextRoundNumber,
     lastRoundWinnerId: winnerId,
     lastRoundWinnerName: winnerName,
+    ...extraRoomFields,
   });
   tx.set(roomRef.collection("rounds").doc(String(nextRoundNumber)), {
-    // chooserId: isOffline ? null : winnerId,
     chooserId: winnerId,
     category: null,
     direction: null,
@@ -121,12 +115,6 @@ function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, win
   return { status: "resolved", winnerId };
 }
 
-// Creates a room and adds the creator as its first player. Room ID = the
-// human-readable code itself, so joining is a direct document lookup.
-// Accepts an optional categoryId (falls back to the default if omitted or
-// unrecognized) and an optional mode ("online" | "offline", default
-// "online"). The creator is always recorded as judgePlayerId — only
-// meaningful in offline mode, but harmless to store either way.
 exports.createRoom = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in before creating a room.");
@@ -179,8 +167,6 @@ exports.createRoom = onCall(async (request) => {
   return { roomId };
 });
 
-// Joins an existing room. Rejects outright if the game already started —
-// matches the "late joins not allowed" MVP rule (spectate mode is post-MVP).
 exports.joinRoom = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in before joining a room.");
@@ -209,7 +195,7 @@ exports.joinRoom = onCall(async (request) => {
       throw new HttpsError("resource-exhausted", "This room is full.");
     }
     if (playersSnap.docs.some((d) => d.id === playerId)) {
-      return { roomId }; // already joined (e.g. reconnect) — treat as success
+      return { roomId };
     }
 
     tx.set(roomRef.collection("players").doc(playerId), {
@@ -225,14 +211,6 @@ exports.joinRoom = onCall(async (request) => {
   });
 });
 
-// Shuffles the deck and deals it evenly across current players. In online
-// mode this also randomly picks a first chooser and pauses at "hands_dealt"
-// for the spin/announce ceremony. In offline mode there's no "chooser" or
-// category-selection step at all — every player just reveals their own
-// card and the judge declares a winner — so this skips straight to
-// "in_progress". Also doubles as the rematch trigger (allowed from
-// "game_over" too), continuing the round-number counter across games
-// rather than resetting it.
 exports.dealInitialHands = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");
@@ -267,31 +245,9 @@ exports.dealInitialHands = onCall(async (request) => {
       tx.update(playerDoc.ref, { cardCount: hands[i].length, status: "deciding" });
     });
 
-    const newRoundNumber = (room.currentRoundNumber || 0) + 1;
-    const isOffline = room.mode === "offline";
-
-    // if (isOffline) {
-    //   tx.update(roomRef, {
-    //     status: "in_progress",
-    //     chooserPlayerId: null,
-    //     turnOrderQueue: [],
-    //     currentRoundNumber: newRoundNumber,
-    //     startAcks: [],
-    //     winnerIds: [],
-    //   });
-    //   tx.set(roomRef.collection("rounds").doc(String(newRoundNumber)), {
-    //     chooserId: null,
-    //     category: null,
-    //     direction: null,
-    //     status: "awaiting_judge",
-    //     winnerId: null,
-    //     createdAt: FieldValue.serverTimestamp(),
-    //   });
-    //   return { firstChooser: null };
-    // }
-
     const firstChooser = players[Math.floor(Math.random() * players.length)].id;
     const turnOrderQueue = players.map((p) => p.id);
+    const newRoundNumber = (room.currentRoundNumber || 0) + 1;
 
     tx.update(roomRef, {
       status: "hands_dealt",
@@ -315,9 +271,6 @@ exports.dealInitialHands = onCall(async (request) => {
   });
 });
 
-// Called when a player taps "Start Game" after the spin resolves (online
-// mode only — offline mode never reaches "hands_dealt", so this is simply
-// never invoked for offline rooms).
 exports.acknowledgeGameStart = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");
@@ -351,9 +304,6 @@ exports.acknowledgeGameStart = onCall(async (request) => {
   });
 });
 
-// Online-mode round resolution: the chooser's stat+direction pick is
-// validated, every active player's top card is compared server-side, and
-// a winner (or tie) is determined automatically.
 exports.confirmSelectionAndResolveRound = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");
@@ -433,16 +383,26 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
       resolvedAt: FieldValue.serverTimestamp(),
     });
 
+    // Denormalized onto the room doc (via extraRoomFields below) so the
+    // loser's result popup can show what beat them without any extra reads.
+    const winnerCardId = sorted[0].cardId;
+    const winnerCard = getCardById(room.category, winnerCardId);
+    const statInfo = winnerCard.stats[statKey];
+
     return applyRoundOutcome({
       tx, roomRef, room, activePlayers, privateSnaps,
       winnerId: sorted[0].playerId, playersSnap,
+      extraRoomFields: {
+        lastRoundCardRegion: winnerCard.region,
+        lastRoundStatLabel: statInfo.label,
+        lastRoundStatDisplay: statInfo.display,
+        lastRoundDirection: direction,
+        lastRoundWinnerCardId: winnerCardId,
+      },
     });
   });
 });
 
-// Offline-mode round resolution: the judge directly declares who won —
-// no stat comparison, no ties (handled offline/socially by the players).
-// Reuses applyRoundOutcome for everything past that point.
 exports.resolveOfflineModeRound = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");

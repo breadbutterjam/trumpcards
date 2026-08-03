@@ -36,7 +36,7 @@ export function init({ roomId }) {
   let gameOverPopupShown = false;
   let activeResultPopup = null;
   let avatarRowInitialized = false;
-  let avatarRowRef = null; // { unsubscribe, refresh } — needed so we can force a re-render on chooser change
+  let avatarRowRef = null;
   let playersById = {};
   let chooserPlayerId = null;
 
@@ -57,14 +57,11 @@ export function init({ roomId }) {
       roomMode = room.mode === "offline" ? "offline" : "online";
       isJudge = room.judgePlayerId === myUid;
 
-      // Set up the avatar row exactly once, now that we know roomMode/isJudge
-      // — in offline mode, the judge's avatar row becomes tappable to
-      // declare a winner; every other case behaves exactly as before.
       if (!avatarRowInitialized) {
         avatarRowInitialized = true;
         const avatarRowOptions = {};
         if (roomMode === "offline") {
-          avatarRowOptions.getChooserId = () => chooserPlayerId; // closure — always reads the current value
+          avatarRowOptions.getChooserId = () => chooserPlayerId;
           if (isJudge) {
             avatarRowOptions.onAvatarClick = (player) => {
               showOfflineConfirmPopup(player.id, player.name);
@@ -93,12 +90,6 @@ export function init({ roomId }) {
       isChooser = room.chooserPlayerId === myUid;
       chooserPlayerId = room.chooserPlayerId;
 
-      // FIX: the avatar row's own render only runs when ITS OWN
-      // players-collection listener fires — chooserPlayerId lives on this
-      // (separate) room document listener instead, so without an explicit
-      // refresh() here, the chooser-dot would only catch up whenever the
-      // players collection next happened to change (i.e. a full round
-      // late), which is exactly the bug you were seeing.
       if (roomMode === "offline" && avatarRowRef) {
         avatarRowRef.refresh();
       }
@@ -110,12 +101,17 @@ export function init({ roomId }) {
       if (roundChanged) {
         if (previousRoundNumber && resultPopupShownForRound !== previousRoundNumber) {
           resultPopupShownForRound = previousRoundNumber;
-          // The judge just picked the winner themselves — showing them the same
-          // "you won/lost" popup right after is redundant. Everyone else still
-          // sees it, same as before.
           const skipPopupForJudge = roomMode === "offline" && isJudge;
           if (!skipPopupForJudge && room.lastRoundWinnerId) {
-            await showRoundResultPopup(room.lastRoundWinnerId, room.lastRoundWinnerName);
+            await showRoundResultPopup({
+              winnerId: room.lastRoundWinnerId,
+              winnerName: room.lastRoundWinnerName,
+              cardRegion: room.lastRoundCardRegion,
+              statLabel: room.lastRoundStatLabel,
+              statDisplay: room.lastRoundStatDisplay,
+              direction: room.lastRoundDirection,
+              winnerCardId: room.lastRoundWinnerCardId,
+            });
           }
         }
 
@@ -165,7 +161,10 @@ export function init({ roomId }) {
     });
   }
 
-  function showRoundResultPopup(winnerId, winnerName) {
+  // Winners still just see a simple "You won" — they already know their
+  // own card. Losers now see what beat them (Option A) and a VIEW CARD
+  // stub (Option B) alongside CONTINUE.
+  function showRoundResultPopup({ winnerId, winnerName, cardRegion, statLabel, statDisplay, direction, winnerCardId }) {
     return new Promise((resolve) => {
       if (activeResultPopup) {
         activeResultPopup.overlay.remove();
@@ -174,22 +173,41 @@ export function init({ roomId }) {
       }
 
       const iWon = winnerId === myUid;
+      let bodyHtml;
+      let actionsHtml;
+
+      if (iWon) {
+        bodyHtml = `
+          <div style="font-size:13px; font-weight:700; color:var(--crown-gold); margin-bottom:6px;">Yohoooo!</div>
+          <div style="font-size:16px; font-weight:800; color:#fff;">You won</div>
+        `;
+        actionsHtml = `<button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>`;
+      } else {
+        const hasDetail = cardRegion && statLabel;
+        const detailLine = hasDetail
+          ? `You lost, ${winnerName} won with <b>${cardRegion}</b> — ${statLabel}: <b>${statDisplay}</b>${direction ? `, ${direction}` : ""}`
+          : `You lost, ${winnerName} won`;
+
+        bodyHtml = `
+          <div style="font-size:13px; font-weight:700; color:var(--danger-text-bright); margin-bottom:6px;">oh oh</div>
+          <div style="font-size:15px; font-weight:700; color:#fff; line-height:1.4;">${detailLine}</div>
+        `;
+        actionsHtml = `
+          <div style="display:flex;">
+            <button id="viewCardBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(255,255,255,0.25); color:#fff; font-size:14px; font-weight:700; cursor:pointer;">VIEW CARD</button>
+            <button id="resultContinueBtn" style="flex:1; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:14px; font-weight:700; cursor:pointer;">CONTINUE</button>
+          </div>
+        `;
+      }
 
       const overlay = document.createElement("div");
       overlay.style.cssText =
         "position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
       overlay.innerHTML = `
         <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
-          <div style="padding:20px 20px 16px;">
-            <div style="font-size:13px; font-weight:700; color:${iWon ? "var(--crown-gold)" : "var(--danger-text-bright)"}; margin-bottom:6px;">
-              ${iWon ? "Yohoooo!" : "oh oh"}
-            </div>
-            <div style="font-size:16px; font-weight:800; color:#fff;">
-              ${iWon ? "You won" : `You lost, ${winnerName} won`}
-            </div>
-          </div>
+          <div style="padding:20px 20px 16px;">${bodyHtml}</div>
           <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
-          <button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
+          ${actionsHtml}
         </div>
       `;
       document.body.appendChild(overlay);
@@ -200,6 +218,15 @@ export function init({ roomId }) {
         activeResultPopup = null;
         resolve();
       });
+
+      const viewCardBtn = document.getElementById("viewCardBtn");
+      if (viewCardBtn) {
+        viewCardBtn.addEventListener("click", () => {
+          // Placeholder — full card overlay (category highlighted, only
+          // the chosen High/Low shown) to be implemented in a later pass.
+          alert("Coming soon — view the winning card's full details.");
+        });
+      }
     });
   }
 
@@ -233,12 +260,6 @@ export function init({ roomId }) {
   }
 
   async function maybeShowDeck() {
-    // Temporary workaround for the Firebase emulator warning banner —
-    // guarded with a null-check since this element only exists when
-    // running against the LOCAL emulator. Without the guard, this would
-    // throw once deployed to production (where the banner never renders
-    // at all), silently breaking the rest of this function for every
-    // real player.
     const emulatorWarningElem = document.getElementsByClassName("firebase-emulator-warning")[0];
     if (emulatorWarningElem) {
       emulatorWarningElem.style.display = "none";
@@ -312,10 +333,6 @@ export function init({ roomId }) {
     slot.classList.add("active");
 
     if (roomMode === "offline") {
-      // Judge sees an instruction reusing the same waiting-banner slot;
-      // everyone else just sees their card with no banner at all. The
-      // actual "select winner" interaction happens on the avatar row
-      // itself (wired up above via onAvatarClick), not on this card.
       renderReadOnlyCard(card, isJudge ? "Tap the avatar to select the winner" : null);
     } else if (isChooser) {
       renderChooserCard(card);
@@ -349,9 +366,6 @@ export function init({ roomId }) {
     }
   }
 
-  // Reused by online non-choosers ("Waiting for the chooser…") and offline
-  // mode (judge gets "Tap the avatar…", everyone else gets no banner at
-  // all) — same card/stats markup either way, only the banner text differs.
   function renderReadOnlyCard(card, bannerText) {
     const slot = document.getElementById("revealCardSlot");
     const statsHtml = Object.values(card.stats).map((s) => `
@@ -373,8 +387,6 @@ export function init({ roomId }) {
     `;
   }
 
-  // Fires when the judge taps an avatar in the avatar row (offline mode
-  // only — wired up via onAvatarClick when the avatar row is first set up).
   function showOfflineConfirmPopup(winnerId, winnerName) {
     const overlay = document.createElement("div");
     overlay.style.cssText =
@@ -406,8 +418,6 @@ export function init({ roomId }) {
         const resolveOfflineModeRound = httpsCallable(functions, "resolveOfflineModeRound");
         await resolveOfflineModeRound({ roomId, winnerId });
         overlay.remove();
-        // Round transition (result popup, next deck) arrives via the room
-        // listener, same as online mode.
       } catch (err) {
         overlay.remove();
         alert("Couldn't confirm: " + err.message);
