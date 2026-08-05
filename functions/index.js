@@ -7,7 +7,8 @@ const db = getFirestore();
 
 const CATEGORY_REGISTRY = {
   states_of_india: require("./data/states_of_india.json"),
-  mountains: require("./data/mountains.json"),
+  cricketers: require("./data/cricketers.json"),
+  iplcricketers: require("./data/iplcricketers.json"),
 };
 const DEFAULT_CATEGORY_ID = "states_of_india";
 
@@ -398,6 +399,7 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
         lastRoundStatDisplay: statInfo.display,
         lastRoundDirection: direction,
         lastRoundWinnerCardId: winnerCardId,
+        lastRoundStatKey: statKey,
       },
     });
   });

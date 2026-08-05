@@ -107,6 +107,7 @@ export function init({ roomId }) {
               winnerId: room.lastRoundWinnerId,
               winnerName: room.lastRoundWinnerName,
               cardRegion: room.lastRoundCardRegion,
+              statKey: room.lastRoundStatKey,
               statLabel: room.lastRoundStatLabel,
               statDisplay: room.lastRoundStatDisplay,
               direction: room.lastRoundDirection,
@@ -161,10 +162,7 @@ export function init({ roomId }) {
     });
   }
 
-  // Winners still just see a simple "You won" — they already know their
-  // own card. Losers now see what beat them (Option A) and a VIEW CARD
-  // stub (Option B) alongside CONTINUE.
-  function showRoundResultPopup({ winnerId, winnerName, cardRegion, statLabel, statDisplay, direction, winnerCardId }) {
+  function showRoundResultPopup({ winnerId, winnerName, cardRegion, statKey, statLabel, statDisplay, direction, winnerCardId }) {
     return new Promise((resolve) => {
       if (activeResultPopup) {
         activeResultPopup.overlay.remove();
@@ -222,11 +220,56 @@ export function init({ roomId }) {
       const viewCardBtn = document.getElementById("viewCardBtn");
       if (viewCardBtn) {
         viewCardBtn.addEventListener("click", () => {
-          // Placeholder — full card overlay (category highlighted, only
-          // the chosen High/Low shown) to be implemented in a later pass.
-          alert("Coming soon — view the winning card's full details.");
+          overlay.remove();
+          activeResultPopup = null;
+          resolve();
+          showWinnerCardOverlay({ winnerCardId, statKey, direction });
         });
       }
+    });
+  }
+
+  function showWinnerCardOverlay({ winnerCardId, statKey, direction }) {
+    if (!winnerCardId || !CATEGORY_DATA) return;
+    const card = cardById(winnerCardId);
+    if (!card) return;
+
+    const statsHtml = Object.entries(card.stats).map(([key, s]) => {
+      const isHighlighted = key === statKey;
+      return `
+        <div class="stat-cell readonly${isHighlighted ? " winner-highlight" : ""}">
+          ${isHighlighted && direction ? `<div class="winner-direction-pill">${direction}</div>` : ""}
+          <div class="stat-label">${s.label}</div>
+          <div class="stat-value">${s.display}</div>
+        </div>
+      `;
+    }).join("");
+
+    const avatarRowEl = document.getElementById("avatarRow");
+    const topOffset = avatarRowEl.getBoundingClientRect().bottom;
+
+    const overlay = document.createElement("div");
+    overlay.style.cssText =
+      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; align-items:center; background:var(--surface-1);`;
+    overlay.innerHTML = `
+      <div style="background:#fff; color:#1a1a1a; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-radius:16px 16px 0 0; flex-shrink:0; max-width:380px; width:100%;">
+        <div style="font-weight:700; font-size:15px;">Viewing winner's card.</div>
+        <button id="closeWinnerCardBtn" aria-label="Close" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+      <div style="flex:1; min-height:0; position:relative; max-width:380px; width:100%;">
+        <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])}; height:100%; border-radius:0;">
+          <div class="reveal-gradient"></div>
+          <div class="reveal-stats"><div class="reveal-region">
+            ${card.region}
+            ${card.nickname ? `<div class="reveal-nickname">${card.nickname}</div>` : ""}
+          </div>${statsHtml}</div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById("closeWinnerCardBtn").addEventListener("click", () => {
+      overlay.remove();
     });
   }
 

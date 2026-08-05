@@ -205,3 +205,29 @@ div.reveal-card{
   z-index: 6;
   background: #ffffff69;
 }
+
+
+/* --- additions for showing the winner's card to all other players in online mode --- */
+.winner-highlight {
+  position: relative;
+  background: rgba(246, 217, 76, 0.15);
+  border-radius: 10px;
+  padding: 6px 8px;
+  margin: -6px -8px;
+}
+.winner-highlight .stat-value {
+  color: var(--crown-gold);
+}
+.winner-direction-pill {
+  position: absolute;
+  top: -22px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--crown-gold);
+  color: #3a2e00;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
