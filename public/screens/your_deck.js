@@ -220,9 +220,9 @@ export function init({ roomId }) {
       const viewCardBtn = document.getElementById("viewCardBtn");
       if (viewCardBtn) {
         viewCardBtn.addEventListener("click", () => {
-          overlay.remove();
-          activeResultPopup = null;
-          resolve();
+          // overlay.remove();
+          // activeResultPopup = null;
+          // resolve();
           showWinnerCardOverlay({ winnerCardId, statKey, direction });
         });
       }
@@ -250,11 +250,11 @@ export function init({ roomId }) {
 
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; align-items:center; background:var(--surface-1);`;
+      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; align-items:center; background:var(--surface-1);padding-top:12px; padding-bottom:12px;`;
     overlay.innerHTML = `
-      <div style="background:#fff; color:#1a1a1a; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; border-radius:16px 16px 0 0; flex-shrink:0; max-width:380px; width:100%;">
-        <div style="font-weight:700; font-size:15px;">Viewing winner's card.</div>
-        <button id="closeWinnerCardBtn" aria-label="Close" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
+      <div class="winner-card-holder">
+        <div class="winner-card-header">Viewing winner's card.</div>
+        <button id="closeWinnerCardBtn" aria-label="Close" class="winner-card-close-btn"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div style="flex:1; min-height:0; position:relative; max-width:380px; width:100%;">
         <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])}; height:100%; border-radius:0;">

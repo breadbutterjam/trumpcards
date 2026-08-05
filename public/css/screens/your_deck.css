@@ -231,3 +231,40 @@ div.reveal-card{
   border-radius: 999px;
   white-space: nowrap;
 }
+
+.winner-card-holder{
+  background:#094; 
+  color:var(--crown-gold); 
+  padding:14px 16px; 
+  display:flex; 
+  align-items:center; 
+  justify-content:space-between; 
+  border-radius:16px 16px 0 0; 
+  flex-shrink:0; 
+  max-width:380px; 
+  width:100%;
+  text-align:center;
+  padding-top:12px; padding-bottom:12px;
+}
+
+.winner-card-header{
+  font-weight:700; 
+  font-size:15px;
+  width:100%;
+}
+
+.winner-card-close-btn{
+  width:30px; 
+  height:30px; 
+  border-radius:50%; 
+  background:#fff; 
+  border:1px solid; 
+  display:flex; 
+  align-items:center; 
+  justify-content:center; 
+  cursor:pointer;
+  position: absolute; 
+  left: calc(50% - 15px); 
+  top: 45px; 
+  z-index: 100;
+}
