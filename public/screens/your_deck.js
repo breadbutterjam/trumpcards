@@ -39,6 +39,9 @@ export function init({ roomId }) {
   let avatarRowRef = null;
   let playersById = {};
   let chooserPlayerId = null;
+  let activePlayerIds = [];
+  let revealedPlayerIds = [];
+  let unsubRoundDoc = null;
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -46,7 +49,13 @@ export function init({ roomId }) {
     const unsubPlayerNames = onSnapshot(collection(db, "rooms", roomId, "players"), (snap) => {
       playersById = {};
       snap.docs.forEach((d) => { playersById[d.id] = d.data(); });
-      if (roomMode === "online") updateStatusBar();
+      activePlayerIds = Object.keys(playersById).filter((id) => playersById[id].status !== "eliminated");
+
+      if (roomMode === "online") {
+        updateStatusBar();
+        updateConfirmButtonState();
+      }
+      if (avatarRowRef) avatarRowRef.refresh();
     });
     unsubscribers.push(unsubPlayerNames);
 
@@ -59,7 +68,9 @@ export function init({ roomId }) {
 
       if (!avatarRowInitialized) {
         avatarRowInitialized = true;
-        const avatarRowOptions = {};
+        const avatarRowOptions = {
+          getRevealedIds: () => revealedPlayerIds,
+        };
         if (roomMode === "offline") {
           avatarRowOptions.getChooserId = () => chooserPlayerId;
           if (isJudge) {
@@ -120,6 +131,7 @@ export function init({ roomId }) {
         selectedStatKey = null;
         selectedDirection = null;
         resetDeckUI();
+        subscribeToRoundDoc(currentRoundNumber);
       }
 
       if (roomMode === "online") {
@@ -132,6 +144,41 @@ export function init({ roomId }) {
     });
     unsubscribers.push(unsubRoom);
   });
+
+  function subscribeToRoundDoc(roundNumber) {
+    if (unsubRoundDoc) {
+      unsubRoundDoc();
+      unsubRoundDoc = null;
+    }
+    if (roomMode !== "online") return;
+
+    unsubRoundDoc = onSnapshot(doc(db, "rooms", roomId, "rounds", String(roundNumber)), (roundSnap) => {
+      const roundData = roundSnap.data();
+      revealedPlayerIds = (roundData && roundData.revealedPlayerIds) || [];
+      if (avatarRowRef) avatarRowRef.refresh();
+      updateConfirmButtonState();
+    });
+  }
+
+  function updateConfirmButtonState() {
+    const btnConfirm = document.getElementById("btnConfirm");
+    const waitText = document.getElementById("confirmWaitText");
+    if (!btnConfirm || !waitText) return;
+
+    const remaining = activePlayerIds.filter((id) => !revealedPlayerIds.includes(id));
+    const allRevealed = remaining.length === 0;
+
+    btnConfirm.disabled = !allRevealed;
+    btnConfirm.style.opacity = allRevealed ? "1" : "0.5";
+    btnConfirm.style.cursor = allRevealed ? "pointer" : "not-allowed";
+
+    if (allRevealed) {
+      waitText.style.display = "none";
+    } else {
+      waitText.style.display = "block";
+      waitText.textContent = `Waiting for ${remaining.length} more player${remaining.length > 1 ? "s" : ""} to open their card…`;
+    }
+  }
 
   function showGameOverPopup(winnerIds, winnerNames) {
     const iWon = winnerIds.includes(myUid);
@@ -220,9 +267,6 @@ export function init({ roomId }) {
       const viewCardBtn = document.getElementById("viewCardBtn");
       if (viewCardBtn) {
         viewCardBtn.addEventListener("click", () => {
-          // overlay.remove();
-          // activeResultPopup = null;
-          // resolve();
           showWinnerCardOverlay({ winnerCardId, statKey, direction });
         });
       }
@@ -369,6 +413,12 @@ export function init({ roomId }) {
       return;
     }
 
+    if (roomMode === "online") {
+      httpsCallable(functions, "markCardRevealed")({ roomId }).catch((err) => {
+        console.error("Failed to mark card revealed:", err);
+      });
+    }
+
     currentTopCardId = myDeckOrder[0];
     const card = cardById(currentTopCardId);
 
@@ -493,6 +543,7 @@ export function init({ roomId }) {
           <div class="confirm-popup-text">
             <div class="confirm-popup-label">Continue with</div>
             <div class="confirm-popup-value" id="popupValue"></div>
+            <div id="confirmWaitText" style="display:none; font-size:11px; color:rgba(255,255,255,0.75); margin-top:6px;"></div>
           </div>
           <div class="confirm-popup-divider"></div>
           <div class="confirm-popup-actions">
@@ -541,6 +592,7 @@ export function init({ roomId }) {
     const stat = card.stats[selectedStatKey];
     document.getElementById("popupValue").textContent = `${stat.label}: ${stat.display} | ${dir}`;
     document.getElementById("confirmPopup").classList.add("show");
+    updateConfirmButtonState();
 
     document.querySelectorAll(".stat-cell").forEach((el) => el.classList.remove("selected"));
     document.getElementById("directionToggle").classList.remove("show");
@@ -588,6 +640,7 @@ export function init({ roomId }) {
   }
 
   return () => {
+    if (unsubRoundDoc) unsubRoundDoc();
     unsubscribers.forEach((unsub) => unsub());
   };
 }

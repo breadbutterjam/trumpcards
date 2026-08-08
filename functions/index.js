@@ -31,6 +31,36 @@ function generateRoomCode() {
   return code;
 }
 
+// Records that a player has revealed their card for the current round —
+// purely informational (the tick everyone sees) and, client-side only, used
+// to gate the chooser's confirm button. The server does NOT enforce this;
+// resolution still succeeds even if not everyone has revealed. That's a
+// deliberate scope decision (Option B), not an oversight.
+exports.markCardRevealed = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Sign in first.");
+  }
+  const { roomId } = request.data;
+  const roomRef = db.collection("rooms").doc(roomId);
+
+  return db.runTransaction(async (tx) => {
+    const roomSnap = await tx.get(roomRef);
+    if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
+    const room = roomSnap.data();
+
+    const roundRef = roomRef.collection("rounds").doc(String(room.currentRoundNumber));
+    const roundSnap = await tx.get(roundRef);
+    if (!roundSnap.exists) throw new HttpsError("not-found", "Round not found.");
+    const round = roundSnap.data();
+
+    const revealed = new Set(round.revealedPlayerIds || []);
+    revealed.add(request.auth.uid);
+    tx.update(roundRef, { revealedPlayerIds: Array.from(revealed) });
+
+    return { revealedPlayerIds: Array.from(revealed) };
+  });
+});
+
 function shuffle(array) {
   const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
@@ -239,7 +269,7 @@ exports.dealInitialHands = onCall(async (request) => {
     shuffledIds.forEach((cardId, i) => {
       hands[i % players.length].push(cardId);
     });
-
+    
     players.forEach((playerDoc, i) => {
       const privateRef = playerDoc.ref.collection("private").doc("deck");
       tx.set(privateRef, { cardOrder: hands[i] });
