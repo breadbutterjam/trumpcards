@@ -3,6 +3,8 @@ import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { db, functions, whenSignedIn } from "../js/firebase-init.js";
 import { avatarImgHtml } from "../js/avatars.js";
 import { showScreen } from "../js/router.js";
+import { loadCategoryData } from "../js/cards.js";
+import { openExploreOverlay } from "../js/explore.js";
 
 const MIN_PLAYERS_TO_START = 2;
 const AUTO_START_DELAY_MS = 60000;
@@ -18,6 +20,7 @@ export function init({ roomId }) {
   let gameOverHandled = false;
   let autoStartTimer60 = null;
   let autoStartInterval20 = null;
+  let roomCategory = null;
 
   document.getElementById("roomCode").textContent = roomId;
 
@@ -60,6 +63,7 @@ export function init({ roomId }) {
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), (snap) => {
       const room = snap.data();
       if (!room) return;
+      roomCategory = room.category;
 
       if (room.status === "game_over") {
         if (!gameOverHandled) {
@@ -274,9 +278,11 @@ export function init({ roomId }) {
     });
   });
 
-  document.getElementById("exploreLink").addEventListener("click", () => {
-    alert("Explore mode not yet built in this scaffold.");
-  });
+document.getElementById("exploreLink").addEventListener("click", async () => {
+  if (!roomCategory) return;
+  const categoryData = await loadCategoryData(roomCategory);
+  openExploreOverlay(categoryData);
+});
 
   return () => {
     clearAutoStartTimers();
