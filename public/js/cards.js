@@ -23,16 +23,27 @@ export function cardBackgroundCss(imageValue) {
 /**
  * Renders a full card's markup (background image, region/nickname, stats
  * grid). Optionally highlights one stat with a floating direction pill —
- * used by the winner-card-detail overlay; omit for plain browsing.
+ * used by the winner-card-detail overlay.
+ *
+ * `enabledStatKeys`, when provided, restricts which stats render at all
+ * (not just visually — the others are simply never in the markup) and
+ * preserves the given key order. Omit it to show every stat the card has
+ * (used for unrestricted/full-category browsing).
  *
  * @param {object} card
- * @param {{ highlightStatKey?: string, direction?: string }} [options]
+ * @param {{ highlightStatKey?: string, direction?: string, enabledStatKeys?: string[] }} [options]
  * @returns {string} HTML
  */
 export function renderFullCardHtml(card, options = {}) {
-  const { highlightStatKey, direction } = options;
+  const { highlightStatKey, direction, enabledStatKeys } = options;
 
-  const statsHtml = Object.entries(card.stats).map(([key, s]) => {
+  const entries = Array.isArray(enabledStatKeys)
+    ? enabledStatKeys
+        .filter((key) => card.stats[key])
+        .map((key) => [key, card.stats[key]])
+    : Object.entries(card.stats);
+
+  const statsHtml = entries.map(([key, s]) => {
     const isHighlighted = highlightStatKey && key === highlightStatKey;
     return `
       <div class="stat-cell readonly${isHighlighted ? " winner-highlight" : ""}">

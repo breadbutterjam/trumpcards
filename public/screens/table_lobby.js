@@ -21,6 +21,7 @@ export function init({ roomId }) {
   let autoStartTimer60 = null;
   let autoStartInterval20 = null;
   let roomCategory = null;
+  let roomEnabledStatKeys = null;
 
   document.getElementById("roomCode").textContent = roomId;
 
@@ -63,7 +64,9 @@ export function init({ roomId }) {
     const unsubRoom = onSnapshot(doc(db, "rooms", roomId), (snap) => {
       const room = snap.data();
       if (!room) return;
+
       roomCategory = room.category;
+      roomEnabledStatKeys = Array.isArray(room.enabledStatKeys) ? room.enabledStatKeys : null;
 
       if (room.status === "game_over") {
         if (!gameOverHandled) {
@@ -241,6 +244,8 @@ export function init({ roomId }) {
         showScreen("your_deck", { roomId });
         return;
       }
+
+      document.getElementById("statusBar").textContent = "Waiting for other players to start…";
     } catch (err) {
       document.getElementById("statusBar").textContent = "Couldn't start: " + err.message;
       btn.disabled = false;
@@ -266,7 +271,6 @@ export function init({ roomId }) {
   document.getElementById("startGameBtn").addEventListener("click", acknowledgeStart);
 
   document.getElementById("copyBtn").addEventListener("click", () => {
-    console.log("Copying room code to clipboard:", roomId);
     navigator.clipboard.writeText(roomId).then(() => {
       const btn = document.getElementById("copyBtn");
       btn.innerHTML = '<i class="fa-solid fa-check"></i>';
@@ -278,11 +282,11 @@ export function init({ roomId }) {
     });
   });
 
-document.getElementById("exploreLink").addEventListener("click", async () => {
-  if (!roomCategory) return;
-  const categoryData = await loadCategoryData(roomCategory);
-  openExploreOverlay(categoryData);
-});
+  document.getElementById("exploreLink").addEventListener("click", async () => {
+    if (!roomCategory) return;
+    const categoryData = await loadCategoryData(roomCategory);
+    openExploreOverlay(categoryData, { enabledStatKeys: roomEnabledStatKeys });
+  });
 
   return () => {
     clearAutoStartTimers();

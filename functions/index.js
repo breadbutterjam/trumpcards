@@ -7,8 +7,7 @@ const db = getFirestore();
 
 const CATEGORY_REGISTRY = {
   states_of_india: require("./data/states_of_india.json"),
-  cricketers: require("./data/cricketers.json"),
-  iplcricketers: require("./data/iplcricketers.json"),
+  mountains: require("./data/mountains.json"),
 };
 const DEFAULT_CATEGORY_ID = "states_of_india";
 
@@ -21,6 +20,12 @@ function getCardById(categoryId, cardId) {
 function getAllCardIds(categoryId) {
   return getCategoryData(categoryId).cards.map((c) => c.id);
 }
+// All cards in a category share the same stat schema — the first card is a
+// reliable source for "what stat keys exist in this category at all."
+function getAllStatKeys(categoryId) {
+  const categoryData = getCategoryData(categoryId);
+  return Object.keys(categoryData.cards[0].stats);
+}
 
 function generateRoomCode() {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -31,36 +36,6 @@ function generateRoomCode() {
   return code;
 }
 
-// Records that a player has revealed their card for the current round —
-// purely informational (the tick everyone sees) and, client-side only, used
-// to gate the chooser's confirm button. The server does NOT enforce this;
-// resolution still succeeds even if not everyone has revealed. That's a
-// deliberate scope decision (Option B), not an oversight.
-exports.markCardRevealed = onCall(async (request) => {
-  if (!request.auth) {
-    throw new HttpsError("unauthenticated", "Sign in first.");
-  }
-  const { roomId } = request.data;
-  const roomRef = db.collection("rooms").doc(roomId);
-
-  return db.runTransaction(async (tx) => {
-    const roomSnap = await tx.get(roomRef);
-    if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
-    const room = roomSnap.data();
-
-    const roundRef = roomRef.collection("rounds").doc(String(room.currentRoundNumber));
-    const roundSnap = await tx.get(roundRef);
-    if (!roundSnap.exists) throw new HttpsError("not-found", "Round not found.");
-    const round = roundSnap.data();
-
-    const revealed = new Set(round.revealedPlayerIds || []);
-    revealed.add(request.auth.uid);
-    tx.update(roundRef, { revealedPlayerIds: Array.from(revealed) });
-
-    return { revealedPlayerIds: Array.from(revealed) };
-  });
-});
-
 function shuffle(array) {
   const arr = array.slice();
   for (let i = arr.length - 1; i > 0; i--) {
@@ -70,12 +45,7 @@ function shuffle(array) {
   return arr;
 }
 
-// Shared by both round-resolution paths. `extraRoomFields` lets the caller
-// pass along mode-specific denormalized data — currently used by online
-// mode to store the winning card's region/stat/direction, so the loser's
-// result popup can show "won with X — statLabel: statValue, High" without
-// any extra reads. Offline mode doesn't pass this (no stat comparison
-// exists there), so those fields simply stay unset for offline rounds.
+// Shared by both round-resolution paths.
 function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, winnerId, playersSnap, extraRoomFields = {} }) {
   const played = activePlayers.map((p, i) => ({
     playerId: p.id,
@@ -140,6 +110,7 @@ function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, win
     direction: null,
     status: isOffline ? "awaiting_judge" : "selecting",
     winnerId: null,
+    revealedPlayerIds: [],
     createdAt: FieldValue.serverTimestamp(),
   });
 
@@ -150,13 +121,27 @@ exports.createRoom = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in before creating a room.");
   }
-  const { playerName, avatar, maxPlayers, categoryId, mode } = request.data;
+  const { playerName, avatar, maxPlayers, categoryId, mode, enabledStatKeys } = request.data;
   if (!playerName || typeof playerName !== "string") {
     throw new HttpsError("invalid-argument", "playerName is required.");
   }
 
   const resolvedCategoryId = CATEGORY_REGISTRY[categoryId] ? categoryId : DEFAULT_CATEGORY_ID;
   const resolvedMode = mode === "offline" ? "offline" : "online";
+
+  // The room creator's chosen subset of properties to use this game.
+  // Validated against the category's real stat keys — anything invalid is
+  // silently dropped rather than trusted outright. Falls back to "every
+  // property" if omitted or if filtering leaves nothing valid, so older
+  // clients (or a skipped advanced-settings step) behave exactly as before.
+  const allStatKeys = getAllStatKeys(resolvedCategoryId);
+  let resolvedStatKeys =
+    Array.isArray(enabledStatKeys) && enabledStatKeys.length > 0
+      ? enabledStatKeys.filter((k) => allStatKeys.includes(k))
+      : allStatKeys;
+  if (resolvedStatKeys.length === 0) {
+    resolvedStatKeys = allStatKeys;
+  }
 
   const playerId = request.auth.uid;
   let roomId;
@@ -175,6 +160,7 @@ exports.createRoom = onCall(async (request) => {
   const roomRef = db.collection("rooms").doc(roomId);
   await roomRef.set({
     category: resolvedCategoryId,
+    enabledStatKeys: resolvedStatKeys,
     mode: resolvedMode,
     judgePlayerId: playerId,
     status: "lobby",
@@ -269,16 +255,39 @@ exports.dealInitialHands = onCall(async (request) => {
     shuffledIds.forEach((cardId, i) => {
       hands[i % players.length].push(cardId);
     });
-    
+
     players.forEach((playerDoc, i) => {
       const privateRef = playerDoc.ref.collection("private").doc("deck");
       tx.set(privateRef, { cardOrder: hands[i] });
       tx.update(playerDoc.ref, { cardCount: hands[i].length, status: "deciding" });
     });
 
+    const newRoundNumber = (room.currentRoundNumber || 0) + 1;
+    const isOffline = room.mode === "offline";
+
+    if (isOffline) {
+      tx.update(roomRef, {
+        status: "in_progress",
+        chooserPlayerId: null,
+        turnOrderQueue: [],
+        currentRoundNumber: newRoundNumber,
+        startAcks: [],
+        winnerIds: [],
+      });
+      tx.set(roomRef.collection("rounds").doc(String(newRoundNumber)), {
+        chooserId: null,
+        category: null,
+        direction: null,
+        status: "awaiting_judge",
+        winnerId: null,
+        revealedPlayerIds: [],
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      return { firstChooser: null };
+    }
+
     const firstChooser = players[Math.floor(Math.random() * players.length)].id;
     const turnOrderQueue = players.map((p) => p.id);
-    const newRoundNumber = (room.currentRoundNumber || 0) + 1;
 
     tx.update(roomRef, {
       status: "hands_dealt",
@@ -293,8 +302,9 @@ exports.dealInitialHands = onCall(async (request) => {
       chooserId: firstChooser,
       category: null,
       direction: null,
-      status: room.mode === "offline" ? "awaiting_judge" : "selecting",
+      status: "selecting",
       winnerId: null,
+      revealedPlayerIds: [],
       createdAt: FieldValue.serverTimestamp(),
     });
 
@@ -335,6 +345,35 @@ exports.acknowledgeGameStart = onCall(async (request) => {
   });
 });
 
+// Records that a player has revealed their card for the current round.
+// Purely informational (the tick everyone sees) and, client-side only, used
+// to gate the chooser's confirm button — the server does NOT enforce this
+// for resolution itself (deliberate MVP scope decision).
+exports.markCardRevealed = onCall(async (request) => {
+  if (!request.auth) {
+    throw new HttpsError("unauthenticated", "Sign in first.");
+  }
+  const { roomId } = request.data;
+  const roomRef = db.collection("rooms").doc(roomId);
+
+  return db.runTransaction(async (tx) => {
+    const roomSnap = await tx.get(roomRef);
+    if (!roomSnap.exists) throw new HttpsError("not-found", "Room not found.");
+    const room = roomSnap.data();
+
+    const roundRef = roomRef.collection("rounds").doc(String(room.currentRoundNumber));
+    const roundSnap = await tx.get(roundRef);
+    if (!roundSnap.exists) throw new HttpsError("not-found", "Round not found.");
+    const round = roundSnap.data();
+
+    const revealed = new Set(round.revealedPlayerIds || []);
+    revealed.add(request.auth.uid);
+    tx.update(roundRef, { revealedPlayerIds: Array.from(revealed) });
+
+    return { revealedPlayerIds: Array.from(revealed) };
+  });
+});
+
 exports.confirmSelectionAndResolveRound = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in first.");
@@ -356,6 +395,13 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     }
     if (room.chooserPlayerId !== request.auth.uid) {
       throw new HttpsError("permission-denied", "Only the current chooser can pick a category.");
+    }
+    // Server-side enforcement of the room's property selection — even
+    // though the UI never offers a disabled/hidden stat as an option, a
+    // client could still send an arbitrary statKey directly, so this is
+    // validated independently of what the UI shows.
+    if (room.enabledStatKeys && !room.enabledStatKeys.includes(statKey)) {
+      throw new HttpsError("invalid-argument", "That property isn't part of this game.");
     }
 
     const roundRef = roomRef.collection("rounds").doc(String(room.currentRoundNumber));
@@ -414,8 +460,6 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
       resolvedAt: FieldValue.serverTimestamp(),
     });
 
-    // Denormalized onto the room doc (via extraRoomFields below) so the
-    // loser's result popup can show what beat them without any extra reads.
     const winnerCardId = sorted[0].cardId;
     const winnerCard = getCardById(room.category, winnerCardId);
     const statInfo = winnerCard.stats[statKey];
@@ -425,11 +469,11 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
       winnerId: sorted[0].playerId, playersSnap,
       extraRoomFields: {
         lastRoundCardRegion: winnerCard.region,
+        lastRoundStatKey: statKey,
         lastRoundStatLabel: statInfo.label,
         lastRoundStatDisplay: statInfo.display,
         lastRoundDirection: direction,
         lastRoundWinnerCardId: winnerCardId,
-        lastRoundStatKey: statKey,
       },
     });
   });

@@ -3,7 +3,11 @@
 <div class="status-bar" id="statusBar">Set up your room</div>
 
 <div class="create-room-body">
-  <div class="field-label">Mode</div>
+  
+  <div id="modeToggleLabel" data="modeToggle" class="field-label-parent">
+    <div class="field-label">Mode</div>
+    <div class="expand-collapse-icons">-</div>
+  </div>
   <div class="mode-toggle" id="modeToggle">
     <button class="mode-btn selected" data-mode="online" type="button">
       <div class="mode-btn-title">Online</div>
@@ -15,8 +19,18 @@
     </button>
   </div>
 
-  <div class="field-label">Category</div>
+  <div id="categoryListLabel" data="categoryList" class="field-label-parent">
+    <div class="field-label">Category</div>
+    <div class="expand-collapse-icons">-</div>
+  </div>
   <div class="category-list" id="categoryList"></div>
+
+  
+  <div id="statToggleListLabel" data="statToggleList" class="field-label-parent">
+    <div class="field-label">Advanced settings — properties in play</div>
+    <div class="expand-collapse-icons">+</div>
+  </div>
+  <div class="stat-toggle-list hdn" id="statToggleList"></div>
 
   <button class="btn-candy btn-green wide-btn" id="startGameConfigBtn">CREATE ROOM &amp; GO TO LOBBY</button>
   <button class="text-link-btn" id="backBtn">← Back</button>

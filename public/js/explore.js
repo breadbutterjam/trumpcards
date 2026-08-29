@@ -2,13 +2,18 @@ import { renderFullCardHtml } from "./cards.js";
 
 /**
  * Opens a full-screen "browse all cards" overlay for the given category
- * data. Opens directly on a random card (not a list) — swipe or Prev/Next
- * to cycle through (wraps around at either end), with a list icon in the
- * header to jump straight to a specific card by name.
+ * data. Opens directly on a random card — swipe or Prev/Next to cycle
+ * through (wraps around at either end), with a list icon in the header to
+ * jump straight to a specific card by name.
  *
  * @param {{ categoryName?: string, cards: object[] }} categoryData
+ * @param {{ enabledStatKeys?: string[] }} [options] - restricts which
+ *   stats render, matching the room's active property selection. Omit to
+ *   show every stat (unrestricted browsing).
  */
-export function openExploreOverlay(categoryData) {
+export function openExploreOverlay(categoryData, options = {}) {
+  const { enabledStatKeys } = options;
+
   const overlay = document.createElement("div");
   overlay.style.cssText =
     "position:fixed; inset:0; z-index:70; display:flex; flex-direction:column; background:var(--surface-1);";
@@ -56,7 +61,7 @@ export function openExploreOverlay(categoryData) {
         <button id="exploreCloseBtn" aria-label="Close" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
       <div id="exploreCardContent" style="flex:1; min-height:0; position:relative;">
-        ${renderFullCardHtml(card)}
+        ${renderFullCardHtml(card, { enabledStatKeys })}
       </div>
       <div style="display:flex; flex-shrink:0; border-top:1px solid var(--border);">
         <button id="explorePrevBtn" style="flex:1; padding:14px; background:var(--surface-2); border:none; color:var(--text-primary); font-weight:700; font-size:13px; cursor:pointer;">← PREV</button>

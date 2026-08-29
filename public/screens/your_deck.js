@@ -3,6 +3,7 @@ import { httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { db, functions, whenSignedIn } from "../js/firebase-init.js";
 import { renderAvatarRow } from "../js/avatar-row.js";
 import { showScreen } from "../js/router.js";
+import { renderFullCardHtml, cardBackgroundCss } from "../js/cards.js";
 
 let CATEGORY_DATA = null;
 async function loadCategoryData(categoryId) {
@@ -13,11 +14,6 @@ async function loadCategoryData(categoryId) {
 }
 function cardById(id) {
   return CATEGORY_DATA.cards.find((c) => c.id === id);
-}
-
-function cardBackgroundCss(imageValue) {
-  const isGradient = /^(linear|radial)-gradient\(/.test(imageValue.trim());
-  return isGradient ? imageValue : `url('${imageValue}')`;
 }
 
 export function init({ roomId }) {
@@ -42,6 +38,7 @@ export function init({ roomId }) {
   let activePlayerIds = [];
   let revealedPlayerIds = [];
   let unsubRoundDoc = null;
+  let enabledStatKeys = null; // room's active property selection — null means "no restriction, show everything"
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -65,6 +62,7 @@ export function init({ roomId }) {
 
       roomMode = room.mode === "offline" ? "offline" : "online";
       isJudge = room.judgePlayerId === myUid;
+      enabledStatKeys = Array.isArray(room.enabledStatKeys) ? room.enabledStatKeys : null;
 
       if (!avatarRowInitialized) {
         avatarRowInitialized = true;
@@ -273,41 +271,27 @@ export function init({ roomId }) {
     });
   }
 
+  // Refactored to use the shared renderFullCardHtml from cards.js — it
+  // already supports both the highlight/direction pill AND enabledStatKeys
+  // filtering, so this no longer needs its own separate markup logic.
   function showWinnerCardOverlay({ winnerCardId, statKey, direction }) {
     if (!winnerCardId || !CATEGORY_DATA) return;
     const card = cardById(winnerCardId);
     if (!card) return;
-
-    const statsHtml = Object.entries(card.stats).map(([key, s]) => {
-      const isHighlighted = key === statKey;
-      return `
-        <div class="stat-cell readonly${isHighlighted ? " winner-highlight" : ""}">
-          ${isHighlighted && direction ? `<div class="winner-direction-pill">${direction}</div>` : ""}
-          <div class="stat-label">${s.label}</div>
-          <div class="stat-value">${s.display}</div>
-        </div>
-      `;
-    }).join("");
 
     const avatarRowEl = document.getElementById("avatarRow");
     const topOffset = avatarRowEl.getBoundingClientRect().bottom;
 
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; align-items:center; background:var(--surface-1);padding-top:12px; padding-bottom:12px;`;
+      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; background:var(--surface-1);`;
     overlay.innerHTML = `
-      <div class="winner-card-holder">
-        <div class="winner-card-header">Viewing winner's card.</div>
-        <button id="closeWinnerCardBtn" aria-label="Close" class="winner-card-close-btn"><i class="fa-solid fa-xmark"></i></button>
+      <div style="background:#fff; color:#1a1a1a; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
+        <div style="font-weight:700; font-size:15px;">Viewing winner's card.</div>
+        <button id="closeWinnerCardBtn" aria-label="Close" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div style="flex:1; min-height:0; position:relative; max-width:380px; width:100%;">
-        <div class="reveal-card" style="background-image:${cardBackgroundCss(card.images[0])}; height:100%; border-radius:0;">
-          <div class="reveal-gradient"></div>
-          <div class="reveal-stats"><div class="reveal-region">
-            ${card.region}
-            ${card.nickname ? `<div class="reveal-nickname">${card.nickname}</div>` : ""}
-          </div>${statsHtml}</div>
-        </div>
+      <div style="flex:1; min-height:0; position:relative;">
+        ${renderFullCardHtml(card, { highlightStatKey: statKey, direction, enabledStatKeys })}
       </div>
     `;
     document.body.appendChild(overlay);
@@ -459,9 +443,16 @@ export function init({ roomId }) {
     }
   }
 
+  // Filters to the room's enabled properties (when set), preserving their
+  // category-defined order. Used for online non-choosers and every
+  // offline-mode card.
   function renderReadOnlyCard(card, bannerText) {
     const slot = document.getElementById("revealCardSlot");
-    const statsHtml = Object.values(card.stats).map((s) => `
+    const statEntries = Array.isArray(enabledStatKeys)
+      ? enabledStatKeys.filter((key) => card.stats[key]).map((key) => [key, card.stats[key]])
+      : Object.entries(card.stats);
+
+    const statsHtml = statEntries.map(([, s]) => `
       <div class="stat-cell readonly">
         <div class="stat-label">${s.label}</div>
         <div class="stat-value">${s.display}</div>
@@ -518,9 +509,15 @@ export function init({ roomId }) {
     });
   }
 
+  // Filters to the room's enabled properties (when set) — the chooser can
+  // only ever pick from what's actually shown, matching what the server
+  // will validate against.
   function renderChooserCard(card) {
     const slot = document.getElementById("revealCardSlot");
-    const statEntries = Object.entries(card.stats);
+    const statEntries = Array.isArray(enabledStatKeys)
+      ? enabledStatKeys.filter((key) => card.stats[key]).map((key) => [key, card.stats[key]])
+      : Object.entries(card.stats);
+
     const statsHtml = statEntries.map(([key, s], i) => `
       <div class="stat-cell" data-key="${key}" data-index="${i}">
         <div class="stat-label">${s.label}</div>
