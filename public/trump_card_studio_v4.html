@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Trump Card Studio — V4.5</title>
+<title>Trump Card Studio — V4</title>
 <style>
 @font-face{
   font-family:"Alan Sans Embedded";
@@ -242,6 +242,28 @@ button{
 button:hover{background:#303030}
 button.primary{background:#fff;color:#111;border-color:#fff}
 button:disabled{opacity:.4;cursor:not-allowed}
+.draft-panel{
+  margin-top:16px;
+  padding:14px;
+  border:1px solid #333;
+  border-radius:8px;
+  background:#171717;
+}
+.draft-panel h3{margin:0 0 6px;font-size:14px}
+.file-btn{
+  border:1px solid #444;
+  background:#242424;
+  color:#fff;
+  padding:10px 13px;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+}
+.file-btn:hover{background:#303030}
+.file-btn.disabled{opacity:.4;cursor:not-allowed;pointer-events:none}
 .note{
   max-width:620px;
   width:100%;
@@ -476,7 +498,7 @@ div.studio-config-grid-template{
 </head>
 <body>
 <header>
-  <h1>Trump Card Studio v4.5</h1>
+  <h1>Trump Card Studio v4</h1>
   <div id="statusbar" class="statusbar">
     <span>CSV: <b id="csvStatus">Not loaded</b></span>
     <span>Images: <b id="imageStatus">0</b></span>
@@ -508,7 +530,7 @@ div.studio-config-grid-template{
     <label>
         <!-- <span>Image path prefix <small>(Prepended to every CSV image value)</small></span> -->
         <span class="studio-config-grid-label-span">Image path prefix</span>
-        <input id="studioImagePrefix" type="text" value="assets/cards/test/">
+        <input id="studioImagePrefix" type="text" value="assets/cards/ipl/">
       </label>
     <div class="control">
       <h2>Upload CSV</h2>
@@ -538,8 +560,7 @@ div.studio-config-grid-template{
         <input id="statsRowHeightInput" type="number" step="1" value="100">
       </label>
       <label>
-        <span>Corners </span>
-        <!-- <span>Corners <small>(rx 30, matches Figma preview)</small></span> -->
+        <span>Corners <small>(rx 30, matches Figma preview)</small></span>
         <input id="roundedCornersInput" type="checkbox">
       </label>
     </div>
@@ -571,6 +592,22 @@ div.studio-config-grid-template{
 
   <!-- SUBSECTION 3: Image adjustment, export actions, JSON configuration -->
   <div class="sidebar-section mat-dikhao">
+    <div class="draft-panel">
+      <h3>Image Adjustment Draft</h3>
+      <div class="adjust-help">
+        Save every row's scale/X/Y as a small file, then reload it later (with the same CSV) to
+        restore your in-progress positioning instead of redoing it by hand.
+      </div>
+      <div class="actions" style="margin-top:10px;">
+        <button id="saveDraftBtn" type="button" disabled>Save Draft</button>
+        <label class="file-btn">
+          Load Draft
+          <input id="loadDraftInput" type="file" accept="application/json,.json" style="display:none;">
+        </label>
+      </div>
+      <div id="draftStatus" class="help" style="margin-top:6px;"></div>
+    </div>
+
     <div id="imageAdjustPanel" class="adjust-panel" style="display:none;">
       <h3>Image adjustment</h3>
       <!-- <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div> -->
@@ -716,6 +753,64 @@ function resetCurrentImageAdjustment(){
       defaultImageAdjustment()
     );
   }
+}
+
+// -----------------------------------------------------------------
+// IMAGE ADJUSTMENT DRAFT (save/load every row's scale/X/Y as a file)
+//
+// Keyed the same way playerImageAdjustments already is internally
+// (player.id when the CSV has one, otherwise row position) -- so this
+// only "merges in" cleanly on a later load if the same CSV (same ids,
+// or same row order if there's no id column) is uploaded again.
+// -----------------------------------------------------------------
+function exportImageAdjustments(){
+  const adjustments = {};
+  players.forEach((p, i) => {
+    const key = p?.id || String(i);
+    const adj = playerImageAdjustments.get(key);
+    if(!adj) return;
+    if(adj.scale === 1 && adj.x === 0 && adj.y === 0) return; // skip untouched rows
+    adjustments[key] = { scale: adj.scale, x: adj.x, y: adj.y, name: p.name || "" };
+  });
+  const payload = {
+    kind: "trump-card-studio-image-adjustments",
+    version: 1,
+    categoryId: studioCategoryId ? studioCategoryId.value : "",
+    savedAt: new Date().toISOString(),
+    rowCount: players.length,
+    adjustments
+  };
+  downloadBlob(JSON.stringify(payload, null, 2), "image-adjustments.json", "application/json");
+}
+
+async function importImageAdjustmentsFile(file){
+  const text = await file.text();
+  let data;
+  try{ data = JSON.parse(text); }
+  catch(e){ throw new Error("That file isn't valid JSON."); }
+
+  const adjustments = data.adjustments || data; // tolerate a bare {key:{...}} file too
+  if(!adjustments || typeof adjustments !== "object" || Array.isArray(adjustments)){
+    throw new Error("No adjustments found in that file.");
+  }
+
+  let matched = 0, total = 0;
+  Object.entries(adjustments).forEach(([key, adj]) => {
+    total++;
+    const scale = Number(adj.scale);
+    const x = Number(adj.x);
+    const y = Number(adj.y);
+    playerImageAdjustments.set(key, {
+      scale: Number.isFinite(scale) ? scale : 1,
+      x: Number.isFinite(x) ? x : 0,
+      y: Number.isFinite(y) ? y : 0
+    });
+    if(players.some((p,i) => (p?.id || String(i)) === key)) matched++;
+  });
+
+  syncAdjustmentControls();
+  rerenderSelectedCard();
+  return { matched, total };
 }
 let isDraggingImage = false;
 let dragStartX = 0;
@@ -878,6 +973,35 @@ showTableBtn?.addEventListener("click", () => {
   tableVisible = !tableVisible;
   tableWrap.style.display = tableVisible ? "block" : "none";
   showTableBtn.textContent = tableVisible ? "Hide Table" : "Show Table";
+});
+
+// Image adjustment draft save/load (subsection 3).
+const saveDraftBtn = document.getElementById("saveDraftBtn");
+const loadDraftInput = document.getElementById("loadDraftInput");
+const draftStatus = document.getElementById("draftStatus");
+
+saveDraftBtn?.addEventListener("click", () => {
+  exportImageAdjustments();
+});
+
+loadDraftInput?.addEventListener("change", async e => {
+  const file = e.target.files && e.target.files[0];
+  if(!file) return;
+  if(draftStatus){ draftStatus.style.color = ""; draftStatus.textContent = "Loading…"; }
+  try{
+    const { matched, total } = await importImageAdjustmentsFile(file);
+    if(draftStatus){
+      draftStatus.textContent = total
+        ? `Loaded ${total} saved adjustment${total===1?"":"s"} — ${matched} matched a row in the current CSV.`
+        : "That file had no saved adjustments in it.";
+    }
+  }catch(err){
+    if(draftStatus){
+      draftStatus.style.color = "#e07a7a";
+      draftStatus.textContent = "Error: " + (err.message || String(err));
+    }
+  }
+  loadDraftInput.value = "";
 });
 
 function attachImageDragHandlers(){
@@ -1889,6 +2013,11 @@ function updateStatus(){
   document.getElementById("cardStatus").textContent=players.length;
   exportAllBtn.disabled=players.length===0;
   exportA4Btn.disabled=players.length===0;
+  if(saveDraftBtn) saveDraftBtn.disabled = players.length===0;
+  if(loadDraftInput){
+    loadDraftInput.disabled = players.length===0;
+    loadDraftInput.closest(".file-btn")?.classList.toggle("disabled", players.length===0);
+  }
 }
 
 

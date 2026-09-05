@@ -1,3 +1,9 @@
+# How to use Studio
+place the studio file alongside the index.html file 
+image folder should be under assets/cards/
+grant main folder access 
+upload csv - image path is prefixed from the form field 
+
 # Trump Cards - how to get data
 
 ## CRICINFO extracting Test, IPL, ODIs, T20s, and Overall in a table
