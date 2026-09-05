@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Trump Card Studio — V3</title>
+<title>Trump Card Studio — V4.5</title>
 <style>
 @font-face{
   font-family:"Alan Sans Embedded";
@@ -30,11 +30,14 @@
   --bad:#ef8c8c;
 }
 *{box-sizing:border-box}
+html,body{height:100%}
 body{
   margin:0;
   background:var(--bg);
   color:var(--text);
   font-family:Inter,Arial,sans-serif;
+  display:flex;
+  flex-direction:column;
 }
 header{
   /* padding:22px 28px 18px; */
@@ -43,28 +46,52 @@ header{
   display: flex;
   gap: 12px;
   align-items: center;
+  flex:0 0 auto;
 }
 h1{margin:0;font-size:22px;font-weight:700}
 .sub{margin-top:5px;color:var(--muted);font-size:13px}
 main{
-  display:grid;
-  grid-template-columns:minmax(430px,1fr) minmax(360px,620px);
-  min-height:calc(100vh - 78px);
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
 }
-.left{padding:20px 22px;border-right:1px solid var(--border);min-width:0}
+.left{
+  /* flex:1 1 380px; */
+  flex: 2;
+  flex-direction: row;
+  display: flex;
+  gap: 20px;
+  min-width:320px;
+  /* max-width:460px; */
+  padding:18px 18px;
+  border-right:1px solid var(--border);
+  overflow-y:auto;
+}
 .right{
+  /* flex:1 1 auto; */
+  flex: 1;
   padding:20px;
   display:flex;
-  flex-direction:column;
   align-items:center;
+  justify-content:center;
   background:#0d0d0d;
+  min-width:0;
 }
+.sidebar-section{
+  padding:16px 0;
+  border-bottom:1px solid var(--border);
+}
+.sidebar-section:first-child{padding-top:0}
+.sidebar-section:last-child{border-bottom:0}
+.sidebar-section h2{margin:0 0 12px;font-size:16px}
+
 .controls{
   display:grid;
   /* grid-template-columns:1fr 1fr; */
   grid-template-columns:1fr 1fr 1fr;
   gap:12px;
   margin-bottom:16px;
+  height:fit-content;
 }
 .control{
   background:var(--panel);
@@ -153,9 +180,9 @@ input[type=file]{
   border:1px solid var(--border);
   border-radius:10px;
   overflow:auto;
-  max-height:calc(100vh - 260px);
+  max-height:400px;
   background:#151515;
-  margin-top: 50px;
+  margin-top:12px;
 }
 table{width:100%;border-collapse:collapse;font-size:12px}
 th,td{
@@ -179,12 +206,16 @@ tbody tr.selected{background:#303030}
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:12px;
+  margin-bottom:10px;
+  font-size:12px;
 }
-.preview-title strong{font-size:14px}
+.preview-title strong{font-size:13px}
 .preview-title span{font-size:11px;color:var(--muted)}
 #preview{
-  width:min(100%,310px);
+  height:100%;
+  max-height:100%;
+  width:auto;
+  max-width:100%;
   aspect-ratio:620/1000;
   box-shadow:0 15px 45px rgba(0,0,0,.5);
   background:#000;
@@ -196,7 +227,6 @@ tbody tr.selected{background:#303030}
   display:flex;
   gap:8px;
   flex-wrap:wrap;
-  justify-content:center;
   margin-top:16px;
 }
 button{
@@ -232,8 +262,9 @@ button:disabled{opacity:.4;cursor:not-allowed}
   margin-right:5px;
 }
 @media(max-width:900px){
-  main{grid-template-columns:1fr}
-  .left{border-right:0;border-bottom:1px solid var(--border)}
+  main{flex-direction:column;overflow-y:auto}
+  .left{border-right:0;border-bottom:1px solid var(--border);max-width:none;overflow-y:visible}
+  .right{height:60vh}
   .table-wrap{max-height:500px}
 }
 @media(max-width:600px){
@@ -242,21 +273,46 @@ button:disabled{opacity:.4;cursor:not-allowed}
   .left,.right{padding:14px}
 }
 
+.row-chip-status{
+  font-size:12px;
+  color:var(--muted);
+  margin-bottom:10px;
+}
+.row-chip-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin-bottom:12px;
+}
+.row-chip{
+  border:1px solid #444;
+  background:#242424;
+  color:#ddd;
+  padding:8px 12px;
+  border-radius:20px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:600;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+}
+.row-chip:hover{background:#303030}
+.row-chip.previewing{
+  background:rgba(230,195,106,.18);
+  border-color:var(--warn);
+  color:var(--warn);
+}
+.row-chip.confirmed{
+  background:rgba(143,209,143,.18);
+  border-color:var(--good);
+  color:var(--good);
+}
+.row-chip-icon{font-size:11px}
+
 .card-layout-dabba{
   margin-top:0px;
 }
-  .studio-json-config{
-    margin:16px 0;
-    /* margin:0; */
-    padding:16px;
-    border:1px solid #333;
-    border-radius:10px;
-    background:#171717;
-  }
-  .studio-json-config h2{
-    margin:0 0 12px;
-    font-size:18px;
-  }
   .studio-stats-heading h3{
     margin:18px 0 4px;
     font-size:15px;
@@ -342,7 +398,8 @@ div.studio-config-grid-template{
     flex-direction:column;
     gap:7px;
     /* max-height:360px; */
-    max-height: 500px;
+    /* max-height: 500px; */
+    max-height: 75vh;
     overflow:auto;
     margin-top:8px;
   }
@@ -365,8 +422,8 @@ div.studio-config-grid-template{
   .studio-stat-row.dragover{border-color:#888}
   .studio-stat-main{
     display:grid;
-    grid-template-columns:22px minmax(90px,1fr) minmax(120px,180px);
-    gap:8px;
+    grid-template-columns:20px minmax(60px,1fr) minmax(90px,140px);
+    gap:6px;
     align-items:center;
     flex:1;
     min-width:0;
@@ -411,11 +468,6 @@ div.studio-config-grid-template{
     gap:8px;
   }
 
-  .stats-config-and-selection-table{
-    display:flex;
-    flex-direction:row;
-    gap:8px;
-  }
   .studio-stat-arrow:hover{background:#2d2d2d;color:#fff}
   @media(max-width:850px){
     .studio-config-grid{grid-template-columns:1fr}
@@ -424,7 +476,7 @@ div.studio-config-grid-template{
 </head>
 <body>
 <header>
-  <h1>Trump Card Studio v4</h1>
+  <h1>Trump Card Studio v4.5</h1>
   <div id="statusbar" class="statusbar">
     <span>CSV: <b id="csvStatus">Not loaded</b></span>
     <span>Images: <b id="imageStatus">0</b></span>
@@ -456,7 +508,7 @@ div.studio-config-grid-template{
     <label>
         <!-- <span>Image path prefix <small>(Prepended to every CSV image value)</small></span> -->
         <span class="studio-config-grid-label-span">Image path prefix</span>
-        <input id="studioImagePrefix" type="text" value="assets/cards/ipl/">
+        <input id="studioImagePrefix" type="text" value="assets/cards/test/">
       </label>
     <div class="control">
       <h2>Upload CSV</h2>
@@ -467,19 +519,13 @@ div.studio-config-grid-template{
       </div> -->
     </div>
   </div>
-  </div>
 
-  <!-- <div id="statusbar" class="statusbar">
-    <span>CSV: <b id="csvStatus">Not loaded</b></span>
-    <span>Images: <b id="imageStatus">0</b></span>
-    <span>Cards: <b id="cardStatus">0</b></span>
-  </div> -->
   <div id="errorBox" class="statusbar bad" style="display:none"></div>
 
-
-  <div class="studio-json-config card-layout-dabba mat-dikhao">
-    <h2 id="cardLayoutHeading">Card Layout</h2>
-    <div id="cardLayoutPanel"class="studio-config-grid studio-config-grid-template">
+  <!-- SUBSECTION 1: Card Layout (layout controls + stats to include) -->
+  <div class="sidebar-section card-layout-dabba mat-dikhao">
+    <h2 id="cardLayoutHeading">Card Settings</h2>
+    <div id="cardLayoutPanel" class="studio-config-grid studio-config-grid-template">
       <label>
         <span>Stats columns per row</span>
         <select id="statsColumnsInput">
@@ -488,24 +534,71 @@ div.studio-config-grid-template{
         </select>
       </label>
       <label>
-        <!-- <span>Row height (px) <small>(auto-set per column count, editable)</small></span> -->
         <span>Row height (px)</span>
         <input id="statsRowHeightInput" type="number" step="1" value="100">
       </label>
       <label>
-        <span>Corners <small>(rx 30, matches Figma preview)</small></span>
+        <span>Corners </span>
+        <!-- <span>Corners <small>(rx 30, matches Figma preview)</small></span> -->
         <input id="roundedCornersInput" type="checkbox">
       </label>
     </div>
-    <!-- <div class="help">
-      The stats block is bottom-anchored, so switching column count (and therefore row count)
-      automatically pushes the title/short-name block up or down to keep the same spacing rhythm —
-      no other coordinates need to change per dataset.
-    </div> -->
+
+    <div class="studio-stats-heading-and-list">
+      <!-- <h3>Stats to include</h3> -->
+      <div id="studioStatsList" class="studio-stats-list">
+        <div class="help">Load a CSV to configure stats.</div>
+      </div>
+    </div>
   </div>
 
-  <div class="studio-json-config mat-dikhao">
-    <h2>JSON Configuration</h2>
+  <!-- SUBSECTION 2: Row selector (unopened / previewing / confirmed chips) -->
+  <div class="sidebar-section mat-dikhao">
+    <h2>Rows</h2>
+    <div class="preview-title">
+      <strong id="selectedName">No card selected</strong>
+      <span id="selectedStatus"></span>
+    </div>
+    <div id="rowChipStatus" class="row-chip-status"></div>
+    <div id="rowChipGrid" class="row-chip-grid">
+      <div class="empty">Upload a CSV to begin.</div>
+    </div>
+    <button id="showTableBtn" type="button">Show Table</button>
+    <div class="table-wrap" id="tableWrap" style="display:none;">
+      <div class="empty">Upload a CSV to begin.</div>
+    </div>
+  </div>
+
+  <!-- SUBSECTION 3: Image adjustment, export actions, JSON configuration -->
+  <div class="sidebar-section mat-dikhao">
+    <div id="imageAdjustPanel" class="adjust-panel" style="display:none;">
+      <h3>Image adjustment</h3>
+      <!-- <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div> -->
+
+      <label class="range-label">
+        <span>Scale <b id="scaleValue">1.00×</b></span>
+        <input id="imageScale" type="range" min="0.70" max="1.60" step="0.01" value="1">
+      </label>
+
+      <div class="adjust-row">
+        <label>X
+          <input id="imageX" type="number" step="1" value="0">
+        </label>
+        <label>Y
+          <input id="imageY" type="number" step="1" value="0">
+        </label>
+        <button id="resetImageBtn" type="button">Reset</button>
+      </div>
+      <div class="adjust-help" style="margin-top:7px;">X/Y are image movement: positive X = right, positive Y = down.</div>
+    </div>
+
+    <div class="actions">
+      <button id="exportSelected" class="primary" disabled>Export Self-contained SVG</button>
+      <button id="exportAll" disabled>Export All Self-contained SVGs</button>
+      <button id="exportA4" disabled>Print A4 PDF — 6 Cards / Page</button>
+    </div>
+
+    <h2 style="margin-top:20px;">JSON Configuration</h2>
     <div class="studio-config-grid">
       <label>
         <span>categoryId</span>
@@ -516,79 +609,28 @@ div.studio-config-grid-template{
         <input id="studioCategoryName" type="text" value="IPL Cricketers">
       </label>
     </div>
-
-    <div class="stats-config-and-selection-table">
-          <div class="studio-stats-heading-and-list">
-            <div class="studio-stats-heading">
-              <div>
-                <h3>Stats to include</h3>
-                <!-- <div class="help">Column 1–4 are always id, name, nickname and image. Select and reorder columns 5 onward.</div> -->
-              </div>
-          </div>
-
-            <div id="studioStatsList" class="studio-stats-list">
-              <div class="help">Load a CSV to configure stats.</div>
-            </div>
-
-          </div>
-
-          <div class="table-wrap" id="tableWrap">
-            <div class="empty">Upload a CSV to begin.</div>
-          </div>
+    <div class="actions">
+      <button id="studioExportJson" disabled>Export JSON</button>
     </div>
 
-    </div>
+    <!-- <div class="note">
+      Alan Sans Bold from the supplied font ZIP is embedded in this generator and in exported SVGs.
+      Inter is declared as the design font and falls back to Arial/sans-serif if Inter is unavailable.
+      Inter Regular + Bold and Alan Sans Bold are embedded in exported SVGs. Exported SVGs also embed the player image, making each SVG self-contained.
+    </div> -->
   </div>
-
-  
 </section>
 
 <section class="right">
-  <div class="preview-title">
-    <strong id="selectedName">No card selected</strong>
-    <span id="selectedStatus"></span>
-  </div>
   <div id="preview">
     <div class="empty">Card preview will appear here.</div>
-  </div>
-  <div class="actions">
-    <button id="exportSelected" class="primary" disabled>Export Self-contained SVG</button>
-    <button id="exportAll" disabled>Export All Self-contained SVGs</button>
-    <button id="exportA4" disabled>Print A4 PDF — 6 Cards / Page</button>
-    <button id="studioExportJson" disabled>Export JSON</button>
-  </div>
-
-  <div id="imageAdjustPanel" class="adjust-panel" style="display:none;">
-    <h3>Image adjustment</h3>
-    <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div>
-
-    <label class="range-label">
-      <span>Scale <b id="scaleValue">1.00×</b></span>
-      <input id="imageScale" type="range" min="0.70" max="1.60" step="0.01" value="1">
-    </label>
-
-    <div class="adjust-row">
-      <label>X
-        <input id="imageX" type="number" step="1" value="0">
-      </label>
-      <label>Y
-        <input id="imageY" type="number" step="1" value="0">
-      </label>
-      <button id="resetImageBtn" type="button">Reset</button>
-    </div>
-    <div class="adjust-help" style="margin-top:7px;">X/Y are image movement: positive X = right, positive Y = down.</div>
-  </div>
-  <div class="note">
-    Alan Sans Bold from the supplied font ZIP is embedded in this generator and in exported SVGs.
-    Inter is declared as the design font and falls back to Arial/sans-serif if Inter is unavailable.
-    Inter Regular + Bold and Alan Sans Bold are embedded in exported SVGs. Exported SVGs also embed the player image, making each SVG self-contained.
   </div>
 </section>
 </main>
 
 <script>
 /* -------------------------------------------------------------
-   TRUMP CARD STUDIO V3
+   TRUMP CARD STUDIO V4
    Card coordinate system: 620 × 1000
    ------------------------------------------------------------- */
 
@@ -601,21 +643,27 @@ const FONT_ALAN = "Alan Sans Embedded";
 // -----------------------------------------------------------------
 // CARD LAYOUT CONFIG (stats grid)
 //
-// The stats block is bottom-anchored: it ends STATS_BOTTOM_MARGIN
-// above the card's lower edge and grows *upward* as more rows are
-// needed, and the title/short-name block is pushed up above it in
-// turn. This is reverse-engineered from two Figma references:
-//   - 3 columns, 8 stats (3 rows) -> row height 100  (IPL card)
-//   - 2 columns, 8 stats (4 rows) -> row height  91  (States of India card)
-// Both cards independently confirm the same STATS_BOTTOM_MARGIN (24)
-// and VALUE_ROW_OFFSET (68), so switching column count keeps the
-// same visual rhythm instead of needing per-dataset tuning.
-const ROW_HEIGHT_DEFAULTS = { 2: 91, 3: 100 };
-const STATS_BOTTOM_MARGIN = 24;
-const VALUE_ROW_OFFSET = 68;
+// Single spacing rule, confirmed against four Figma references
+// (2-column and 3-column cricket cards, each with and without a
+// short name -- all four independently agree on the same numbers):
+//
+//   - The Name and short name (when present) stack with ZERO gap --
+//     they read as one coherent title unit.
+//   - BLOCK_GAP is the ONE constant used in all three places: the
+//     gap between that title unit and the first stat row, the gap
+//     between every pair of stat rows, and the gap between the last
+//     stat row and the card's bottom edge.
+//   - Row pitch (100) and the title/short-name content heights below
+//     are independent of column count -- confirmed by the 2-col and
+//     3-col references landing on identical row positions.
+const BLOCK_GAP = 36;
+const ROW_PITCH_DEFAULT = 100;
+const VALUE_ROW_OFFSET = 68;   // baseline offset of the value line within a row
+const TITLE_CONTENT_HEIGHT = 45; // title's own line-advance, used only for gap math
+const SHORT_CONTENT_HEIGHT = 42; // short-name's own line-advance, used only for gap math
 
 let statsColumns = 3;
-let statsRowHeight = ROW_HEIGHT_DEFAULTS[3];
+let statsRowHeight = ROW_PITCH_DEFAULT;
 let roundedCorners = false;
 
 function colWidth(columns){
@@ -633,6 +681,14 @@ function refreshStatLayout(rows){const p=rows?.[0]; statLayout=(p?._statKeys||[]
 let players = [];
 let imageDirectoryHandle = null;
 let selectedIndex = -1;
+
+// Per-row workflow state for the chip-based row selector: each entry
+// is 'unopened' | 'previewing' | 'confirmed', parallel to `players`.
+// First click on a chip selects it for preview (unopened -> previewing);
+// clicking the SAME already-active chip again marks it confirmed
+// (previewing -> confirmed). This is purely a workflow/tracking aid --
+// it does not affect what gets exported.
+let rowState = [];
 
 // Image adjustment is deliberately session-only. Selecting another player resets it.
 const playerImageAdjustments = new Map();
@@ -769,16 +825,16 @@ const roundedCornersInput = document.getElementById("roundedCornersInput");
 
 statsColumnsInput?.addEventListener("change", () => {
   statsColumns = Number(statsColumnsInput.value) === 2 ? 2 : 3;
-  // Snap the row height back to the design default for this column
-  // count, but the field stays editable for datasets that need more
+  // Row pitch is the same regardless of column count (confirmed
+  // against both 2- and 3-column references), so switching columns
+  // no longer needs to touch the row-height field at all -- it stays
+  // whatever the user has set, editable for datasets that need more
   // or less vertical room (e.g. longer labels on a mountains card).
-  statsRowHeight = ROW_HEIGHT_DEFAULTS[statsColumns];
-  statsRowHeightInput.value = statsRowHeight;
   rerenderSelectedCard();
 });
 
 statsRowHeightInput?.addEventListener("input", () => {
-  statsRowHeight = Number(statsRowHeightInput.value) || ROW_HEIGHT_DEFAULTS[statsColumns];
+  statsRowHeight = Number(statsRowHeightInput.value) || ROW_PITCH_DEFAULT;
   rerenderSelectedCard();
 });
 
@@ -810,6 +866,18 @@ resetImageBtn.addEventListener("click", () => {
   resetCurrentImageAdjustment();
   syncAdjustmentControls();
   rerenderSelectedCard();
+});
+
+// Show Table / Hide Table toggle (subsection 2, below the row chips).
+// The table itself is confined to the sidebar's width and scrolls
+// horizontally (via .table-wrap's existing overflow:auto), rather
+// than breaking out to full page width.
+const showTableBtn = document.getElementById("showTableBtn");
+let tableVisible = false;
+showTableBtn?.addEventListener("click", () => {
+  tableVisible = !tableVisible;
+  tableWrap.style.display = tableVisible ? "block" : "none";
+  showTableBtn.textContent = tableVisible ? "Hide Table" : "Show Table";
 });
 
 function attachImageDragHandlers(){
@@ -871,9 +939,12 @@ csvInput.addEventListener("change", async e => {
     players=parseCSV(text);
     refreshStatLayout(players);
     if(!players.length) throw new Error("No player rows were found. Check that the first row contains column headers.");
+    rowState = players.map(()=>"unopened");
     selectedIndex=0;
+    rowState[0]="previewing";
     syncAdjustmentControls();
     renderTable();
+    renderRowChips();
     updateStatus();
     await renderSelected();
 
@@ -887,8 +958,10 @@ csvInput.addEventListener("change", async e => {
 
   }catch(err){
     players=[];
+    rowState=[];
     selectedIndex=-1;
     renderTable();
+    renderRowChips();
     updateStatus();
     showError(err.message || String(err));
   }
@@ -1479,30 +1552,25 @@ function buildCardSVG(player, imgHrefOverride = null, adjustment = null, imageSi
     : statLayout;
 
   const columns = statsColumns === 2 ? 2 : 3;
-  const rowHeight = Number(statsRowHeight) || ROW_HEIGHT_DEFAULTS[columns];
+  const rowHeight = Number(statsRowHeight) || ROW_PITCH_DEFAULT;
   const colW = colWidth(columns);
   const rows = Math.max(1, Math.ceil(activeStatLayout.length / columns));
 
-  // The stats block is bottom-anchored (see ROW_HEIGHT_DEFAULTS comment
-  // above): it always ends STATS_BOTTOM_MARGIN above the card edge and
-  // grows upward as rows are added, so 2-column/4-row and 3-column/3-row
-  // datasets both sit at the same visual "weight" on the card.
-  const statsTop = CARD_H - STATS_BOTTOM_MARGIN - VALUE_ROW_OFFSET - (rows - 1) * rowHeight;
+  // The stats block is bottom-anchored: it ends BLOCK_GAP above the
+  // card's lower edge and grows upward as rows are added.
+  const statsTop = CARD_H - BLOCK_GAP - VALUE_ROW_OFFSET - (rows - 1) * rowHeight;
 
-  const titleLine = 68;
   const hasShortName = String(player.short_name || "").trim() !== "";
 
-  // With a short name:
-  // title → short name = 0px gap
-  // short name → stats = 32px
-  //
-  // Without a short name, move the title down so its line box ends
-  // exactly 32px before the stats block, preserving the same rhythm.
-  // Both cases are derived from statsTop so they stay correct as the
-  // stats block moves with the row/column configuration above.
-  const shortLine = 42;
-  const shortTop = statsTop - 32 - shortLine;
-  const titleTop = hasShortName ? (shortTop - titleLine) : (statsTop - 32 - titleLine);
+  // Name + short name form one coherent title unit with ZERO gap
+  // between them. BLOCK_GAP (the same constant used for the stats
+  // bottom margin and the row-to-row spacing above) sits between
+  // that unit and the first stat row -- whichever line ends up last
+  // (short name if present, otherwise the name itself).
+  const shortTop = statsTop - BLOCK_GAP - SHORT_CONTENT_HEIGHT;
+  const titleTop = hasShortName
+    ? (shortTop - TITLE_CONTENT_HEIGHT)
+    : (statsTop - BLOCK_GAP - TITLE_CONTENT_HEIGHT);
 
   const titleFont = fitTitleFont(player.name, 52, 40, CARD_W - left*2);
 
@@ -1637,7 +1705,7 @@ function buildCardSVG(player, imgHrefOverride = null, adjustment = null, imageSi
       textEl(
         x,
         y + 68,
-        escapeXML(val),
+        valueMarkup(val),
         "value",
         32,
         "#FFFFFF"
@@ -1681,6 +1749,27 @@ function escapeXML(s){
     .replace(/"/g,"&quot;").replace(/'/g,"&apos;");
 }
 
+// Wraps ordinal suffixes (1st, 2nd, 3rd, 4th, 11th, 21st, ...) in a
+// raised, smaller <tspan>, matching the Figma reference's superscript
+// ordinal style (e.g. "1st May 1960"). Returns SVG markup, not plain
+// text -- use this in place of escapeXML() wherever a stat value might
+// contain a date/ordinal.
+function valueMarkup(v){
+  const text = String(v);
+  const re = /(\d+)(st|nd|rd|th)\b/g;
+  let out = "";
+  let last = 0;
+  let m;
+  while((m = re.exec(text)) !== null){
+    out += escapeXML(text.slice(last, m.index));
+    out += escapeXML(m[1]);
+    out += `<tspan style="font-size:0.6em;baseline-shift:super">${escapeXML(m[2])}</tspan>`;
+    last = m.index + m[0].length;
+  }
+  out += escapeXML(text.slice(last));
+  return out;
+}
+
 function safeFileName(s){
   return String(s||"card").replace(/[<>:"/\\\\|?*]+/g,"-").replace(/\s+/g,"-").replace(/-+/g,"-").replace(/^-|-$/g,"");
 }
@@ -1710,7 +1799,60 @@ function renderTable(){
     h+=`<td>${status}</td></tr>`;
   });
   h+="</tbody></table>"; tableWrap.innerHTML=h;
-  tableWrap.querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>{selectedIndex=Number(tr.dataset.index);syncAdjustmentControls();renderTable();renderSelected();}));
+  tableWrap.querySelectorAll("tbody tr").forEach(tr=>tr.addEventListener("click",()=>selectRow(Number(tr.dataset.index))));
+}
+
+// Shared selection entry point for both the table and the row chips.
+// Only one row can honestly be "previewing" at a time (there's only
+// one preview pane), so selecting a new row reverts whichever row
+// was previewing-but-not-yet-confirmed back to unopened. A confirmed
+// row keeps its green state no matter where the selection moves.
+function selectRow(i){
+  if(selectedIndex >= 0 && selectedIndex !== i && rowState[selectedIndex] === "previewing"){
+    rowState[selectedIndex] = "unopened";
+  }
+  selectedIndex = i;
+  if(rowState[i] !== "confirmed") rowState[i] = "previewing";
+  syncAdjustmentControls();
+  renderTable();
+  renderRowChips();
+  renderSelected();
+}
+
+// Chip-specific click: a second click on the row that's ALREADY the
+// active preview promotes it from previewing -> confirmed. Clicking
+// any other chip just selects it (via selectRow), same as a table row.
+function onChipClick(i){
+  if(i === selectedIndex && rowState[i] === "previewing"){
+    rowState[i] = "confirmed";
+    renderRowChips();
+    return;
+  }
+  selectRow(i);
+}
+
+function renderRowChips(){
+  const grid = document.getElementById("rowChipGrid");
+  const status = document.getElementById("rowChipStatus");
+  if(!grid) return;
+  if(!players.length){
+    grid.innerHTML = '<div class="empty">Upload a CSV to begin.</div>';
+    if(status) status.textContent = "";
+    return;
+  }
+  const confirmedCount = rowState.filter(s=>s==="confirmed").length;
+  if(status) status.textContent = `${confirmedCount} confirmed · ${players.length-confirmedCount} remaining`;
+  grid.innerHTML = players.map((p,i)=>{
+    const state = rowState[i] || "unopened";
+    const label = escapeXML(p.name || `Row ${i+1}`);
+    const icon = state==="confirmed" ? '<span class="row-chip-icon">✓</span>'
+      : state==="previewing" ? '<span class="row-chip-icon">👁</span>'
+      : "";
+    return `<button type="button" class="row-chip ${state}" data-index="${i}">${icon}${label}</button>`;
+  }).join("");
+  grid.querySelectorAll(".row-chip").forEach(btn=>{
+    btn.addEventListener("click", ()=>onChipClick(Number(btn.dataset.index)));
+  });
 }
 
 async function renderSelected(){
