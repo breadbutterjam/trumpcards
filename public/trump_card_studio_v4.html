@@ -260,6 +260,17 @@ button:disabled{opacity:.4;cursor:not-allowed}
   background:#171717;
 }
 .draft-panel h3{margin:0 0 6px;font-size:14px}
+.draft-panel input[type="text"]{
+  width:100%;
+  box-sizing:border-box;
+  padding:9px 10px;
+  border:1px solid #444;
+  border-radius:5px;
+  background:#111;
+  color:#eee;
+  font:inherit;
+  margin-top:4px;
+}
 .file-btn{
   border:1px solid #444;
   background:#242424;
@@ -604,10 +615,15 @@ div.studio-config-grid-template{
     <div class="draft-panel">
       <h3>Studio Draft</h3>
       <div class="adjust-help">
-        Save every row's image positioning (scale/X/Y) and review status (confirmed/pending) as a
-        small file, then reload it later (with the same CSV) to resume exactly where you left off
-        instead of redoing it by hand. Card layout settings aren't included yet — coming in a later update.
+        Save every row's image positioning (scale/X/Y) and review status (confirmed/pending), plus
+        the Card Layout settings (columns, row height, corners, stat selection and order), as a
+        small file. Reload it later (with the same CSV) to resume exactly where you left off
+        instead of redoing it by hand.
       </div>
+      <label style="display:block;margin-top:10px;">
+        <span class="studio-config-grid-label-span">File name</span>
+        <input id="draftFileName" type="text" value="studio-draft" placeholder="studio-draft">
+      </label>
       <div class="actions" style="margin-top:10px;">
         <button id="saveDraftBtn" type="button" disabled>Save Draft</button>
         <label class="file-btn">
@@ -795,16 +811,27 @@ function exportImageAdjustments(){
       reviewStatus[key] = { state, name: p.name || "" };
     }
   });
+
+  const cardSettings = {
+    statsColumns,
+    statsRowHeight,
+    roundedCorners,
+    statConfig: studioGetFullStatConfig()
+  };
+
   const payload = {
     kind: "trump-card-studio-draft",
-    version: 2,
+    version: 3,
     categoryId: studioCategoryId ? studioCategoryId.value : "",
     savedAt: new Date().toISOString(),
     rowCount: players.length,
     adjustments,
-    reviewStatus
+    reviewStatus,
+    cardSettings
   };
-  downloadBlob(JSON.stringify(payload, null, 2), "studio-draft.json", "application/json");
+  const name = safeFileName(draftFileNameInput?.value || "studio-draft");
+  const filename = /\.json$/i.test(name) ? name : name + ".json";
+  downloadBlob(JSON.stringify(payload, null, 2), filename, "application/json");
 }
 
 async function importImageAdjustmentsFile(file){
@@ -814,14 +841,17 @@ async function importImageAdjustmentsFile(file){
   catch(e){ throw new Error("That file isn't valid JSON."); }
 
   // Tolerate an older file that's just a bare {key:{scale,x,y}} map
-  // (from before reviewStatus existed) as well as the current shape.
-  const looksLikeBareAdjustments = !data.adjustments && !data.reviewStatus;
+  // (from before reviewStatus/cardSettings existed) as well as the
+  // current shape.
+  const looksLikeBareAdjustments = !data.adjustments && !data.reviewStatus && !data.cardSettings;
   const adjustments = looksLikeBareAdjustments ? data : (data.adjustments || {});
   const reviewStatus = data.reviewStatus || {};
+  const cardSettings = data.cardSettings || null;
 
   const hasAdjustments = adjustments && typeof adjustments === "object" && !Array.isArray(adjustments);
   const hasReview = reviewStatus && typeof reviewStatus === "object" && !Array.isArray(reviewStatus);
-  if(!hasAdjustments && !hasReview){
+  const hasCardSettings = cardSettings && typeof cardSettings === "object" && !Array.isArray(cardSettings);
+  if(!hasAdjustments && !hasReview && !hasCardSettings){
     throw new Error("No saved draft data found in that file.");
   }
 
@@ -857,12 +887,34 @@ async function importImageAdjustmentsFile(file){
   }
   if(restoreIndex >= 0) selectedIndex = restoreIndex;
 
+  let statMatched = 0, statTotal = 0, appliedCardSettings = false;
+  if(hasCardSettings){
+    appliedCardSettings = true;
+    if(Number.isFinite(Number(cardSettings.statsColumns)) && statsColumnsInput){
+      statsColumnsInput.value = String(Number(cardSettings.statsColumns) === 2 ? 2 : 3);
+      statsColumnsInput.dispatchEvent(new Event("change"));
+    }
+    if(Number.isFinite(Number(cardSettings.statsRowHeight)) && statsRowHeightInput){
+      statsRowHeightInput.value = Number(cardSettings.statsRowHeight);
+      statsRowHeightInput.dispatchEvent(new Event("input"));
+    }
+    if(roundedCornersInput){
+      roundedCornersInput.checked = !!cardSettings.roundedCorners;
+      roundedCornersInput.dispatchEvent(new Event("change"));
+    }
+    if(Array.isArray(cardSettings.statConfig)){
+      const result = studioApplyFullStatConfig(cardSettings.statConfig);
+      statMatched = result.matched;
+      statTotal = result.total;
+    }
+  }
+
   syncAdjustmentControls();
   renderTable();
   renderRowChips();
   renderSelected();
 
-  return { adjMatched, adjTotal, reviewMatched, reviewTotal };
+  return { adjMatched, adjTotal, reviewMatched, reviewTotal, statMatched, statTotal, appliedCardSettings };
 }
 let isDraggingImage = false;
 let dragStartX = 0;
@@ -1031,6 +1083,7 @@ showTableBtn?.addEventListener("click", () => {
 const saveDraftBtn = document.getElementById("saveDraftBtn");
 const loadDraftInput = document.getElementById("loadDraftInput");
 const draftStatus = document.getElementById("draftStatus");
+const draftFileNameInput = document.getElementById("draftFileName");
 
 saveDraftBtn?.addEventListener("click", () => {
   exportImageAdjustments();
@@ -1041,11 +1094,17 @@ loadDraftInput?.addEventListener("change", async e => {
   if(!file) return;
   if(draftStatus){ draftStatus.style.color = ""; draftStatus.textContent = "Loading…"; }
   try{
-    const { adjMatched, adjTotal, reviewMatched, reviewTotal } = await importImageAdjustmentsFile(file);
+    const { adjMatched, adjTotal, reviewMatched, reviewTotal, statMatched, statTotal, appliedCardSettings }
+      = await importImageAdjustmentsFile(file);
     if(draftStatus){
       const parts = [];
       if(adjTotal) parts.push(`${adjTotal} image adjustment${adjTotal===1?"":"s"} (${adjMatched} matched)`);
       if(reviewTotal) parts.push(`${reviewTotal} review status${reviewTotal===1?"":"es"} (${reviewMatched} matched)`);
+      if(appliedCardSettings){
+        parts.push(statTotal
+          ? `card layout settings (${statMatched}/${statTotal} stats matched)`
+          : "card layout settings");
+      }
       draftStatus.textContent = parts.length
         ? `Loaded: ${parts.join(", ")}.`
         : "That file had no saved draft data in it.";
@@ -2277,6 +2336,59 @@ function studioSyncConfig(){
   ){
     renderSelected();
   }
+}
+
+// Full snapshot of the stat list -- unlike studioStatConfig, this
+// includes DESELECTED rows too (with selected:false), so a saved
+// draft can restore exactly which stats were unchecked, not just
+// which ones were kept.
+function studioGetFullStatConfig(){
+  if(!studioStatsList) return [];
+  return Array.from(studioStatsList.querySelectorAll(".studio-stat-row")).map(row => {
+    const checkbox = row.querySelector(".studio-stat-checkbox");
+    const label = row.querySelector(".studio-stat-label");
+    return {
+      key: row.dataset.key,
+      label: label?.value.trim() || prettyStatLabel(row.dataset.key),
+      selected: !!checkbox?.checked
+    };
+  });
+}
+
+// Restores stat selection, custom labels, and row order from a saved
+// snapshot. Matched keys are reordered to the saved order; any
+// current-CSV column NOT in the saved file (e.g. a newer CSV with an
+// extra column) is left after the restored ones, in its original
+// position, rather than being dropped.
+function studioApplyFullStatConfig(savedConfig){
+  if(!studioStatsList || !Array.isArray(savedConfig) || !savedConfig.length){
+    return { matched: 0, total: 0 };
+  }
+
+  const rowsByKey = new Map();
+  studioStatsList.querySelectorAll(".studio-stat-row").forEach(row => rowsByKey.set(row.dataset.key, row));
+
+  const savedKeys = new Set(savedConfig.map(e => e.key));
+  const remainingKeys = Array.from(rowsByKey.keys()).filter(k => !savedKeys.has(k));
+
+  let matched = 0;
+  savedConfig.forEach(entry => {
+    const row = rowsByKey.get(entry.key);
+    if(!row) return;
+    matched++;
+    studioStatsList.appendChild(row);
+    const checkbox = row.querySelector(".studio-stat-checkbox");
+    const label = row.querySelector(".studio-stat-label");
+    if(checkbox) checkbox.checked = !!entry.selected;
+    if(label && typeof entry.label === "string") label.value = entry.label;
+  });
+  remainingKeys.forEach(key => {
+    const row = rowsByKey.get(key);
+    if(row) studioStatsList.appendChild(row);
+  });
+
+  studioSyncConfig();
+  return { matched, total: savedConfig.length };
 }
 
 function studioBuildJSON(){
