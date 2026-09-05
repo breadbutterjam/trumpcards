@@ -58,17 +58,27 @@ main{
 .left{
   /* flex:1 1 380px; */
   flex: 2;
-  flex-direction: row;
-  display: flex;
-  gap: 20px;
   min-width:320px;
-  /* max-width:460px; */
   padding:18px 18px;
   border-right:1px solid var(--border);
   overflow-y:auto;
 }
+.sidebar-columns{
+  display:flex;
+  flex-direction:row;
+  gap:18px;
+  align-items:flex-start;
+}
+.sidebar-columns .sidebar-section{
+  flex:1 1 0;
+  min-width:200px;
+  border-bottom:0;
+  border-right:1px solid var(--border);
+  padding:0 16px;
+}
+.sidebar-columns .sidebar-section:first-child{padding-left:0}
+.sidebar-columns .sidebar-section:last-child{border-right:0;padding-right:0}
 .right{
-  /* flex:1 1 auto; */
   flex: 1;
   padding:20px;
   display:flex;
@@ -86,12 +96,12 @@ main{
 .sidebar-section h2{margin:0 0 12px;font-size:16px}
 
 .controls{
+ height:fit-content;
   display:grid;
   /* grid-template-columns:1fr 1fr; */
   grid-template-columns:1fr 1fr 1fr;
   gap:12px;
   margin-bottom:16px;
-  height:fit-content;
 }
 .control{
   background:var(--panel);
@@ -420,7 +430,6 @@ div.studio-config-grid-template{
     flex-direction:column;
     gap:7px;
     /* max-height:360px; */
-    /* max-height: 500px; */
     max-height: 75vh;
     overflow:auto;
     margin-top:8px;
@@ -544,9 +553,9 @@ div.studio-config-grid-template{
 
   <div id="errorBox" class="statusbar bad" style="display:none"></div>
 
+  <div class="sidebar-columns">
   <!-- SUBSECTION 1: Card Layout (layout controls + stats to include) -->
-  <div class="sidebar-section card-layout-dabba mat-dikhao">
-    <h2 id="cardLayoutHeading">Card Settings</h2>
+  <div class="sidebar-section card-layout-dabba mat-dikhao">    <h2 id="cardLayoutHeading">Card Layout</h2>
     <div id="cardLayoutPanel" class="studio-config-grid studio-config-grid-template">
       <label>
         <span>Stats columns per row</span>
@@ -566,7 +575,7 @@ div.studio-config-grid-template{
     </div>
 
     <div class="studio-stats-heading-and-list">
-      <!-- <h3>Stats to include</h3> -->
+      <h3>Stats to include</h3>
       <div id="studioStatsList" class="studio-stats-list">
         <div class="help">Load a CSV to configure stats.</div>
       </div>
@@ -593,10 +602,11 @@ div.studio-config-grid-template{
   <!-- SUBSECTION 3: Image adjustment, export actions, JSON configuration -->
   <div class="sidebar-section mat-dikhao">
     <div class="draft-panel">
-      <h3>Image Adjustment Draft</h3>
+      <h3>Studio Draft</h3>
       <div class="adjust-help">
-        Save every row's scale/X/Y as a small file, then reload it later (with the same CSV) to
-        restore your in-progress positioning instead of redoing it by hand.
+        Save every row's image positioning (scale/X/Y) and review status (confirmed/pending) as a
+        small file, then reload it later (with the same CSV) to resume exactly where you left off
+        instead of redoing it by hand. Card layout settings aren't included yet — coming in a later update.
       </div>
       <div class="actions" style="margin-top:10px;">
         <button id="saveDraftBtn" type="button" disabled>Save Draft</button>
@@ -610,7 +620,7 @@ div.studio-config-grid-template{
 
     <div id="imageAdjustPanel" class="adjust-panel" style="display:none;">
       <h3>Image adjustment</h3>
-      <!-- <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div> -->
+      <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div>
 
       <label class="range-label">
         <span>Scale <b id="scaleValue">1.00×</b></span>
@@ -650,11 +660,12 @@ div.studio-config-grid-template{
       <button id="studioExportJson" disabled>Export JSON</button>
     </div>
 
-    <!-- <div class="note">
+    <div class="note">
       Alan Sans Bold from the supplied font ZIP is embedded in this generator and in exported SVGs.
       Inter is declared as the design font and falls back to Arial/sans-serif if Inter is unavailable.
       Inter Regular + Bold and Alan Sans Bold are embedded in exported SVGs. Exported SVGs also embed the player image, making each SVG self-contained.
-    </div> -->
+    </div>
+  </div>
   </div>
 </section>
 
@@ -756,31 +767,44 @@ function resetCurrentImageAdjustment(){
 }
 
 // -----------------------------------------------------------------
-// IMAGE ADJUSTMENT DRAFT (save/load every row's scale/X/Y as a file)
+// STUDIO DRAFT (save/load session state as a file)
 //
-// Keyed the same way playerImageAdjustments already is internally
-// (player.id when the CSV has one, otherwise row position) -- so this
-// only "merges in" cleanly on a later load if the same CSV (same ids,
-// or same row order if there's no id column) is uploaded again.
+// Phase 1: image adjustments (scale/X/Y) + review status
+// (unopened/previewing/confirmed) per row.
+// Phase 2 (not yet implemented): card layout settings.
+//
+// Everything is keyed the same way playerImageAdjustments already is
+// internally (player.id when the CSV has one, otherwise row
+// position) -- so this only "merges in" cleanly on a later load if
+// the same CSV (same ids, or same row order if there's no id column)
+// is uploaded again.
 // -----------------------------------------------------------------
 function exportImageAdjustments(){
   const adjustments = {};
+  const reviewStatus = {};
   players.forEach((p, i) => {
     const key = p?.id || String(i);
+
     const adj = playerImageAdjustments.get(key);
-    if(!adj) return;
-    if(adj.scale === 1 && adj.x === 0 && adj.y === 0) return; // skip untouched rows
-    adjustments[key] = { scale: adj.scale, x: adj.x, y: adj.y, name: p.name || "" };
+    if(adj && !(adj.scale === 1 && adj.x === 0 && adj.y === 0)){
+      adjustments[key] = { scale: adj.scale, x: adj.x, y: adj.y, name: p.name || "" };
+    }
+
+    const state = rowState[i];
+    if(state && state !== "unopened"){
+      reviewStatus[key] = { state, name: p.name || "" };
+    }
   });
   const payload = {
-    kind: "trump-card-studio-image-adjustments",
-    version: 1,
+    kind: "trump-card-studio-draft",
+    version: 2,
     categoryId: studioCategoryId ? studioCategoryId.value : "",
     savedAt: new Date().toISOString(),
     rowCount: players.length,
-    adjustments
+    adjustments,
+    reviewStatus
   };
-  downloadBlob(JSON.stringify(payload, null, 2), "image-adjustments.json", "application/json");
+  downloadBlob(JSON.stringify(payload, null, 2), "studio-draft.json", "application/json");
 }
 
 async function importImageAdjustmentsFile(file){
@@ -789,28 +813,56 @@ async function importImageAdjustmentsFile(file){
   try{ data = JSON.parse(text); }
   catch(e){ throw new Error("That file isn't valid JSON."); }
 
-  const adjustments = data.adjustments || data; // tolerate a bare {key:{...}} file too
-  if(!adjustments || typeof adjustments !== "object" || Array.isArray(adjustments)){
-    throw new Error("No adjustments found in that file.");
+  // Tolerate an older file that's just a bare {key:{scale,x,y}} map
+  // (from before reviewStatus existed) as well as the current shape.
+  const looksLikeBareAdjustments = !data.adjustments && !data.reviewStatus;
+  const adjustments = looksLikeBareAdjustments ? data : (data.adjustments || {});
+  const reviewStatus = data.reviewStatus || {};
+
+  const hasAdjustments = adjustments && typeof adjustments === "object" && !Array.isArray(adjustments);
+  const hasReview = reviewStatus && typeof reviewStatus === "object" && !Array.isArray(reviewStatus);
+  if(!hasAdjustments && !hasReview){
+    throw new Error("No saved draft data found in that file.");
   }
 
-  let matched = 0, total = 0;
-  Object.entries(adjustments).forEach(([key, adj]) => {
-    total++;
-    const scale = Number(adj.scale);
-    const x = Number(adj.x);
-    const y = Number(adj.y);
-    playerImageAdjustments.set(key, {
-      scale: Number.isFinite(scale) ? scale : 1,
-      x: Number.isFinite(x) ? x : 0,
-      y: Number.isFinite(y) ? y : 0
+  let adjMatched = 0, adjTotal = 0;
+  if(hasAdjustments){
+    Object.entries(adjustments).forEach(([key, adj]) => {
+      adjTotal++;
+      const scale = Number(adj.scale);
+      const x = Number(adj.x);
+      const y = Number(adj.y);
+      playerImageAdjustments.set(key, {
+        scale: Number.isFinite(scale) ? scale : 1,
+        x: Number.isFinite(x) ? x : 0,
+        y: Number.isFinite(y) ? y : 0
+      });
+      if(players.some((p,i) => (p?.id || String(i)) === key)) adjMatched++;
     });
-    if(players.some((p,i) => (p?.id || String(i)) === key)) matched++;
-  });
+  }
+
+  let reviewMatched = 0, reviewTotal = 0, restoreIndex = -1;
+  if(hasReview){
+    Object.entries(reviewStatus).forEach(([key, info]) => {
+      reviewTotal++;
+      const state = (info && info.state) || info; // tolerate a bare string value too
+      const idx = players.findIndex((p,i) => (p?.id || String(i)) === key);
+      if(idx === -1) return;
+      reviewMatched++;
+      if(state === "confirmed" || state === "previewing"){
+        rowState[idx] = state;
+        if(state === "previewing") restoreIndex = idx;
+      }
+    });
+  }
+  if(restoreIndex >= 0) selectedIndex = restoreIndex;
 
   syncAdjustmentControls();
-  rerenderSelectedCard();
-  return { matched, total };
+  renderTable();
+  renderRowChips();
+  renderSelected();
+
+  return { adjMatched, adjTotal, reviewMatched, reviewTotal };
 }
 let isDraggingImage = false;
 let dragStartX = 0;
@@ -989,11 +1041,14 @@ loadDraftInput?.addEventListener("change", async e => {
   if(!file) return;
   if(draftStatus){ draftStatus.style.color = ""; draftStatus.textContent = "Loading…"; }
   try{
-    const { matched, total } = await importImageAdjustmentsFile(file);
+    const { adjMatched, adjTotal, reviewMatched, reviewTotal } = await importImageAdjustmentsFile(file);
     if(draftStatus){
-      draftStatus.textContent = total
-        ? `Loaded ${total} saved adjustment${total===1?"":"s"} — ${matched} matched a row in the current CSV.`
-        : "That file had no saved adjustments in it.";
+      const parts = [];
+      if(adjTotal) parts.push(`${adjTotal} image adjustment${adjTotal===1?"":"s"} (${adjMatched} matched)`);
+      if(reviewTotal) parts.push(`${reviewTotal} review status${reviewTotal===1?"":"es"} (${reviewMatched} matched)`);
+      draftStatus.textContent = parts.length
+        ? `Loaded: ${parts.join(", ")}.`
+        : "That file had no saved draft data in it.";
     }
   }catch(err){
     if(draftStatus){
