@@ -1,0 +1,886 @@
+{
+  "categoryId": "tennis",
+  "categoryName": "tennis",
+  "cards": [
+    {
+      "id": "alexanderzverev",
+      "region": "Alexander Zverev",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/AlexanderZverev.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,013",
+          "value": 2013
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$58,444,092",
+          "value": "$58,444,092"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "1",
+          "value": 1
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "25",
+          "value": 25
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.98 m",
+          "value": 1.98
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "7",
+          "value": 7
+        }
+      }
+    },
+    {
+      "id": "andreagassi",
+      "region": "Andre Agassi",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/AndreAgassi.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,986",
+          "value": 1986
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$31,152,975",
+          "value": "$31,152,975"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "8",
+          "value": 8
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "60",
+          "value": 60
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.80 m",
+          "value": 1.8
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "17",
+          "value": 17
+        }
+      }
+    },
+    {
+      "id": "andymurray",
+      "region": "Andy Murray",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/AndyMurray2.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,005",
+          "value": 2005
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$64,687,542",
+          "value": "$64,687,542"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "3",
+          "value": 3
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "46",
+          "value": 46
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.91 m",
+          "value": 1.91
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "14",
+          "value": 14
+        }
+      }
+    },
+    {
+      "id": "andyroddick",
+      "region": "Andy Roddick",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/AndyRoddick.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,000",
+          "value": 2000
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$20,640,030",
+          "value": "$20,640,030"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "1",
+          "value": 1
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "32",
+          "value": 32
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.88 m",
+          "value": 1.88
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "5",
+          "value": 5
+        }
+      }
+    },
+    {
+      "id": "arynasabalenka",
+      "region": "Aryna Sabalenka",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/ArynaSabalenka.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,015",
+          "value": 2015
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$49.8M+",
+          "value": "~$49.8M+"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "4",
+          "value": 4
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "24",
+          "value": 24
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.82 m",
+          "value": 1.82
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "11",
+          "value": 11
+        }
+      }
+    },
+    {
+      "id": "carlosalcaraz",
+      "region": "Carlos Alcaraz",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/CarlosAlcaraz2.jpeg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,018",
+          "value": 2018
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$64,948,871",
+          "value": "$64,948,871"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "6",
+          "value": 6
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "26",
+          "value": 26
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.83 m",
+          "value": 1.83
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "8",
+          "value": 8
+        }
+      }
+    },
+    {
+      "id": "cocogauff",
+      "region": "Coco Gauff",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/CocoGauff.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,018",
+          "value": 2018
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$35.3M",
+          "value": "~$35.3M"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "2",
+          "value": 2
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "12",
+          "value": 12
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.75 m",
+          "value": 1.75
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "4",
+          "value": 4
+        }
+      }
+    },
+    {
+      "id": "daniilmedvedev",
+      "region": "Daniil Medvedev",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/DaniilMedvedev.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,014",
+          "value": 2014
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$48,934,781",
+          "value": "$48,934,781"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "1",
+          "value": 1
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "22",
+          "value": 22
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.98 m",
+          "value": 1.98
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "6",
+          "value": 6
+        }
+      }
+    },
+    {
+      "id": "felixaugeraliassime",
+      "region": "Felix Auger-Aliassime",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/FelixAugerAliassime.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,017",
+          "value": 2017
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$17,533,249",
+          "value": "$17,533,249"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "0",
+          "value": 0
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "8",
+          "value": 8
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.93 m",
+          "value": 1.93
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "0",
+          "value": 0
+        }
+      }
+    },
+    {
+      "id": "igawitek",
+      "region": "Iga Świątek",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/IgaSwiatek.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,016",
+          "value": 2016
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$47.3M",
+          "value": "~$47.3M"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "6",
+          "value": 6
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "26",
+          "value": 26
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.76 m",
+          "value": 1.76
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "12",
+          "value": 12
+        }
+      }
+    },
+    {
+      "id": "janniksinner",
+      "region": "Jannik Sinner",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/JannikSinner.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,018",
+          "value": 2018
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$60.0M",
+          "value": "~$60.0M"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "5",
+          "value": 5
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "30",
+          "value": 30
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.91 m",
+          "value": 1.91
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "10",
+          "value": 10
+        }
+      }
+    },
+    {
+      "id": "mariasharapova",
+      "region": "Maria Sharapova",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/MariaSharapova2.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,001",
+          "value": 2001
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$38,777,962",
+          "value": "$38,777,962"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "5",
+          "value": 5
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "36",
+          "value": 36
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.88 m",
+          "value": 1.88
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "14*",
+          "value": 14
+        }
+      }
+    },
+    {
+      "id": "monicaseles",
+      "region": "Monica Seles",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/MonicaSeles.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,989",
+          "value": 1989
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$14,891,762",
+          "value": "$14,891,762"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "9",
+          "value": 9
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "53",
+          "value": 53
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.78 m",
+          "value": 1.78
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "10*",
+          "value": 10
+        }
+      }
+    },
+    {
+      "id": "naomiosaka",
+      "region": "Naomi Osaka",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/NaomiOsaka2.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,013",
+          "value": 2013
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$26.6M",
+          "value": "~$26.6M"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "4",
+          "value": 4
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "7",
+          "value": 7
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.80 m",
+          "value": 1.8
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "2",
+          "value": 2
+        }
+      }
+    },
+    {
+      "id": "novakdjokovic",
+      "region": "Novak Djokovic",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/NovakDjokovic2.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,003",
+          "value": 2003
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$193M",
+          "value": "~$193M"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "24",
+          "value": 24
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "101",
+          "value": 101
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.88 m",
+          "value": 1.88
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "40",
+          "value": 40
+        }
+      }
+    },
+    {
+      "id": "onsjabeur",
+      "region": "Ons Jabeur",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/OnsJabeur.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,010",
+          "value": 2010
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$14,303,928",
+          "value": "$14,303,928"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "0",
+          "value": 0
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "5",
+          "value": 5
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.67 m",
+          "value": 1.67
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "1",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "petesampras",
+      "region": "Pete Sampras",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/PeteSampras.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,988",
+          "value": 1988
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$43,280,489",
+          "value": "$43,280,489"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "14",
+          "value": 14
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "64",
+          "value": 64
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.85 m",
+          "value": 1.85
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "11",
+          "value": 11
+        }
+      }
+    },
+    {
+      "id": "rafaelnadal",
+      "region": "Rafael Nadal",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/RafaelNadal.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "2,001",
+          "value": 2001
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$134,946,100",
+          "value": "$134,946,100"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "22",
+          "value": 22
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "92",
+          "value": 92
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.85 m",
+          "value": 1.85
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "36",
+          "value": 36
+        }
+      }
+    },
+    {
+      "id": "rogerfederer",
+      "region": "Roger Federer",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/RogerFedrer.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,998",
+          "value": 1998
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$130,594,339",
+          "value": "$130,594,339"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "20",
+          "value": 20
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "103",
+          "value": 103
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.85 m",
+          "value": 1.85
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "28",
+          "value": 28
+        }
+      }
+    },
+    {
+      "id": "serenawilliams",
+      "region": "Serena Williams",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/SerenaWilliams.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,995",
+          "value": 1995
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$94,816,730",
+          "value": "$94,816,730"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "23",
+          "value": 23
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "73",
+          "value": 73
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.75 m",
+          "value": 1.75
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "23",
+          "value": 23
+        }
+      }
+    },
+    {
+      "id": "steffigraf",
+      "region": "Steffi Graf",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/SteffiGraff.jpg"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,982",
+          "value": 1982
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "$21,895,277",
+          "value": "$21,895,277"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "22",
+          "value": 22
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "107",
+          "value": 107
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.75 m",
+          "value": 1.75
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "16*",
+          "value": 16
+        }
+      }
+    },
+    {
+      "id": "venuswilliams",
+      "region": "Venus Williams",
+      "nickname": "",
+      "images": [
+        "assets/cards/tennis/VenusWilliams.webp"
+      ],
+      "stats": {
+        "turned_pro": {
+          "label": "Turned Pro",
+          "display": "1,994",
+          "value": 1994
+        },
+        "career_prize_money": {
+          "label": "Career Prize Money",
+          "display": "~$43.1M",
+          "value": "~$43.1M"
+        },
+        "grand_slams": {
+          "label": "Grand Slams",
+          "display": "7",
+          "value": 7
+        },
+        "overall_titles": {
+          "label": "Overall Titles",
+          "display": "49",
+          "value": 49
+        },
+        "height": {
+          "label": "Height",
+          "display": "1.85 m",
+          "value": 1.85
+        },
+        "masters_1000": {
+          "label": "Masters 1000",
+          "display": "9",
+          "value": 9
+        }
+      }
+    }
+  ]
+}

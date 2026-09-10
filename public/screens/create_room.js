@@ -3,19 +3,41 @@ import { functions } from "../js/firebase-init.js";
 import { loadCategoryData } from "../js/cards.js";
 import { showScreen } from "../js/router.js";
 
+// const CATEGORIES = [
+//   {
+//     id: "states_of_india",
+//     name: "States of India",
+//     sub: "Area, population, formed-on dates, and more",
+//     gradient: "linear-gradient(160deg, #f0c896, #b97a4d)",
+//   },
+//   {
+//     id: "mountains",
+//     name: "Famous Mountains",
+//     sub: "Height, first ascent, range, and more",
+//     gradient: "linear-gradient(160deg, #cfe8fa, #7b93a3)",
+//   },
+//   {
+//     id: "iplcricketers",
+//     name: "IPL cricketers",
+//     sub: "IPL Superstars",
+//     gradient: "linear-gradient(160deg, #4531f7, #d3d2f9)",
+//   },
+//   {
+//     id: "cricketers",
+//     name: "Cricketers",
+//     sub: "Cricket Legends",
+//     gradient: "linear-gradient(160deg, #4531f7, #d3d2f9)",
+//   },
+//   {
+//     id: "tennis",
+//     name: "Tennis",
+//     sub: "Tennis players",
+//     gradient: "linear-gradient(160deg, #00c414, #002709)",
+//   },
+  
+// ];
+
 const CATEGORIES = [
-  {
-    id: "states_of_india",
-    name: "States of India",
-    sub: "Area, population, formed-on dates, and more",
-    gradient: "linear-gradient(160deg, #f0c896, #b97a4d)",
-  },
-  {
-    id: "mountains",
-    name: "Famous Mountains",
-    sub: "Height, first ascent, range, and more",
-    gradient: "linear-gradient(160deg, #cfe8fa, #7b93a3)",
-  },
   {
     id: "iplcricketers",
     name: "IPL cricketers",
@@ -27,6 +49,18 @@ const CATEGORIES = [
     name: "Cricketers",
     sub: "Cricket Legends",
     gradient: "linear-gradient(160deg, #4531f7, #d3d2f9)",
+  },
+  {
+    id: "tennis",
+    name: "Tennis",
+    sub: "Tennis players",
+    gradient: "linear-gradient(160deg, #00c414, #002709)",
+  },
+  {
+    id: "football_worldcup",
+    name: "Football World Cup",
+    sub: "Football players from the World Cup",
+    gradient: "linear-gradient(160deg, #ff6b6b, #ffa502)",
   },
 ];
 
@@ -73,7 +107,7 @@ export function init({ playerName, avatarId }) {
   
     });
   });
-
+  console.log("CATEGORIES", CATEGORIES);
   categoryList.innerHTML = CATEGORIES.map((cat, i) => `
     <div class="category-card${i === 0 ? " selected" : ""}" data-category-id="${cat.id}"
          style="background:${cat.gradient};" tabindex="0" role="button" aria-label="${cat.name}">

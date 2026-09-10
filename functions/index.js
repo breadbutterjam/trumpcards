@@ -6,12 +6,21 @@ initializeApp();
 const db = getFirestore();
 
 const CATEGORY_REGISTRY = {
-  states_of_india: require("./data/states_of_india.json"),
   mountains: require("./data/mountains.json"),
+  states_of_india: require("./data/states_of_india.json"),
+  tennis: require("./data/tennis.json"),
+  iplcricketers: require("./data/iplcricketers.json"),
+  cricketers: require("./data/cricketers.json"),
+  football_worldcup: require("./data/football_worldcup.json"),
+  // mountains: require("./data/mountains.json"),
 };
-const DEFAULT_CATEGORY_ID = "states_of_india";
+// const DEFAULT_CATEGORY_ID = "states_of_india";
+// const DEFAULT_CATEGORY_ID = "mountains";
+const DEFAULT_CATEGORY_ID = "tennis";
 
 function getCategoryData(categoryId) {
+  console.log("getCategoryData :: categoryId", categoryId);
+  console.log("getCategoryData :: CATEGORY_REGISTRY", CATEGORY_REGISTRY);
   return CATEGORY_REGISTRY[categoryId] || CATEGORY_REGISTRY[DEFAULT_CATEGORY_ID];
 }
 function getCardById(categoryId, cardId) {

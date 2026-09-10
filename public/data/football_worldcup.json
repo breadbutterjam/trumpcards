@@ -1,0 +1,156 @@
+{
+  "categoryId": "football_worldcup",
+  "categoryName": "FootballWorldcup",
+  "cards": [
+    {
+      "id": "cristianoronaldo",
+      "region": "Cristiano Ronaldo",
+      "nickname": "",
+      "images": [
+        "assets/cards/football_worldcup/CristianoRonaldo.webp"
+      ],
+      "stats": {
+        "appearances": {
+          "label": "Appearances",
+          "display": "26",
+          "value": 26
+        },
+        "goals": {
+          "label": "Goals",
+          "display": "11",
+          "value": 11
+        },
+        "world_cup_trophies": {
+          "label": "World cup trophies",
+          "display": "0",
+          "value": 0
+        }
+      }
+    },
+    {
+      "id": "lionelmessi",
+      "region": "Lionel Messi",
+      "nickname": "",
+      "images": [
+        "assets/cards/football_worldcup/LionelMessi.webp"
+      ],
+      "stats": {
+        "appearances": {
+          "label": "Appearances",
+          "display": "34",
+          "value": 34
+        },
+        "goals": {
+          "label": "Goals",
+          "display": "21",
+          "value": 21
+        },
+        "world_cup_trophies": {
+          "label": "World cup trophies",
+          "display": "1",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "kylianmbapp",
+      "region": "Kylian Mbappé",
+      "nickname": "",
+      "images": [
+        "assets/cards/football_worldcup/KylianMbappé.webp"
+      ],
+      "stats": {
+        "appearances": {
+          "label": "Appearances",
+          "display": "22",
+          "value": 22
+        },
+        "goals": {
+          "label": "Goals",
+          "display": "22",
+          "value": 22
+        },
+        "world_cup_trophies": {
+          "label": "World cup trophies",
+          "display": "1",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "lamineyamal",
+      "region": "Lamine Yamal",
+      "nickname": "",
+      "images": [
+        "assets/cards/football_worldcup/LamineYamal.webp"
+      ],
+      "stats": {
+        "appearances": {
+          "label": "Appearances",
+          "display": "8",
+          "value": 8
+        },
+        "goals": {
+          "label": "Goals",
+          "display": "1",
+          "value": 1
+        },
+        "world_cup_trophies": {
+          "label": "World cup trophies",
+          "display": "1",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "marccucurella",
+      "region": "Marc Cucurella",
+      "nickname": "",
+      "images": [
+        "assets/cards/football_worldcup/MarcCucurella.webp"
+      ],
+      "stats": {
+        "appearances": {
+          "label": "Appearances",
+          "display": "8",
+          "value": 8
+        },
+        "goals": {
+          "label": "Goals",
+          "display": "0",
+          "value": 0
+        },
+        "world_cup_trophies": {
+          "label": "World cup trophies",
+          "display": "1",
+          "value": 1
+        }
+      }
+    },
+    {
+      "id": "oliviergiroud",
+      "region": "Olivier Giroud",
+      "nickname": "",
+      "images": [
+        "assets/cards/football_worldcup/OlivierGiroud.webp"
+      ],
+      "stats": {
+        "appearances": {
+          "label": "Appearances",
+          "display": "18",
+          "value": 18
+        },
+        "goals": {
+          "label": "Goals",
+          "display": "5",
+          "value": 5
+        },
+        "world_cup_trophies": {
+          "label": "World cup trophies",
+          "display": "1",
+          "value": 1
+        }
+      }
+    }
+  ]
+}
