@@ -657,7 +657,9 @@ div.studio-config-grid-template{
 
     <div class="actions">
       <button id="exportSelected" class="primary" disabled>Export Self-contained SVG</button>
+      <button id="exportSelectedPNGSvg" disabled>Export Selected — PNG Image SVG</button>
       <button id="exportAll" disabled>Export All Self-contained SVGs</button>
+      <button id="exportAllPNGSvg" disabled>Export All — PNG Image SVGs</button>
       <button id="exportA4" disabled>Print A4 PDF — 6 Cards / Page</button>
     </div>
 
@@ -926,7 +928,9 @@ const csvInput = document.getElementById("csvInput");
 const tableWrap = document.getElementById("tableWrap");
 const preview = document.getElementById("preview");
 const exportSelectedBtn = document.getElementById("exportSelected");
+const exportSelectedPNGSvgBtn = document.getElementById("exportSelectedPNGSvg");
 const exportAllBtn = document.getElementById("exportAll");
+const exportAllPNGSvgBtn = document.getElementById("exportAllPNGSvg");
 const exportA4Btn = document.getElementById("exportA4");
 const grantImageFolderBtn = document.getElementById("grantImageFolderBtn");
 const folderAccessStatus = document.getElementById("folderAccessStatus");
@@ -1281,6 +1285,78 @@ exportAllBtn.addEventListener("click", async () => {
 });
 
 
+exportSelectedPNGSvgBtn.addEventListener("click", async () => {
+  if(selectedIndex < 0) return;
+
+  try{
+    if(!imageDirectoryHandle){
+      if(!window.showDirectoryPicker){
+        throw new Error("Folder access is not supported by this browser. Please use a current version of Chrome or Edge.");
+      }
+      imageDirectoryHandle = await window.showDirectoryPicker({
+        mode: "read",
+        startIn: "desktop"
+      });
+      folderAccessStatus.textContent = `Using: ${imageDirectoryHandle.name}`;
+    }
+
+    exportSelectedPNGSvgBtn.disabled = true;
+    exportSelectedPNGSvgBtn.textContent = "Converting image to PNG…";
+
+    const player = players[selectedIndex];
+    const svg = await getCardSVGWithPNGImage(player);
+
+    downloadBlob(
+      svg,
+      safeFileName(player.id + "-" + player.name) + "-PNG.svg",
+      "image/svg+xml;charset=utf-8"
+    );
+  }catch(err){
+    if(err?.name !== "AbortError") showError(err.message || String(err));
+  }finally{
+    exportSelectedPNGSvgBtn.textContent = "Export Selected — PNG Image SVG";
+    exportSelectedPNGSvgBtn.disabled = selectedIndex < 0 || !players.length;
+  }
+});
+
+
+exportAllPNGSvgBtn.addEventListener("click", async () => {
+  if(!players.length) return;
+
+  try{
+    if(!imageDirectoryHandle){
+      if(!window.showDirectoryPicker){
+        throw new Error("Folder access is not supported by this browser. Please use a current version of Chrome or Edge.");
+      }
+      imageDirectoryHandle = await window.showDirectoryPicker({
+        mode: "read",
+        startIn: "desktop"
+      });
+      folderAccessStatus.textContent = `Using: ${imageDirectoryHandle.name}`;
+    }
+
+    exportAllPNGSvgBtn.disabled = true;
+
+    for(let i=0;i<players.length;i++){
+      exportAllPNGSvgBtn.textContent = `Converting image ${i+1}/${players.length}…`;
+      const svg = await getCardSVGWithPNGImage(players[i]);
+
+      downloadBlob(
+        svg,
+        safeFileName(players[i].id + "-" + players[i].name) + "-PNG.svg",
+        "image/svg+xml;charset=utf-8"
+      );
+      await sleep(120);
+    }
+  }catch(err){
+    if(err?.name !== "AbortError") showError(err.message || String(err));
+  }finally{
+    exportAllPNGSvgBtn.textContent = "Export All — PNG Image SVGs";
+    exportAllPNGSvgBtn.disabled = players.length === 0;
+  }
+});
+
+
 async function openA4PrintPreview(){
   if(!players.length) return;
 
@@ -1579,6 +1655,32 @@ async function getCardSVG(player, embedImage = false){
   return buildCardSVG(player, imgHref, getPlayerAdjustment(player), imageSize);
 }
 
+async function getCardSVGWithPNGImage(player){
+  const path = imagePath(player);
+  let imgHref = path;
+
+  if(path){
+    if(/^data:/i.test(path)){
+      imgHref = await dataURLToPNGDataURL(path);
+    }else{
+      try{
+        const file = await getImageBytesFromGrantedFolder(path);
+        imgHref = await fileToPNGDataURL(file);
+      }catch(err){
+        const playerName = player?.name ? ` for “${player.name}”` : "";
+        throw new Error(`Could not convert image to PNG${playerName}: ${err?.message || String(err)}`);
+      }
+    }
+  }
+
+  let imageSize = null;
+  if(imgHref){
+    imageSize = await getImageIntrinsicSize(player, imgHref);
+  }
+
+  return buildCardSVG(player, imgHref, getPlayerAdjustment(player), imageSize);
+}
+
 async function getImageIntrinsicSize(player, href){
   // For embedded/data/blob/HTTP images, the browser can read dimensions directly.
   const candidate = href;
@@ -1745,6 +1847,30 @@ async function getImageBytesFromGrantedFolder(relativePath){
       `Check the CSV path and selected folder, then use “Grant Image Folder Access” again if needed.`
     );
   }
+}
+
+async function dataURLToPNGDataURL(dataURL){
+  return await new Promise((resolve, reject) => {
+    const img = new Image();
+
+    img.onload = () => {
+      try{
+        const canvas = document.createElement("canvas");
+        canvas.width = img.naturalWidth;
+        canvas.height = img.naturalHeight;
+
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0);
+
+        resolve(canvas.toDataURL("image/png"));
+      }catch(err){
+        reject(err);
+      }
+    };
+
+    img.onerror = () => reject(new Error("Could not decode image for PNG conversion."));
+    img.src = dataURL;
+  });
 }
 
 async function fileToPNGDataURL(file){
@@ -2138,6 +2264,7 @@ async function renderSelected(){
     document.getElementById("selectedStatus").textContent="";
     preview.innerHTML='<div class="empty">Card preview will appear here.</div>';
     exportSelectedBtn.disabled=true;
+    exportSelectedPNGSvgBtn.disabled=true;
     return;
   }
   const p=players[selectedIndex];
@@ -2152,7 +2279,9 @@ async function renderSelected(){
   syncAdjustmentControls();
   attachImageDragHandlers();
   exportSelectedBtn.disabled=false;
+  exportSelectedPNGSvgBtn.disabled=false;
   exportAllBtn.disabled=players.length===0;
+  exportAllPNGSvgBtn.disabled=players.length===0;
   }catch(err){
     showError(err.message || String(err));
   }
@@ -2164,6 +2293,7 @@ function updateStatus(){
   document.getElementById("imageStatus").textContent = `${found}/${players.length} paths set`;
   document.getElementById("cardStatus").textContent=players.length;
   exportAllBtn.disabled=players.length===0;
+  exportAllPNGSvgBtn.disabled=players.length===0;
   exportA4Btn.disabled=players.length===0;
   if(saveDraftBtn) saveDraftBtn.disabled = players.length===0;
   if(loadDraftInput){
