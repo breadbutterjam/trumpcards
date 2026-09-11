@@ -163,6 +163,24 @@ input[type=file]{
   height:32px;
   white-space:nowrap;
 }
+/* Small inline action beside the Image adjustment heading. It is styled
+   as a text link so it reads as a utility action rather than another
+   primary control. */
+.text-link{
+  border:0;
+  background:transparent;
+  padding:0;
+  margin-left:8px;
+  color:var(--accent);
+  font:inherit;
+  font-weight:600;
+  cursor:pointer;
+  text-decoration:underline;
+  text-underline-offset:2px;
+}
+.text-link:hover{
+  opacity:.75;
+}
 #preview{
   cursor:grab;
   user-select:none;
@@ -614,12 +632,12 @@ div.studio-config-grid-template{
   <div class="sidebar-section mat-dikhao">
     <div class="draft-panel">
       <h3>Studio Draft</h3>
-      <div class="adjust-help">
+      <!-- <div class="adjust-help">
         Save every row's image positioning (scale/X/Y) and review status (confirmed/pending), plus
         the Card Layout settings (columns, row height, corners, stat selection and order), as a
         small file. Reload it later (with the same CSV) to resume exactly where you left off
         instead of redoing it by hand.
-      </div>
+      </div> -->
       <label style="display:block;margin-top:10px;">
         <span class="studio-config-grid-label-span">File name</span>
         <input id="draftFileName" type="text" value="studio-draft" placeholder="studio-draft">
@@ -635,12 +653,12 @@ div.studio-config-grid-template{
     </div>
 
     <div id="imageAdjustPanel" class="adjust-panel" style="display:none;">
-      <h3>Image adjustment</h3>
-      <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div>
+      <h3>Image adjustment <button id="autoAdjustImageBtn" type="button" class="text-link">Auto-adjust</button></h3>
+      <!-- <div class="adjust-help">Drag the image in the preview to reposition it. Scale it down to reveal more of the original, then move it freely; exposed areas remain black.</div> -->
 
       <label class="range-label">
         <span>Scale <b id="scaleValue">1.00×</b></span>
-        <input id="imageScale" type="range" min="0.70" max="1.60" step="0.01" value="1">
+        <input id="imageScale" type="range" min="0.10" max="1.60" step="0.01" value="1">
       </label>
 
       <div class="adjust-row">
@@ -652,14 +670,14 @@ div.studio-config-grid-template{
         </label>
         <button id="resetImageBtn" type="button">Reset</button>
       </div>
-      <div class="adjust-help" style="margin-top:7px;">X/Y are image movement: positive X = right, positive Y = down.</div>
+      <!-- <div class="adjust-help" style="margin-top:7px;">X/Y are image movement: positive X = right, positive Y = down.</div> -->
     </div>
 
     <div class="actions">
-      <button id="exportSelected" class="primary" disabled>Export Self-contained SVG</button>
-      <button id="exportSelectedPNGSvg" disabled>Export Selected — PNG Image SVG</button>
-      <button id="exportAll" disabled>Export All Self-contained SVGs</button>
-      <button id="exportAllPNGSvg" disabled>Export All — PNG Image SVGs</button>
+      <button id="exportSelected" class="primary" disabled>Export Selected</button>
+      <button id="exportSelectedPNGSvg" disabled>Export Selected (PNG)</button>
+      <button id="exportAll" disabled>Export All</button>
+      <button id="exportAllPNGSvg" disabled>Export All (PNG)</button>
       <button id="exportA4" disabled>Print A4 PDF — 6 Cards / Page</button>
     </div>
 
@@ -1069,6 +1087,61 @@ resetImageBtn.addEventListener("click", () => {
   resetCurrentImageAdjustment();
   syncAdjustmentControls();
   rerenderSelectedCard();
+});
+
+// Auto-adjust fits the selected source image as wide as possible inside the
+// card while preserving its original aspect ratio, then top-aligns it.
+// In the card renderer, `scale` controls how much of the source image is
+// visible at once. We therefore calculate the scale needed for the source
+// width to span the full 620px card width. X=0 keeps the image horizontally
+// centered, while Y is calculated so the top edge of the source lands exactly
+// on the card's top edge.
+const autoAdjustImageBtn = document.getElementById("autoAdjustImageBtn");
+autoAdjustImageBtn?.addEventListener("click", async () => {
+  if(selectedIndex < 0 || !players[selectedIndex] || !imagePath(players[selectedIndex])) return;
+
+  try{
+    const player = players[selectedIndex];
+    const imgHref = imagePath(player);
+    const imageSize = await getImageIntrinsicSize(player, imgHref);
+    const iw = Number(imageSize?.width || CARD_W);
+    const ih = Number(imageSize?.height || CARD_H);
+
+    if(!iw || !ih) return;
+
+    const cardAspect = CARD_W / CARD_H;
+    const sourceAspect = iw / ih;
+
+    // At scale 1 the renderer uses an object-cover crop. These are the
+    // source dimensions of that initial crop. To reveal the entire source
+    // width, the viewport width must become equal to the source width.
+    let baseVW, baseVH;
+    if(sourceAspect > cardAspect){
+      baseVH = ih;
+      baseVW = ih * cardAspect;
+    }else{
+      baseVW = iw;
+      baseVH = iw / cardAspect;
+    }
+
+    const scale = baseVW / iw;
+    const viewportH = baseVH / scale;
+
+    // The renderer maps Y movement through the viewport height. This value
+    // makes the viewport's top edge equal to source y=0, so the image is
+    // top-aligned rather than vertically centered.
+    const topAlignedY = ((ih - viewportH) / 2) * (CARD_H / viewportH);
+
+    const adjustment = getCurrentImageAdjustment();
+    adjustment.scale = scale;
+    adjustment.x = 0;
+    adjustment.y = topAlignedY;
+
+    syncAdjustmentControls();
+    rerenderSelectedCard();
+  }catch(err){
+    showError(err.message || String(err));
+  }
 });
 
 // Show Table / Hide Table toggle (subsection 2, below the row chips).
