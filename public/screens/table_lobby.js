@@ -9,6 +9,7 @@ import { openExploreOverlay } from "../js/explore.js";
 const MIN_PLAYERS_TO_START = 2;
 const AUTO_START_DELAY_MS = 60000;
 const AUTO_START_COUNTDOWN_SECONDS = 20;
+const BOT_SETUP_DELAY_MS = 1500; // artificial "computer is getting ready" pause
 
 export function init({ roomId }) {
   const unsubscribers = [];
@@ -22,6 +23,8 @@ export function init({ roomId }) {
   let autoStartInterval20 = null;
   let roomCategory = null;
   let roomEnabledStatKeys = null;
+  let botSetupStarted = false;
+  let botSetupDone = false;
 
   document.getElementById("roomCode").textContent = roomId;
 
@@ -67,6 +70,20 @@ export function init({ roomId }) {
 
       roomCategory = room.category;
       roomEnabledStatKeys = Array.isArray(room.enabledStatKeys) ? room.enabledStatKeys : null;
+
+      // vs-Computer: brief fake setup pause before the Start button unlocks.
+      if (room.botPlayerId && room.status === "lobby" && !botSetupStarted) {
+        botSetupStarted = true;
+        document.getElementById("statusBar").textContent = "Computer is getting ready…";
+        setTimeout(() => {
+          botSetupDone = true;
+          document.getElementById("statusBar").textContent = "Computer is ready — start when you are.";
+          layoutSeats(latestPlayers);
+        }, BOT_SETUP_DELAY_MS);
+      } else if (room.botPlayerId && room.status === "game_over") {
+        botSetupStarted = true;
+        botSetupDone = true; // rematch: no repeat delay
+      }
 
       if (room.status === "game_over") {
         if (!gameOverHandled) {
@@ -144,6 +161,7 @@ export function init({ roomId }) {
           <div class="ready-tick" style="display:none;"><i class="fa-solid fa-check"></i></div>
         </div>
         <div class="seat-name">${player.name}</div>
+        ${player.isBot && !botSetupDone ? '<div class="seat-sub" style="font-size:11px; opacity:0.7;">getting ready…</div>' : ""}
       `;
       tableSurface.appendChild(seatEl);
     });
@@ -151,7 +169,9 @@ export function init({ roomId }) {
     updateAllReadyTicks();
 
     if (!gameOverHandled) {
-      document.getElementById("startBtn").disabled = players.length < MIN_PLAYERS_TO_START;
+      const botStillSettingUp = players.some((p) => p.isBot) && !botSetupDone;
+      document.getElementById("startBtn").disabled =
+        players.length < MIN_PLAYERS_TO_START || botStillSettingUp;
     }
   }
 

@@ -12,15 +12,10 @@ const CATEGORY_REGISTRY = {
   iplcricketers: require("./data/iplcricketers.json"),
   cricketers: require("./data/cricketers.json"),
   football_worldcup: require("./data/football_worldcup.json"),
-  // mountains: require("./data/mountains.json"),
 };
-// const DEFAULT_CATEGORY_ID = "states_of_india";
-// const DEFAULT_CATEGORY_ID = "mountains";
-const DEFAULT_CATEGORY_ID = "tennis";
+const DEFAULT_CATEGORY_ID = "states_of_india";
 
 function getCategoryData(categoryId) {
-  console.log("getCategoryData :: categoryId", categoryId);
-  console.log("getCategoryData :: CATEGORY_REGISTRY", CATEGORY_REGISTRY);
   return CATEGORY_REGISTRY[categoryId] || CATEGORY_REGISTRY[DEFAULT_CATEGORY_ID];
 }
 function getCardById(categoryId, cardId) {
@@ -52,6 +47,13 @@ function shuffle(array) {
     [arr[i], arr[j]] = [arr[j], arr[i]];
   }
   return arr;
+}
+
+// vs-Computer rooms store the bot's synthetic player id on the room. The bot
+// is always "revealed" from the moment a round opens, so the human's confirm
+// button never waits on it.
+function initialRevealedIds(room) {
+  return room.botPlayerId ? [room.botPlayerId] : [];
 }
 
 // Shared by both round-resolution paths.
@@ -109,6 +111,7 @@ function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, win
   tx.update(roomRef, {
     chooserPlayerId: winnerId,
     currentRoundNumber: nextRoundNumber,
+    lastRoundTied: false,
     lastRoundWinnerId: winnerId,
     lastRoundWinnerName: winnerName,
     ...extraRoomFields,
@@ -119,24 +122,60 @@ function applyRoundOutcome({ tx, roomRef, room, activePlayers, privateSnaps, win
     direction: null,
     status: isOffline ? "awaiting_judge" : "selecting",
     winnerId: null,
-    revealedPlayerIds: [],
+    revealedPlayerIds: initialRevealedIds(room),
     createdAt: FieldValue.serverTimestamp(),
   });
 
   return { status: "resolved", winnerId };
 }
 
+// Draw rule: nobody wins the round. Every active player's played card moves
+// to the bottom of their own deck (card counts unchanged), the chooser stays
+// the same, and a fresh round opens. Can never end the game.
+function applyDrawOutcome({ tx, roomRef, room, activePlayers, privateSnaps, extraRoomFields = {} }) {
+  activePlayers.forEach((p, i) => {
+    const order = privateSnaps[i].data().cardOrder;
+    const newOrder = [...order.slice(1), order[0]];
+    tx.set(p.ref.collection("private").doc("deck"), { cardOrder: newOrder });
+    tx.update(p.ref, { cardCount: newOrder.length, status: "deciding" });
+  });
+
+  const nextRoundNumber = room.currentRoundNumber + 1;
+  tx.update(roomRef, {
+    chooserPlayerId: room.chooserPlayerId,
+    currentRoundNumber: nextRoundNumber,
+    lastRoundTied: true,
+    lastRoundWinnerId: null,
+    lastRoundWinnerName: null,
+    lastRoundWinnerCardId: null,
+    lastRoundCardRegion: null,
+    ...extraRoomFields,
+  });
+  tx.set(roomRef.collection("rounds").doc(String(nextRoundNumber)), {
+    chooserId: room.chooserPlayerId,
+    category: null,
+    direction: null,
+    status: "selecting",
+    winnerId: null,
+    revealedPlayerIds: initialRevealedIds(room),
+    createdAt: FieldValue.serverTimestamp(),
+  });
+  return { status: "tied" };
+}
+
 exports.createRoom = onCall(async (request) => {
   if (!request.auth) {
     throw new HttpsError("unauthenticated", "Sign in before creating a room.");
   }
-  const { playerName, avatar, maxPlayers, categoryId, mode, enabledStatKeys } = request.data;
+  const { playerName, avatar, maxPlayers, categoryId, mode, enabledStatKeys, vsComputer } = request.data;
   if (!playerName || typeof playerName !== "string") {
     throw new HttpsError("invalid-argument", "playerName is required.");
   }
 
   const resolvedCategoryId = CATEGORY_REGISTRY[categoryId] ? categoryId : DEFAULT_CATEGORY_ID;
-  const resolvedMode = mode === "offline" ? "offline" : "online";
+  // vs-Computer only exists in online mode (the bot can't be an offline player).
+  const botEnabled = vsComputer === true && mode !== "offline";
+  const resolvedMode = botEnabled ? "online" : mode === "offline" ? "offline" : "online";
 
   // The room creator's chosen subset of properties to use this game.
   // Validated against the category's real stat keys — anything invalid is
@@ -167,13 +206,15 @@ exports.createRoom = onCall(async (request) => {
   }
 
   const roomRef = db.collection("rooms").doc(roomId);
+  const botPlayerId = botEnabled ? `bot_${roomId}` : null;
   await roomRef.set({
     category: resolvedCategoryId,
     enabledStatKeys: resolvedStatKeys,
     mode: resolvedMode,
     judgePlayerId: playerId,
     status: "lobby",
-    maxPlayers: maxPlayers || 6,
+    maxPlayers: botEnabled ? 2 : (maxPlayers || 6),
+    ...(botEnabled ? { botPlayerId } : {}),
     currentRoundNumber: 0,
     chooserPlayerId: null,
     turnOrderQueue: [],
@@ -189,6 +230,18 @@ exports.createRoom = onCall(async (request) => {
     status: "deciding",
     joinedAt: FieldValue.serverTimestamp(),
   });
+
+  if (botEnabled) {
+    await roomRef.collection("players").doc(botPlayerId).set({
+      name: "Computer",
+      avatar: avatar === "fox" ? "owl" : "fox",
+      isBot: true,
+      seatIndex: 1,
+      cardCount: 0,
+      status: "deciding",
+      joinedAt: FieldValue.serverTimestamp(),
+    });
+  }
 
   return { roomId };
 });
@@ -303,8 +356,9 @@ exports.dealInitialHands = onCall(async (request) => {
       chooserPlayerId: firstChooser,
       turnOrderQueue,
       currentRoundNumber: newRoundNumber,
-      startAcks: [],
+      startAcks: room.botPlayerId ? [room.botPlayerId] : [],
       winnerIds: [],
+      lastRoundTied: false,
     });
 
     tx.set(roomRef.collection("rounds").doc(String(newRoundNumber)), {
@@ -313,7 +367,7 @@ exports.dealInitialHands = onCall(async (request) => {
       direction: null,
       status: "selecting",
       winnerId: null,
-      revealedPlayerIds: [],
+      revealedPlayerIds: initialRevealedIds(room),
       createdAt: FieldValue.serverTimestamp(),
     });
 
@@ -341,6 +395,7 @@ exports.acknowledgeGameStart = onCall(async (request) => {
     const activeCount = playersSnap.size;
 
     const acks = new Set(room.startAcks || []);
+    if (room.botPlayerId) acks.add(room.botPlayerId);
     acks.add(request.auth.uid);
     const ackArray = Array.from(acks);
     const allReady = ackArray.length >= activeCount;
@@ -402,7 +457,12 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
     if (room.mode === "offline") {
       throw new HttpsError("failed-precondition", "This room is in offline mode — the judge declares the winner directly.");
     }
-    if (room.chooserPlayerId !== request.auth.uid) {
+    const playersSnap = await tx.get(roomRef.collection("players"));
+    // In a vs-Computer room the bot's pick is submitted by the human's client
+    // on its behalf (bot logic runs client-side for now).
+    const botIsChooser = !!room.botPlayerId && room.chooserPlayerId === room.botPlayerId;
+    const callerIsPlayer = playersSnap.docs.some((d) => d.id === request.auth.uid);
+    if (room.chooserPlayerId !== request.auth.uid && !(botIsChooser && callerIsPlayer)) {
       throw new HttpsError("permission-denied", "Only the current chooser can pick a category.");
     }
     // Server-side enforcement of the room's property selection — even
@@ -420,7 +480,6 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
       throw new HttpsError("failed-precondition", "This round has already been decided.");
     }
 
-    const playersSnap = await tx.get(roomRef.collection("players"));
     const activePlayers = playersSnap.docs.filter((d) => d.data().status !== "eliminated");
 
     const privateRefs = activePlayers.map((p) => p.ref.collection("private").doc("deck"));
@@ -458,7 +517,15 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
         tiedPlayerIds: winners.map((w) => w.playerId),
         resolvedAt: FieldValue.serverTimestamp(),
       });
-      return { status: "tied", tiedPlayerIds: winners.map((w) => w.playerId) };
+      const tiedCard = getCardById(room.category, played[0].cardId);
+      return applyDrawOutcome({
+        tx, roomRef, room, activePlayers, privateSnaps,
+        extraRoomFields: {
+          lastRoundStatKey: statKey,
+          lastRoundStatLabel: tiedCard.stats[statKey].label,
+          lastRoundDirection: direction,
+        },
+      });
     }
 
     tx.update(roundRef, {

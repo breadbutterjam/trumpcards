@@ -39,6 +39,10 @@ export function init({ roomId }) {
   let revealedPlayerIds = [];
   let unsubRoundDoc = null;
   let enabledStatKeys = null; // room's active property selection — null means "no restriction, show everything"
+  let botPlayerId = null; // set only in vs-Computer rooms
+  let botTurnStartedForRound = null;
+  let botStatusText = null; // overrides the status bar while the bot is "thinking"/announcing
+  const botTimers = [];
 
   whenSignedIn().then(async (user) => {
     myUid = user.uid;
@@ -63,6 +67,7 @@ export function init({ roomId }) {
       roomMode = room.mode === "offline" ? "offline" : "online";
       isJudge = room.judgePlayerId === myUid;
       enabledStatKeys = Array.isArray(room.enabledStatKeys) ? room.enabledStatKeys : null;
+      botPlayerId = room.botPlayerId || null;
 
       if (!avatarRowInitialized) {
         avatarRowInitialized = true;
@@ -111,8 +116,14 @@ export function init({ roomId }) {
         if (previousRoundNumber && resultPopupShownForRound !== previousRoundNumber) {
           resultPopupShownForRound = previousRoundNumber;
           const skipPopupForJudge = roomMode === "offline" && isJudge;
-          if (!skipPopupForJudge && room.lastRoundWinnerId) {
+          if (!skipPopupForJudge && room.lastRoundTied) {
+            await showRoundTiedPopup({
+              statLabel: room.lastRoundStatLabel,
+              direction: room.lastRoundDirection,
+            });
+          } else if (!skipPopupForJudge && room.lastRoundWinnerId) {
             await showRoundResultPopup({
+              roundNumber: previousRoundNumber,
               winnerId: room.lastRoundWinnerId,
               winnerName: room.lastRoundWinnerName,
               cardRegion: room.lastRoundCardRegion,
@@ -128,6 +139,8 @@ export function init({ roomId }) {
         myDeckOrder = null;
         selectedStatKey = null;
         selectedDirection = null;
+        botStatusText = null;
+        clearBotTimers();
         resetDeckUI();
         subscribeToRoundDoc(currentRoundNumber);
       }
@@ -207,7 +220,44 @@ export function init({ roomId }) {
     });
   }
 
-  function showRoundResultPopup({ winnerId, winnerName, cardRegion, statKey, statLabel, statDisplay, direction, winnerCardId }) {
+  // Draw rule: no winner. The popup just explains what happened; the next
+  // round (same chooser, fresh cards) is already open behind it.
+  function showRoundTiedPopup({ statLabel, direction }) {
+    return new Promise((resolve) => {
+      if (activeResultPopup) {
+        activeResultPopup.overlay.remove();
+        activeResultPopup.resolve();
+        activeResultPopup = null;
+      }
+      const detail = statLabel
+        ? `Both cards tied on <b>${statLabel}</b>${direction ? ` (${direction})` : ""}.`
+        : "Both cards tied.";
+
+      const overlay = document.createElement("div");
+      overlay.style.cssText =
+        "position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:50; padding:24px;";
+      overlay.innerHTML = `
+        <div class="glass-popup" style="width:100%; max-width:320px; text-align:center;">
+          <div style="padding:20px 20px 16px;">
+            <div style="font-size:13px; font-weight:700; color:var(--crown-gold); margin-bottom:6px;">It's a tie!</div>
+            <div style="font-size:15px; font-weight:700; color:#fff; line-height:1.4;">${detail}</div>
+            <div style="font-size:12px; color:rgba(255,255,255,0.8); margin-top:8px;">Cards go to the bottom of each deck. Same player chooses again with a new card.</div>
+          </div>
+          <div style="height:1px; background:rgba(255,255,255,0.25);"></div>
+          <button id="tieContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>
+        </div>
+      `;
+      document.body.appendChild(overlay);
+      activeResultPopup = { overlay, resolve };
+      document.getElementById("tieContinueBtn").addEventListener("click", () => {
+        overlay.remove();
+        activeResultPopup = null;
+        resolve();
+      });
+    });
+  }
+
+  function showRoundResultPopup({ roundNumber, winnerId, winnerName, cardRegion, statKey, statLabel, statDisplay, direction, winnerCardId }) {
     return new Promise((resolve) => {
       if (activeResultPopup) {
         activeResultPopup.overlay.remove();
@@ -224,7 +274,12 @@ export function init({ roomId }) {
           <div style="font-size:13px; font-weight:700; color:var(--crown-gold); margin-bottom:6px;">Yohoooo!</div>
           <div style="font-size:16px; font-weight:800; color:#fff;">You won</div>
         `;
-        actionsHtml = `<button id="resultContinueBtn" style="width:100%; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:15px; font-weight:700; cursor:pointer;">CONTINUE</button>`;
+        actionsHtml = `
+          <div style="display:flex;">
+            <button id="viewCardBtn" style="flex:1; padding:14px; background:transparent; border:none; border-right:1px solid rgba(255,255,255,0.25); color:#fff; font-size:14px; font-weight:700; cursor:pointer;">VIEW CARD</button>
+            <button id="resultContinueBtn" style="flex:1; padding:14px; background:transparent; border:none; color:var(--proceed-text-bright); font-size:14px; font-weight:700; cursor:pointer;">CONTINUE</button>
+          </div>
+        `;
       } else {
         const hasDetail = cardRegion && statLabel;
         const detailLine = hasDetail
@@ -265,7 +320,11 @@ export function init({ roomId }) {
       const viewCardBtn = document.getElementById("viewCardBtn");
       if (viewCardBtn) {
         viewCardBtn.addEventListener("click", () => {
-          showWinnerCardOverlay({ winnerCardId, statKey, direction });
+          if (iWon) {
+            showOpponentCardsOverlay({ roundNumber, statKey, direction });
+          } else {
+            showWinnerCardOverlay({ winnerCardId, statKey, direction });
+          }
         });
       }
     });
@@ -275,9 +334,33 @@ export function init({ roomId }) {
   // already supports both the highlight/direction pill AND enabledStatKeys
   // filtering, so this no longer needs its own separate markup logic.
   function showWinnerCardOverlay({ winnerCardId, statKey, direction }) {
-    if (!winnerCardId || !CATEGORY_DATA) return;
-    const card = cardById(winnerCardId);
-    if (!card) return;
+    showCardsOverlay([{ cardId: winnerCardId, title: "Viewing winner's card." }], { statKey, direction });
+  }
+
+  // When I win, show what everyone else played that round. Reads the round's
+  // reveal doc (readable once the round is resolved).
+  async function showOpponentCardsOverlay({ roundNumber, statKey, direction }) {
+    if (!roundNumber) return;
+    try {
+      const snap = await getDoc(doc(db, "rooms", roomId, "rounds", String(roundNumber), "reveal", "data"));
+      const played = (snap.data() && snap.data().playedCards) || {};
+      const entries = Object.keys(played)
+        .filter((pid) => pid !== myUid)
+        .map((pid) => ({
+          cardId: played[pid],
+          title: `Viewing ${playersById[pid]?.name || "opponent"}'s card.`,
+        }));
+      showCardsOverlay(entries, { statKey, direction });
+    } catch (err) {
+      console.error("Couldn't load opponent cards:", err);
+    }
+  }
+
+  // entries: [{cardId, title}] — one entry shows a plain card; several add
+  // prev/next arrows in the header.
+  function showCardsOverlay(entries, { statKey, direction }) {
+    if (!entries.length || !CATEGORY_DATA) return;
+    let idx = 0;
 
     const avatarRowEl = document.getElementById("avatarRow");
     const topOffset = avatarRowEl.getBoundingClientRect().bottom;
@@ -285,16 +368,37 @@ export function init({ roomId }) {
     const overlay = document.createElement("div");
     overlay.style.cssText =
       `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; background:var(--surface-1);`;
+    const navBtn = (id, icon) =>
+      `<button id="${id}" aria-label="${id}" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid ${icon}"></i></button>`;
     overlay.innerHTML = `
-      <div style="background:#fff; color:#1a1a1a; padding:14px 16px; display:flex; align-items:center; justify-content:space-between; flex-shrink:0;">
-        <div style="font-weight:700; font-size:15px;">Viewing winner's card.</div>
+      <div style="background:#fff; color:#1a1a1a; padding:14px 16px; display:flex; align-items:center; gap:8px; flex-shrink:0;">
+        <div id="cardsOverlayTitle" style="font-weight:700; font-size:15px; flex:1;"></div>
+        ${entries.length > 1 ? navBtn("cardsPrevBtn", "fa-chevron-left") + navBtn("cardsNextBtn", "fa-chevron-right") : ""}
         <button id="closeWinnerCardBtn" aria-label="Close" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
       </div>
-      <div style="flex:1; min-height:0; position:relative;">
-        ${renderFullCardHtml(card, { highlightStatKey: statKey, direction, enabledStatKeys })}
-      </div>
+      <div id="cardsOverlayBody" style="flex:1; min-height:0; position:relative;"></div>
     `;
     document.body.appendChild(overlay);
+
+    function renderEntry() {
+      const entry = entries[idx];
+      const card = cardById(entry.cardId);
+      if (!card) return;
+      const suffix = entries.length > 1 ? ` (${idx + 1}/${entries.length})` : "";
+      document.getElementById("cardsOverlayTitle").textContent = entry.title.replace(/\.$/, "") + suffix;
+      document.getElementById("cardsOverlayBody").innerHTML =
+        renderFullCardHtml(card, { highlightStatKey: statKey, direction, enabledStatKeys });
+    }
+    renderEntry();
+
+    if (entries.length > 1) {
+      document.getElementById("cardsPrevBtn").addEventListener("click", () => {
+        idx = (idx - 1 + entries.length) % entries.length; renderEntry();
+      });
+      document.getElementById("cardsNextBtn").addEventListener("click", () => {
+        idx = (idx + 1) % entries.length; renderEntry();
+      });
+    }
 
     document.getElementById("closeWinnerCardBtn").addEventListener("click", () => {
       overlay.remove();
@@ -322,6 +426,8 @@ export function init({ roomId }) {
       bar.textContent = alreadyRevealed
         ? "Pick a category and High / Low"
         : "Your turn: tap your deck to reveal your card";
+    } else if (botStatusText) {
+      bar.textContent = botStatusText;
     } else {
       const chooserName = playersById[chooserPlayerId]?.name;
       bar.textContent = chooserName
@@ -416,7 +522,75 @@ export function init({ roomId }) {
     } else {
       renderReadOnlyCard(card, "Waiting for the chooser to pick a category…");
       updateStatusBar();
+      maybeRunBotTurn();
     }
+  }
+
+  // ---- vs-Computer -------------------------------------------------------
+  // Easy difficulty: a completely random comparable stat and a random
+  // High/Low. Runs on this client for now (server submits on the bot's
+  // behalf via confirmSelectionAndResolveRound; can move server-side later).
+  const BOT_THINK_MS = 2000;
+  const BOT_ANNOUNCE_MS = 2000;
+  const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}/;
+
+  function isComparable(stat) {
+    if (!stat) return false;
+    const v = stat.value;
+    return (typeof v === "number" && Number.isFinite(v)) ||
+      (typeof v === "string" && ISO_DATE_RE.test(v) && !Number.isNaN(Date.parse(v)));
+  }
+
+  function clearBotTimers() {
+    botTimers.forEach(clearTimeout);
+    botTimers.length = 0;
+  }
+
+  function setBotStatus(text) {
+    botStatusText = text;
+    updateStatusBar();
+    const banner = document.querySelector(".waiting-banner");
+    if (banner) banner.textContent = text;
+  }
+
+  function maybeRunBotTurn() {
+    if (roomMode !== "online" || !botPlayerId || chooserPlayerId !== botPlayerId) return;
+    if (botTurnStartedForRound === currentRoundNumber) return;
+    botTurnStartedForRound = currentRoundNumber;
+    const roundAtStart = currentRoundNumber;
+    const stillValid = () => roundAtStart === currentRoundNumber;
+
+    setBotStatus("Computer is thinking…");
+
+    botTimers.push(setTimeout(() => {
+      if (!stillValid()) return;
+      const card = cardById(currentTopCardId);
+      const keys = (Array.isArray(enabledStatKeys) ? enabledStatKeys : Object.keys(card.stats))
+        .filter((k) => card.stats[k]);
+      let pool = keys.filter((k) => isComparable(card.stats[k]));
+      if (pool.length === 0) pool = keys; // nothing comparable: let the server be the judge
+      const statKey = pool[Math.floor(Math.random() * pool.length)];
+      const direction = Math.random() < 0.5 ? "High" : "Low";
+
+      setBotStatus(`Computer picked ${card.stats[statKey].label} · ${direction}`);
+
+      botTimers.push(setTimeout(async () => {
+        if (!stillValid()) return;
+        try {
+          const confirmFn = httpsCallable(functions, "confirmSelectionAndResolveRound");
+          const result = await confirmFn({ roomId, statKey, direction });
+          if (result.data.status === "game_over") {
+            document.getElementById("statusBar").textContent = "Game over!";
+          } else {
+            botStatusText = null;
+            document.getElementById("statusBar").textContent = "Round resolved! Waiting for the next round to load…";
+          }
+        } catch (err) {
+          botStatusText = null;
+          document.getElementById("statusBar").textContent = "Error: " + err.message;
+        }
+      }, BOT_ANNOUNCE_MS));
+    }, BOT_THINK_MS));
   }
 
   function showEliminatedState() {
@@ -628,7 +802,7 @@ export function init({ roomId }) {
       } else {
         document.getElementById("statusBar").textContent =
           result.data.status === "tied"
-            ? "It's a tie! Breakout round needed (not yet built)."
+            ? "It's a tie! Loading a new card…"
             : "Round resolved! Waiting for the next round to load…";
       }
     } catch (err) {
@@ -637,6 +811,7 @@ export function init({ roomId }) {
   }
 
   return () => {
+    clearBotTimers();
     if (unsubRoundDoc) unsubRoundDoc();
     unsubscribers.forEach((unsub) => unsub());
   };
