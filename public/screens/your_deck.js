@@ -367,11 +367,11 @@ export function init({ roomId }) {
 
     const overlay = document.createElement("div");
     overlay.style.cssText =
-      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; background:var(--surface-1);`;
+      `position:fixed; top:${topOffset}px; left:0; right:0; bottom:0; z-index:65; display:flex; flex-direction:column; background:var(--surface-1);max-width:380px; margin:auto;padding-bottom:13px;`;
     const navBtn = (id, icon) =>
       `<button id="${id}" aria-label="${id}" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid ${icon}"></i></button>`;
     overlay.innerHTML = `
-      <div style="background:#fff; color:#1a1a1a; padding:14px 16px; display:flex; align-items:center; gap:8px; flex-shrink:0;">
+      <div style="background:#fff; color:#1a1a1a; padding:4px 16px; display:flex; align-items:center; gap:8px; flex-shrink:0;">
         <div id="cardsOverlayTitle" style="font-weight:700; font-size:15px; flex:1;"></div>
         ${entries.length > 1 ? navBtn("cardsPrevBtn", "fa-chevron-left") + navBtn("cardsNextBtn", "fa-chevron-right") : ""}
         <button id="closeWinnerCardBtn" aria-label="Close" style="width:30px; height:30px; border-radius:50%; background:rgba(0,0,0,0.08); border:none; display:flex; align-items:center; justify-content:center; cursor:pointer;"><i class="fa-solid fa-xmark"></i></button>
