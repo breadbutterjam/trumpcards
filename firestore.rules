@@ -28,7 +28,16 @@ service cloud.firestore {
         // player can read their own future cards. Only Cloud Functions (Admin SDK,
         // which bypasses these rules entirely) can write it.
         match /private/{docId} {
-          allow read: if request.auth != null && request.auth.uid == playerId;
+          // Owner can read their own deck. In a vs-Computer room the bot's deck
+          // is also readable by the human in that room (the bot runs client-side
+          // and needs its own card to avoid picking "Low" on a 0 value).
+          allow read: if request.auth != null && (
+            request.auth.uid == playerId
+            || (
+              get(/databases/$(database)/documents/rooms/$(roomId)/players/$(playerId)).data.get('isBot', false) == true
+              && exists(/databases/$(database)/documents/rooms/$(roomId)/players/$(request.auth.uid))
+            )
+          );
           allow write: if false;
         }
       }

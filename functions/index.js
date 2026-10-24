@@ -496,6 +496,13 @@ exports.confirmSelectionAndResolveRound = onCall(async (request) => {
       };
     });
 
+    // "Low" is meaningless when the chooser's own value is already 0, so the
+    // server refuses it (the UI and the bot also avoid offering it).
+    const chooserPlayed = played.find((p) => p.playerId === room.chooserPlayerId);
+    if (direction === "Low" && chooserPlayed && chooserPlayed.statValue === 0) {
+      throw new HttpsError("invalid-argument", "Low can't be chosen when the value is 0.");
+    }
+
     const sorted = played.slice().sort((a, b) =>
       direction === "High"
         ? (a.statValue < b.statValue ? 1 : a.statValue > b.statValue ? -1 : 0)

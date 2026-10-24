@@ -562,15 +562,27 @@ export function init({ roomId }) {
 
     setBotStatus("Computer is thinking…");
 
-    botTimers.push(setTimeout(() => {
+    botTimers.push(setTimeout(async () => {
       if (!stillValid()) return;
       const card = cardById(currentTopCardId);
+      // The bot's own top card is needed to avoid "Low" on a 0 value.
+      let botCard = null;
+      try {
+        const deckSnap = await getDoc(doc(db, "rooms", roomId, "players", botPlayerId, "private", "deck"));
+        botCard = cardById(deckSnap.data().cardOrder[0]);
+      } catch (err) {
+        console.warn("Couldn't read the bot's card; defaulting to High.", err);
+      }
+      if (!stillValid()) return;
       const keys = (Array.isArray(enabledStatKeys) ? enabledStatKeys : Object.keys(card.stats))
         .filter((k) => card.stats[k]);
       let pool = keys.filter((k) => isComparable(card.stats[k]));
       if (pool.length === 0) pool = keys; // nothing comparable: let the server be the judge
       const statKey = pool[Math.floor(Math.random() * pool.length)];
-      const direction = Math.random() < 0.5 ? "High" : "Low";
+      let direction = Math.random() < 0.5 ? "High" : "Low";
+      if (direction === "Low" && (!botCard || !botCard.stats[statKey] || botCard.stats[statKey].value === 0)) {
+        direction = "High";
+      }
 
       setBotStatus(`Computer picked ${card.stats[statKey].label} · ${direction}`);
 
@@ -742,6 +754,14 @@ export function init({ roomId }) {
     document.querySelectorAll(".stat-cell").forEach((el) => el.classList.remove("selected"));
     cellEl.classList.add("selected");
 
+    // A value of exactly 0 can't meaningfully be picked as "Low".
+    const statValue = cardById(currentTopCardId).stats[key].value;
+    const lowBlocked = statValue === 0;
+    const lowBtn = document.getElementById("dirLow");
+    lowBtn.disabled = lowBlocked;
+    lowBtn.style.opacity = lowBlocked ? "0.35" : "";
+    lowBtn.style.pointerEvents = lowBlocked ? "none" : "";
+
     const toggle = document.getElementById("directionToggle");
     toggle.classList.add("show");
     const cardRect = document.querySelector(".reveal-card").getBoundingClientRect();
@@ -755,6 +775,7 @@ export function init({ roomId }) {
   }
 
   function selectDirection(dir) {
+    if (dir === "Low" && cardById(currentTopCardId).stats[selectedStatKey].value === 0) return;
     selectedDirection = dir;
     document.getElementById("dirHigh").classList.toggle("active", dir === "High");
     document.getElementById("dirLow").classList.toggle("active", dir === "Low");

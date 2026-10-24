@@ -23,17 +23,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -73,17 +73,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -173,17 +173,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -383,7 +383,7 @@
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -573,17 +573,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -723,17 +723,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -773,17 +773,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -923,17 +923,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1183,7 +1183,7 @@
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1283,7 +1283,7 @@
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1373,17 +1373,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1398,7 +1398,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -1483,7 +1483,7 @@
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1623,17 +1623,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1648,7 +1648,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -1773,17 +1773,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1798,7 +1798,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -1973,17 +1973,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -1998,7 +1998,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -2073,17 +2073,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2098,7 +2098,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -2133,7 +2133,7 @@
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2323,17 +2323,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2348,7 +2348,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -2383,7 +2383,7 @@
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2473,17 +2473,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2498,7 +2498,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -2573,17 +2573,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2598,7 +2598,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     },
@@ -2673,17 +2673,17 @@
         "wickets": {
           "label": "Wickets",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "economy": {
           "label": "Economy",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "best": {
           "label": "Best",
           "display": "-",
-          "value": "-"
+          "value": 0
         },
         "highest": {
           "label": "Highest",
@@ -2698,7 +2698,7 @@
         "fiveickets": {
           "label": "5Wicket",
           "display": "-",
-          "value": "-"
+          "value": 0
         }
       }
     }
